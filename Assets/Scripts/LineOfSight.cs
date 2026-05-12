@@ -13,6 +13,7 @@ public class LineOfSight : MonoBehaviour
     private SphereCollider detection_collider;
     private Coroutine detect_player;
     private Coroutine lose_target;
+    private Coroutine shoot_coroutine;
 
     void Awake()
     {
@@ -40,6 +41,11 @@ public class LineOfSight : MonoBehaviour
             if(detect_player == null)
             {
                 detect_player = StartCoroutine(DetectPlayer());
+            }
+
+            if(shoot_coroutine == null)
+            {
+                shoot_coroutine = StartCoroutine(parent.ShootTarget(target.transform));
             }
         }
     }
@@ -101,6 +107,9 @@ public class LineOfSight : MonoBehaviour
         {
             StopCoroutine(detect_player);
             detect_player = null;
+
+            StopCoroutine(shoot_coroutine);
+            shoot_coroutine = null;
         }
 
         parent.GoToStartPoint();
