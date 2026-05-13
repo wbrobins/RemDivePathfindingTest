@@ -83,7 +83,7 @@ public class LineOfSight : MonoBehaviour
 
             if(points_hidden >= points.Length)
             {
-                Debug.Log("Player hidden");
+                //Debug.Log("Player hidden");
                 if(shoot_coroutine != null)
                 {
                     StopCoroutine(shoot_coroutine);
@@ -92,7 +92,7 @@ public class LineOfSight : MonoBehaviour
             }
             else
             {
-                Debug.Log("Player visible");
+                //Debug.Log("Player visible");
                 float distance = (parent.GetStartPoint() - parent.transform.position).magnitude;
 
                 bool tooFar = distance > goHomeDistance;
@@ -170,7 +170,7 @@ public class LineOfSight : MonoBehaviour
 
                 if ( cover_distance < target_distance)
                 {
-                    Debug.Log("Point covered");
+                    //Debug.Log("Point covered");
                     return true;  
                 }
                     

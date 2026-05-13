@@ -40,6 +40,7 @@ public class PlayerController : MonoBehaviour
         if (jumpPressed && grounded)
         {
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+            //Debug.Log("Jump!");
             grounded = false;
         }
 
@@ -69,12 +70,23 @@ public class PlayerController : MonoBehaviour
     IEnumerator ShootRoutine()
     {
         //raycast logic here
-        Vector3 fwd = camera.transform.TransformDirection(Vector3.forward);
+        Vector3 origin = camera.transform.position;
+        Vector3 direction = camera.transform.forward;
 
-        if (Physics.Raycast(transform.position, fwd, 10, LayerMask.GetMask("Enemy")))
-            print("Enemy hit");
+        Debug.DrawRay(origin, direction*10f, Color.red, 1f);
 
-
+        if (Physics.Raycast(origin, direction, out RaycastHit hit, 10f))
+        {
+            if (hit.collider.CompareTag("Enemy"))
+            {
+                Debug.Log("Enemy hit");
+            }
+            Debug.Log(hit.collider.name);
+            Debug.Log(hit.collider.gameObject.layer);
+            Debug.Log(hit.collider.tag);
+        }
+        
+        Debug.Log("shooting");
         yield return new WaitForSeconds(shootDelay);
         shooting = false;
     }
