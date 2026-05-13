@@ -97,7 +97,7 @@ public class LineOfSight : MonoBehaviour
 
                 bool tooFar = distance > goHomeDistance;
 
-                if(!tooFar)
+                if(!tooFar) //follow and shoot if player is visible and not too far from start point
                 {
                     parent.FollowTarget(target.transform.position); //follow player if visible
                     if(shoot_coroutine == null) //shoot player if visible
@@ -105,7 +105,7 @@ public class LineOfSight : MonoBehaviour
                         shoot_coroutine = StartCoroutine(parent.ShootTarget(target.transform));
                     }
                 }
-                else
+                else   //return to start point if too far
                 {
                     parent.GoToStartPoint();
                     if(shoot_coroutine != null)
