@@ -1,4 +1,5 @@
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -7,9 +8,11 @@ public class PlayerController : MonoBehaviour
     private Rigidbody rb;
     private new GameObject camera;
     private bool jumpPressed = false;
+    private bool shooting = false;
 
     public float speed = 5.0f;
     public float jumpForce = 5.0f;
+    public float shootDelay = 2.0f;
     public bool grounded = false;
 
     void Start()
@@ -23,6 +26,12 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space))
         {
             jumpPressed = true;
+        }
+
+        if (Input.GetMouseButtonDown(0) && !shooting)
+        {
+            shooting = true;
+            StartCoroutine(ShootRoutine());
         }
     }
 
@@ -55,6 +64,19 @@ public class PlayerController : MonoBehaviour
         );
 
         jumpPressed = false;
+    }
+
+    IEnumerator ShootRoutine()
+    {
+        //raycast logic here
+        Vector3 fwd = camera.transform.TransformDirection(Vector3.forward);
+
+        if (Physics.Raycast(transform.position, fwd, 10, LayerMask.GetMask("Enemy")))
+            print("Enemy hit");
+
+
+        yield return new WaitForSeconds(shootDelay);
+        shooting = false;
     }
 
     void OnCollisionEnter(Collision collision)

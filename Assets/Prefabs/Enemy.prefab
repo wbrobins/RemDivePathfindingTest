@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 1335640675110945377}
   - component: {fileID: 1633139362837425509}
   - component: {fileID: 359201585799234223}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Enemy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -193,7 +193,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8127388097326608257}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: FirePoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -227,7 +227,7 @@ GameObject:
   - component: {fileID: 4716443168889275651}
   - component: {fileID: 63488596763563321}
   - component: {fileID: 4149476323753697815}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -313,7 +313,7 @@ GameObject:
   - component: {fileID: 6942004349372852102}
   - component: {fileID: 2919564594573308768}
   - component: {fileID: 7636142424306639997}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: LineOfSight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
