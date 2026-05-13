@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -5,8 +6,11 @@ public class PlayerController : MonoBehaviour
 {
     private Rigidbody rb;
     private new GameObject camera;
+    private bool jumpPressed = false;
 
     public float speed = 5.0f;
+    public float jumpForce = 5.0f;
+    public bool grounded = false;
 
     void Start()
     {
@@ -14,8 +18,22 @@ public class PlayerController : MonoBehaviour
         camera = GameObject.Find("Camera");
     }
 
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            jumpPressed = true;
+        }
+    }
+
     void FixedUpdate()
     {
+        if (jumpPressed && grounded)
+        {
+            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+            grounded = false;
+        }
+
         float x = Input.GetAxisRaw("Horizontal");
         float z = Input.GetAxisRaw("Vertical");
 
@@ -35,5 +53,15 @@ public class PlayerController : MonoBehaviour
             rb.linearVelocity.y,
             moveDirection.z * speed
         );
+
+        jumpPressed = false;
+    }
+
+    void OnCollisionEnter(Collision collision)
+    {
+        if (collision.collider.CompareTag("Ground"))
+        {
+            grounded = true;
+        }
     }
 }
