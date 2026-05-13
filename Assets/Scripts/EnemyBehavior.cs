@@ -29,6 +29,11 @@ public class EnemyBehavior : MonoBehaviour
         startPoint = transform.position;
     }
 
+    public Vector3 GetStartPoint()
+    {
+        return startPoint;
+    }
+    
     public void GoToStartPoint()
     {
         agent.stoppingDistance = 0;

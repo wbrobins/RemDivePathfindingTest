@@ -7,6 +7,7 @@ public class LineOfSight : MonoBehaviour
     [SerializeField] private EnemyBehavior parent;
     [SerializeField] private float losAngle = 70.0f;
     [SerializeField] private float followDelay = 3f;
+    [SerializeField] private float goHomeDistance = 30f;
 
 
     private Collider player_collider;
@@ -92,12 +93,29 @@ public class LineOfSight : MonoBehaviour
             else
             {
                 Debug.Log("Player visible");
-                parent.FollowTarget(target.transform.position); //follow player if visible
+                float distance = (parent.GetStartPoint() - parent.transform.position).magnitude;
 
-                if(shoot_coroutine == null) //shoot player if visible
+                bool tooFar = distance > goHomeDistance;
+
+                if(!tooFar)
                 {
-                    shoot_coroutine = StartCoroutine(parent.ShootTarget(target.transform));
+                    parent.FollowTarget(target.transform.position); //follow player if visible
+                    if(shoot_coroutine == null) //shoot player if visible
+                    {
+                        shoot_coroutine = StartCoroutine(parent.ShootTarget(target.transform));
+                    }
                 }
+                else
+                {
+                    parent.GoToStartPoint();
+                    if(shoot_coroutine != null)
+                    {
+                        StopCoroutine(shoot_coroutine);
+                        shoot_coroutine = null;
+                    }
+
+                }
+                
             }
         }
     }
