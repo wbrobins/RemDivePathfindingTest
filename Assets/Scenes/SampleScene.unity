@@ -133,7 +133,7 @@ GameObject:
   - component: {fileID: 31096272}
   m_Layer: 3
   m_Name: Wall
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -279,7 +279,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 5
+  m_Radius: 10
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &31519914
 MonoBehaviour:
@@ -462,7 +462,7 @@ GameObject:
   - component: {fileID: 215383236}
   m_Layer: 3
   m_Name: Wall (2)
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -911,10 +911,10 @@ MonoBehaviour:
   agent: {fileID: 898139089}
   player: {fileID: 0}
   following: 0
-  stopDistance: 2.5
+  stopDistance: 5
   projectilePrefab: {fileID: 3900131945318901171, guid: 117a0b9f71d2d604ebbd630793c4db84, type: 3}
   shootDelay: 3
-  projectileSpeed: 10
+  projectileSpeed: 5
   firePoint: {fileID: 1527741657}
 --- !u!1 &916069593
 GameObject:
@@ -1071,7 +1071,7 @@ GameObject:
   - component: {fileID: 962608262}
   m_Layer: 3
   m_Name: Wall (1)
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

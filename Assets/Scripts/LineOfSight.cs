@@ -42,11 +42,6 @@ public class LineOfSight : MonoBehaviour
             {
                 detect_player = StartCoroutine(DetectPlayer());
             }
-
-            if(shoot_coroutine == null)
-            {
-                shoot_coroutine = StartCoroutine(parent.ShootTarget(target.transform));
-            }
         }
     }
 
@@ -88,11 +83,21 @@ public class LineOfSight : MonoBehaviour
             if(points_hidden >= points.Length)
             {
                 Debug.Log("Player hidden");
+                if(shoot_coroutine != null)
+                {
+                    StopCoroutine(shoot_coroutine);
+                    shoot_coroutine = null;
+                }
             }
             else
             {
                 Debug.Log("Player visible");
                 parent.FollowTarget(target.transform.position); //follow player if visible
+
+                if(shoot_coroutine == null) //shoot player if visible
+                {
+                    shoot_coroutine = StartCoroutine(parent.ShootTarget(target.transform));
+                }
             }
         }
     }
@@ -107,7 +112,10 @@ public class LineOfSight : MonoBehaviour
         {
             StopCoroutine(detect_player);
             detect_player = null;
+        }
 
+        if(shoot_coroutine != null)
+        {
             StopCoroutine(shoot_coroutine);
             shoot_coroutine = null;
         }

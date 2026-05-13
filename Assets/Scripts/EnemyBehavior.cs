@@ -31,11 +31,13 @@ public class EnemyBehavior : MonoBehaviour
 
     public void GoToStartPoint()
     {
+        agent.stoppingDistance = 0;
         agent.SetDestination(startPoint);
     }
 
     public void FollowTarget(Vector3 position)
     {
+        agent.stoppingDistance = stopDistance;
         agent.SetDestination(position);
         transform.LookAt(position);
     }

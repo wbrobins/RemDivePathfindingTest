@@ -10,6 +10,11 @@ public class Projectile : MonoBehaviour
         StartCoroutine(DespawnRoutine());
     }
 
+    public void SetDespawnDelay(float delay)
+    {
+        despawnDelay = delay;
+    }
+
     IEnumerator DespawnRoutine()
     {
         yield return new WaitForSeconds(despawnDelay);
@@ -18,7 +23,7 @@ public class Projectile : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player"))
+        if (other.CompareTag("Player") || other.CompareTag("Wall"))
         {
             Destroy(gameObject);
         }
