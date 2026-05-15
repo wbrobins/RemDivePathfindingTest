@@ -8,22 +8,30 @@ public class EnemyBehavior : MonoBehaviour
     public GameObject player;
     public bool following;
     private Vector3 startPoint;
-
-    [SerializeField] private float stopDistance = 2.5f;
+    private Transform firePoint;
     [SerializeField] private GameObject projectilePrefab;
-    [SerializeField] private float shootDelay = 3.0f;
-    [SerializeField] private float projectileSpeed = 10f;
-    [SerializeField] private Transform firePoint;
 
+    public string enemyId;
+
+    public Enemy Enemy {get; private set;}
+
+    
     void Awake()
     {
-        agent.stoppingDistance = stopDistance;
+        SetUp(new Enemy(enemyId));
+    }
+
+    public void SetUp(Enemy enemy)
+    {
+        Enemy = enemy;
+        agent.stoppingDistance = Enemy.StopDistance;
     }
 
     void Start()
     {
         //init
         player = GameObject.Find("Player");
+        firePoint = transform.Find("FirePoint");
 
         //get current position as start
         startPoint = transform.position;
@@ -42,7 +50,7 @@ public class EnemyBehavior : MonoBehaviour
 
     public void FollowTarget(Vector3 position)
     {
-        agent.stoppingDistance = stopDistance;
+        agent.stoppingDistance = Enemy.StopDistance;
         agent.SetDestination(position);
         transform.LookAt(position);
     }
@@ -51,7 +59,7 @@ public class EnemyBehavior : MonoBehaviour
     {
         while (true)
         {
-            yield return new WaitForSeconds(shootDelay);
+            yield return new WaitForSeconds(Enemy.ShootDelay);
 
             GameObject projectile = Instantiate(projectilePrefab, firePoint.position, Quaternion.identity);
 
@@ -59,7 +67,18 @@ public class EnemyBehavior : MonoBehaviour
             Vector3 direction = (aimPoint - firePoint.position).normalized;
 
             Rigidbody rb = projectile.GetComponent<Rigidbody>();
-            rb.linearVelocity = direction * projectileSpeed;
+            rb.linearVelocity = direction * Enemy.ProjectileSpeed;
+        }
+    }
+
+    public void TakeDamage(int damage)
+    {
+        Enemy.Hit(damage);
+        Debug.Log("Damage done: " + damage);
+        if (Enemy.HP == 0)
+        {
+            Destroy(gameObject);
+            Debug.Log("Enemy killed");
         }
     }
 }

@@ -79,14 +79,19 @@ public class PlayerController : MonoBehaviour
         {
             if (hit.collider.CompareTag("Enemy"))
             {
-                Debug.Log("Enemy hit");
+                EnemyBehavior enemyBehavior= hit.collider.GetComponent<EnemyBehavior>();
+
+                if(enemyBehavior != null)
+                {
+                    enemyBehavior.TakeDamage(1);
+                }
             }
-            Debug.Log(hit.collider.name);
-            Debug.Log(hit.collider.gameObject.layer);
-            Debug.Log(hit.collider.tag);
+            //Debug.Log(hit.collider.name);
+            //Debug.Log(hit.collider.gameObject.layer);
+            //Debug.Log(hit.collider.tag);
         }
         
-        Debug.Log("shooting");
+        //Debug.Log("shooting");
         yield return new WaitForSeconds(shootDelay);
         shooting = false;
     }
