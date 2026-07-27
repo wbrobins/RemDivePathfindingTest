@@ -1,29 +1,33 @@
 using System.Collections;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.InputSystem;
+
+public enum MovementState
+{
+    Walking,
+    Sprinting,
+    Jumping,
+    Sliding
+}
 
 public class PlayerController : MonoBehaviour
 {
     private Rigidbody rb;
     private new GameObject camera;
-    private bool jumpPressed = false;
-    private bool shooting = false;
-    private bool sprinting = false;
-    private float sprintSpeed;
-    private float baseSpeed;
+    [SerializeField] private float walkSpeed = 5f;
+    [SerializeField] private float sprintSpeed = 10f;
+    [SerializeField] private float jumpForce = 5f;
+    [SerializeField] private float shootDelay = 2.0f;
 
-    public float speed = 5.0f;
-    public float jumpForce = 5.0f;
-    public float shootDelay = 2.0f;
-    public bool grounded = false;
+    private bool jumpPressed;
+    private bool grounded;
+    private bool shooting = false;
+
+    private MovementState currState = MovementState.Walking;
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         camera = GameObject.Find("Camera");
-        baseSpeed = speed;
-        sprintSpeed = speed*2;
     }
 
     void Update()
@@ -33,40 +37,39 @@ public class PlayerController : MonoBehaviour
             jumpPressed = true;
         }
 
+        UpdateMovementState();
+
         if (Input.GetMouseButtonDown(0) && !shooting)
         {
             shooting = true;
             StartCoroutine(ShootRoutine());
         }
-
-        if (Input.GetKey(KeyCode.LeftShift))
-        {
-            sprinting = true;
-        }
-        else
-        {
-            sprinting = false;
-        }
     }
 
     void FixedUpdate()
     {
-        if (sprinting)
+        HandleMovement();
+        HandleJump();
+    }
+
+    void UpdateMovementState()
+    {
+        if (!grounded)
         {
-            speed = sprintSpeed;
+            currState = MovementState.Jumping;
+        }
+        else if (Input.GetKey(KeyCode.LeftShift))
+        {
+            currState = MovementState.Sprinting;
         }
         else
         {
-            speed = baseSpeed;
+            currState = MovementState.Walking;
         }
-        
-        if (jumpPressed && grounded)
-        {
-            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-            //Debug.Log("Jump!");
-            grounded = false;
-        }
+    }
 
+    void HandleMovement()
+    {
         float x = Input.GetAxisRaw("Horizontal");
         float z = Input.GetAxisRaw("Vertical");
 
@@ -81,11 +84,38 @@ public class PlayerController : MonoBehaviour
 
         Vector3 moveDirection = (right * x + forward * z).normalized;
 
+        float moveSpeed = walkSpeed;
+
+        switch (currState)
+        {
+            case MovementState.Walking:
+                moveSpeed = walkSpeed;
+                break;
+            case MovementState.Sprinting:
+                moveSpeed = sprintSpeed;
+                break;
+            case MovementState.Jumping:
+                moveSpeed = walkSpeed;
+                break;
+        }
+
+        Debug.Log(moveSpeed);
         rb.linearVelocity = new Vector3(
-            moveDirection.x * speed,
+            moveDirection.x * moveSpeed,
             rb.linearVelocity.y,
-            moveDirection.z * speed
+            moveDirection.z * moveSpeed
         );
+        Debug.Log(currState);
+    }
+
+    void HandleJump()
+    {
+        if (jumpPressed && grounded)
+        {
+            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+            //Debug.Log("Jump!");
+            grounded = false;
+        }
 
         jumpPressed = false;
     }
