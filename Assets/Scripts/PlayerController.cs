@@ -9,6 +9,9 @@ public class PlayerController : MonoBehaviour
     private new GameObject camera;
     private bool jumpPressed = false;
     private bool shooting = false;
+    private bool sprinting = false;
+    private float sprintSpeed;
+    private float baseSpeed;
 
     public float speed = 5.0f;
     public float jumpForce = 5.0f;
@@ -19,6 +22,8 @@ public class PlayerController : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         camera = GameObject.Find("Camera");
+        baseSpeed = speed;
+        sprintSpeed = speed*2;
     }
 
     void Update()
@@ -33,10 +38,28 @@ public class PlayerController : MonoBehaviour
             shooting = true;
             StartCoroutine(ShootRoutine());
         }
+
+        if (Input.GetKey(KeyCode.LeftShift))
+        {
+            sprinting = true;
+        }
+        else
+        {
+            sprinting = false;
+        }
     }
 
     void FixedUpdate()
     {
+        if (sprinting)
+        {
+            speed = sprintSpeed;
+        }
+        else
+        {
+            speed = baseSpeed;
+        }
+        
         if (jumpPressed && grounded)
         {
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);

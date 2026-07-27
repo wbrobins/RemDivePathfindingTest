@@ -152,11 +152,8 @@ MonoBehaviour:
   agent: {fileID: 1335640675110945377}
   player: {fileID: 0}
   following: 0
-  stopDistance: 5
   projectilePrefab: {fileID: 3900131945318901171, guid: 117a0b9f71d2d604ebbd630793c4db84, type: 3}
-  shootDelay: 3
-  projectileSpeed: 5
-  firePoint: {fileID: 8127388097326608257}
+  enemyId: Enemy1
 --- !u!54 &359201585799234223
 Rigidbody:
   m_ObjectHideFlags: 0
