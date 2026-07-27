@@ -12,22 +12,33 @@ public enum MovementState
 public class PlayerController : MonoBehaviour
 {
     private Rigidbody rb;
-    private new GameObject camera;
+
+    [SerializeField] private new GameObject camera;
+    [SerializeField] private Transform cameraTransform;
+    [SerializeField] private float standingHeight = 1.0f;
+    [SerializeField] private float slidingHeight = -1.0f;
+    [SerializeField] private float cameraTransitionSpeed = 10f;
+    private float targetCameraHeight;
+
     [SerializeField] private float walkSpeed = 5f;
     [SerializeField] private float sprintSpeed = 10f;
     [SerializeField] private float jumpForce = 5f;
     [SerializeField] private float shootDelay = 2.0f;
+    [SerializeField] private float slideSpeed = 15f;
+    [SerializeField] private float slideDuration = .75f;
 
     private bool jumpPressed;
     private bool grounded;
     private bool shooting = false;
+    private float slideTimer;
+    private Vector3 slideDirection;
 
     private MovementState currState = MovementState.Walking;
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-        camera = GameObject.Find("Camera");
+        targetCameraHeight = standingHeight;
     }
 
     void Update()
@@ -37,7 +48,13 @@ public class PlayerController : MonoBehaviour
             jumpPressed = true;
         }
 
+        if (Input.GetKeyDown(KeyCode.LeftControl) && currState == MovementState.Sprinting)
+        {
+            EnterSlide();
+        }
+
         UpdateMovementState();
+        UpdateCameraHeight();
 
         if (Input.GetMouseButtonDown(0) && !shooting)
         {
@@ -52,8 +69,26 @@ public class PlayerController : MonoBehaviour
         HandleJump();
     }
 
+    void UpdateCameraHeight()
+    {
+        Vector3 cameraPosition = cameraTransform.localPosition;
+
+        cameraPosition.y = Mathf.Lerp(
+            cameraPosition.y,
+            targetCameraHeight,
+            Time.deltaTime * cameraTransitionSpeed
+        );
+
+        cameraTransform.localPosition = cameraPosition;
+    }
+
     void UpdateMovementState()
     {
+        if(currState == MovementState.Sliding)
+        {
+            return;
+        }
+
         if (!grounded)
         {
             currState = MovementState.Jumping;
@@ -94,6 +129,9 @@ public class PlayerController : MonoBehaviour
             case MovementState.Sprinting:
                 moveSpeed = sprintSpeed;
                 break;
+            case MovementState.Sliding:
+                HandleSlide();
+                return;
             case MovementState.Jumping:
                 moveSpeed = walkSpeed;
                 break;
@@ -118,6 +156,30 @@ public class PlayerController : MonoBehaviour
         }
 
         jumpPressed = false;
+    }
+
+    void EnterSlide()
+    {
+        currState = MovementState.Sliding;
+
+        slideTimer = slideDuration;
+
+        targetCameraHeight = slidingHeight;
+
+        slideDirection = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z).normalized;
+    }
+
+    void HandleSlide()
+    {
+        slideTimer -= Time.fixedDeltaTime;
+
+        rb.linearVelocity = slideDirection * slideSpeed + Vector3.up * rb.linearVelocity.y;
+
+        if(slideTimer <= 0)
+        {
+            targetCameraHeight = standingHeight;
+            currState = grounded ? MovementState.Walking : MovementState.Jumping;
+        }
     }
 
     IEnumerator ShootRoutine()
