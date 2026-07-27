@@ -1307,7 +1307,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   camera: {fileID: 86345862}
   cameraTransform: {fileID: 223209625}
-  standingHeight: 1
+  standingHeight: 0
   slidingHeight: -1
   cameraTransitionSpeed: 10
   walkSpeed: 5
@@ -1317,6 +1317,7 @@ MonoBehaviour:
   slideSpeed: 15
   slideDuration: 0.75
   slideJumpMultiplier: 1.2
+  airControlStrength: 2
 --- !u!136 &1100037932
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -1559,7 +1560,7 @@ GameObject:
   - component: {fileID: 1271540662}
   m_Layer: 3
   m_Name: Platform
-  m_TagString: Untagged
+  m_TagString: Ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

@@ -6,7 +6,8 @@ public enum MovementState
     Walking,
     Sprinting,
     Jumping,
-    Sliding
+    Sliding,
+    JumpSliding
 }
 
 public class PlayerController : MonoBehaviour
@@ -27,6 +28,16 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float slideSpeed = 15f;
     [SerializeField] private float slideDuration = .75f;
     [SerializeField] private float slideJumpMultiplier = 1.2f;
+
+    [Header("Air Control")]
+    [Tooltip("Higher = more responsive air steering, lower = more momentum preserved")]
+    [SerializeField] private float airControlStrength = 2f;
+
+    [Header("Ground Check")]
+    [Tooltip("Empty transform positioned at the player's feet")]
+    [SerializeField] private Transform groundCheck;
+    [SerializeField] private float groundCheckRadius = 0.3f;
+    [SerializeField] private LayerMask groundCheckMask = ~0;
 
     private bool jumpPressed;
     private bool grounded;
@@ -71,8 +82,30 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
+        CheckGrounded();
         HandleMovement();
         HandleJump();
+    }
+
+    void CheckGrounded()
+    {
+        if (rb.linearVelocity.y > 0.1f)
+        {
+            grounded = false;
+            return;
+        }
+
+        Collider[] hits = Physics.OverlapSphere(groundCheck.position, groundCheckRadius, groundCheckMask);
+
+        grounded = false;
+        foreach (var hit in hits)
+        {
+            if (hit.CompareTag("Ground") || hit.CompareTag("Wall"))
+            {
+                grounded = true;
+                break;
+            }
+        }
     }
 
     void UpdateCameraHeight()
@@ -90,8 +123,25 @@ public class PlayerController : MonoBehaviour
 
     void UpdateMovementState()
     {
-        if(currState == MovementState.Sliding)
+        if (currState == MovementState.Sliding)
         {
+            return;
+        }
+
+        if (currState == MovementState.JumpSliding)
+        {
+            if (grounded)
+            {
+                if (Input.GetKey(KeyCode.LeftControl))
+                {
+                    EnterSlide();
+                }
+                else
+                {
+                    targetCameraHeight = standingHeight;
+                    currState = Input.GetKey(KeyCode.LeftShift) ? MovementState.Sprinting : MovementState.Walking;
+                }
+            }
             return;
         }
 
@@ -125,31 +175,45 @@ public class PlayerController : MonoBehaviour
 
         Vector3 moveDirection = (right * x + forward * z).normalized;
 
-        float moveSpeed = walkSpeed;
-
         switch (currState)
         {
             case MovementState.Walking:
-                moveSpeed = walkSpeed;
+                SetGroundVelocity(moveDirection, walkSpeed);
                 break;
             case MovementState.Sprinting:
-                moveSpeed = sprintSpeed;
+                SetGroundVelocity(moveDirection, sprintSpeed);
                 break;
             case MovementState.Sliding:
                 HandleSlide();
-                return;
+                break;
             case MovementState.Jumping:
-                moveSpeed = walkSpeed;
+            case MovementState.JumpSliding:
+                ApplyAirControl(moveDirection, walkSpeed);
                 break;
         }
+    }
 
-        //Debug.Log(moveSpeed);
+    void SetGroundVelocity(Vector3 moveDirection, float moveSpeed)
+    {
         rb.linearVelocity = new Vector3(
             moveDirection.x * moveSpeed,
             rb.linearVelocity.y,
             moveDirection.z * moveSpeed
         );
-        //Debug.Log(currState);
+    }
+
+    void ApplyAirControl(Vector3 moveDirection, float moveSpeed)
+    {
+        Vector3 currentHorizontal = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
+        Vector3 desiredHorizontal = moveDirection * moveSpeed;
+
+        Vector3 newHorizontal = Vector3.Lerp(
+            currentHorizontal,
+            desiredHorizontal,
+            Time.fixedDeltaTime * airControlStrength
+        );
+
+        rb.linearVelocity = new Vector3(newHorizontal.x, rb.linearVelocity.y, newHorizontal.z);
     }
 
     void HandleJump()
@@ -158,22 +222,35 @@ public class PlayerController : MonoBehaviour
         {
             if (currState == MovementState.Sliding)
             {
-                Vector3 slideMomentum = slideDirection * slideSpeed * slideJumpMultiplier;
+                Vector3 launchDirection = GetCameraFlatForward();
+
+                Vector3 slideMomentum = launchDirection * slideSpeed * slideJumpMultiplier;
                 rb.linearVelocity = new Vector3(slideMomentum.x, rb.linearVelocity.y, slideMomentum.z);
-                Debug.Log("Slide Jump Here");
-                ExitSlide();
                 rb.AddForce(Vector3.up * jumpForce * slideJumpMultiplier, ForceMode.Impulse);
                 EnterJumpSlide();
             }
             else
             {
-              rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);  
+                rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
             }
-            //Debug.Log("Jump!");
+
             grounded = false;
         }
 
         jumpPressed = false;
+    }
+
+    Vector3 GetCameraFlatForward()
+    {
+        Vector3 forward = camera.transform.forward;
+        forward.y = 0f;
+
+        if (forward.sqrMagnitude < 0.0001f)
+        {
+            return slideDirection;
+        }
+
+        return forward.normalized;
     }
 
     void EnterSlide()
@@ -200,7 +277,7 @@ public class PlayerController : MonoBehaviour
 
         rb.linearVelocity = slideDirection * slideSpeed + Vector3.up * rb.linearVelocity.y;
 
-        if(slideTimer <= 0)
+        if (slideTimer <= 0)
         {
             ExitSlide();
         }
@@ -208,7 +285,9 @@ public class PlayerController : MonoBehaviour
 
     void EnterJumpSlide()
     {
-        
+        currState = MovementState.JumpSliding;
+
+        targetCameraHeight = standingHeight;
     }
 
     IEnumerator ShootRoutine()
@@ -217,34 +296,23 @@ public class PlayerController : MonoBehaviour
         Vector3 origin = camera.transform.position;
         Vector3 direction = camera.transform.forward;
 
-        Debug.DrawRay(origin, direction*10f, Color.red, 1f);
+        Debug.DrawRay(origin, direction * 10f, Color.red, 1f);
 
         if (Physics.Raycast(origin, direction, out RaycastHit hit, 10f))
         {
             if (hit.collider.CompareTag("Enemy"))
             {
-                EnemyBehavior enemyBehavior= hit.collider.GetComponent<EnemyBehavior>();
+                EnemyBehavior enemyBehavior = hit.collider.GetComponent<EnemyBehavior>();
 
-                if(enemyBehavior != null)
+                if (enemyBehavior != null)
                 {
                     enemyBehavior.TakeDamage(1);
                 }
             }
-            //Debug.Log(hit.collider.name);
-            //Debug.Log(hit.collider.gameObject.layer);
-            //Debug.Log(hit.collider.tag);
         }
-        
-        //Debug.Log("shooting");
+
         yield return new WaitForSeconds(shootDelay);
         shooting = false;
     }
 
-    void OnCollisionEnter(Collision collision)
-    {
-        if (collision.collider.CompareTag("Ground") || collision.collider.CompareTag("Wall"))
-        {
-            grounded = true;
-        }
-    }
 }
