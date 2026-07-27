@@ -26,6 +26,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float shootDelay = 2.0f;
     [SerializeField] private float slideSpeed = 15f;
     [SerializeField] private float slideDuration = .75f;
+    [SerializeField] private float slideJumpMultiplier = 1.2f;
 
     private bool jumpPressed;
     private bool grounded;
@@ -43,6 +44,11 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        if (currState == MovementState.Sliding && !Input.GetKey(KeyCode.LeftControl))
+        {
+            ExitSlide();
+        }
+
         if (Input.GetKeyDown(KeyCode.Space))
         {
             jumpPressed = true;
@@ -137,19 +143,25 @@ public class PlayerController : MonoBehaviour
                 break;
         }
 
-        Debug.Log(moveSpeed);
+        //Debug.Log(moveSpeed);
         rb.linearVelocity = new Vector3(
             moveDirection.x * moveSpeed,
             rb.linearVelocity.y,
             moveDirection.z * moveSpeed
         );
-        Debug.Log(currState);
+        //Debug.Log(currState);
     }
 
     void HandleJump()
     {
         if (jumpPressed && grounded)
         {
+            if (currState == MovementState.Sliding)
+            {
+                rb.linearVelocity += slideDirection * slideSpeed * slideJumpMultiplier;
+                ExitSlide();
+                Debug.Log("Slide Jump Here");
+            }
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
             //Debug.Log("Jump!");
             grounded = false;
@@ -169,6 +181,13 @@ public class PlayerController : MonoBehaviour
         slideDirection = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z).normalized;
     }
 
+    void ExitSlide()
+    {
+        targetCameraHeight = standingHeight;
+
+        currState = Input.GetKey(KeyCode.LeftShift) ? MovementState.Sprinting : MovementState.Walking;
+    }
+
     void HandleSlide()
     {
         slideTimer -= Time.fixedDeltaTime;
@@ -177,8 +196,7 @@ public class PlayerController : MonoBehaviour
 
         if(slideTimer <= 0)
         {
-            targetCameraHeight = standingHeight;
-            currState = grounded ? MovementState.Walking : MovementState.Jumping;
+            ExitSlide();
         }
     }
 
