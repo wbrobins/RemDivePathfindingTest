@@ -158,11 +158,17 @@ public class PlayerController : MonoBehaviour
         {
             if (currState == MovementState.Sliding)
             {
-                rb.linearVelocity += slideDirection * slideSpeed * slideJumpMultiplier;
-                ExitSlide();
+                Vector3 slideMomentum = slideDirection * slideSpeed * slideJumpMultiplier;
+                rb.linearVelocity = new Vector3(slideMomentum.x, rb.linearVelocity.y, slideMomentum.z);
                 Debug.Log("Slide Jump Here");
+                ExitSlide();
+                rb.AddForce(Vector3.up * jumpForce * slideJumpMultiplier, ForceMode.Impulse);
+                EnterJumpSlide();
             }
-            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+            else
+            {
+              rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);  
+            }
             //Debug.Log("Jump!");
             grounded = false;
         }
@@ -198,6 +204,11 @@ public class PlayerController : MonoBehaviour
         {
             ExitSlide();
         }
+    }
+
+    void EnterJumpSlide()
+    {
+        
     }
 
     IEnumerator ShootRoutine()

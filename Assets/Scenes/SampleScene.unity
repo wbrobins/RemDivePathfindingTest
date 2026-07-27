@@ -1308,14 +1308,15 @@ MonoBehaviour:
   camera: {fileID: 86345862}
   cameraTransform: {fileID: 223209625}
   standingHeight: 1
-  slidingHeight: 0
+  slidingHeight: -1
   cameraTransitionSpeed: 10
   walkSpeed: 5
   sprintSpeed: 10
-  jumpForce: 5
+  jumpForce: 20
   shootDelay: 2
   slideSpeed: 15
   slideDuration: 0.75
+  slideJumpMultiplier: 1.2
 --- !u!136 &1100037932
 CapsuleCollider:
   m_ObjectHideFlags: 0
