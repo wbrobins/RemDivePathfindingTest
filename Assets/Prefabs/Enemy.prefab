@@ -153,6 +153,7 @@ MonoBehaviour:
   player: {fileID: 0}
   following: 0
   projectilePrefab: {fileID: 3900131945318901171, guid: 117a0b9f71d2d604ebbd630793c4db84, type: 3}
+  knockbackRecoveryDelay: 0.4
   enemyId: Enemy1
 --- !u!54 &359201585799234223
 Rigidbody:
@@ -162,7 +163,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1513446171409640933}
   serializedVersion: 4
-  m_Mass: 1
+  m_Mass: 2
   m_Drag: 0
   m_AngularDrag: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}

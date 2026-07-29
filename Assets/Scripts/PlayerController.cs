@@ -313,9 +313,9 @@ public class PlayerController : MonoBehaviour
         Vector3 origin = camera.transform.position;
         Vector3 direction = camera.transform.forward;
 
-        Debug.DrawRay(origin, direction * 10f, Color.red, 1f);
+        Debug.DrawRay(origin, direction * 50f, Color.red, 1f);
 
-        if (Physics.Raycast(origin, direction, out RaycastHit hit, 10f))
+        if (Physics.Raycast(origin, direction, out RaycastHit hit, 50f))
         {
             if (hit.collider.CompareTag("Enemy"))
             {
@@ -324,6 +324,15 @@ public class PlayerController : MonoBehaviour
                 if (enemyBehavior != null)
                 {
                     enemyBehavior.TakeDamage(1);
+                }
+            } 
+            else if (hit.collider.CompareTag("Explodable"))
+            {
+                ExplosiveBarrel explosiveBarrel = hit.collider.GetComponent<ExplosiveBarrel>();
+
+                if(explosiveBarrel != null)
+                {
+                    explosiveBarrel.Explode();
                 }
             }
         }
