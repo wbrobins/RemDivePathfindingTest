@@ -63,9 +63,12 @@ public class EnemyBehavior : MonoBehaviour
 
     public void FollowTarget(Vector3 position)
     {
-        agent.stoppingDistance = Enemy.StopDistance;
-        agent.SetDestination(position);
-        transform.LookAt(position);
+        if(agent.enabled == true)
+        {
+            agent.stoppingDistance = Enemy.StopDistance;
+            agent.SetDestination(position);
+            transform.LookAt(position); 
+        }
     }
 
     public IEnumerator ShootTarget(Transform target)
@@ -137,6 +140,7 @@ public class EnemyBehavior : MonoBehaviour
         agent.enabled = true;
         rb.isKinematic = true;
         agent.Warp(transform.position); // resync the agent's internal state to the post-knockback position
+        GoToStartPoint();
 
         knockbackRoutine = null;
     }
