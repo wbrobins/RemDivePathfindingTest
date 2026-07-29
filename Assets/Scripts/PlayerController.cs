@@ -5,6 +5,7 @@ public enum MovementState
 {
     Walking,
     Sprinting,
+    Crouching,
     Jumping,
     Sliding,
     JumpSliding
@@ -23,6 +24,8 @@ public class PlayerController : MonoBehaviour
 
     [SerializeField] private float walkSpeed = 5f;
     [SerializeField] private float sprintSpeed = 10f;
+    [SerializeField] private float crouchSpeed = 2.5f;
+    [SerializeField] private float crouchHeight = -0.5f;
     [SerializeField] private float jumpForce = 5f;
     [SerializeField] private float shootDelay = 2.0f;
     [SerializeField] private float slideSpeed = 15f;
@@ -50,6 +53,9 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+
+        rb.interpolation = RigidbodyInterpolation.Interpolate;
+
         targetCameraHeight = standingHeight;
     }
 
@@ -149,13 +155,21 @@ public class PlayerController : MonoBehaviour
         {
             currState = MovementState.Jumping;
         }
+        else if (Input.GetKey(KeyCode.LeftControl))
+        {
+            // Crouch takes priority over sprint if both are held
+            currState = MovementState.Crouching;
+            targetCameraHeight = crouchHeight;
+        }
         else if (Input.GetKey(KeyCode.LeftShift))
         {
             currState = MovementState.Sprinting;
+            targetCameraHeight = standingHeight;
         }
         else
         {
             currState = MovementState.Walking;
+            targetCameraHeight = standingHeight;
         }
     }
 
@@ -182,6 +196,9 @@ public class PlayerController : MonoBehaviour
                 break;
             case MovementState.Sprinting:
                 SetGroundVelocity(moveDirection, sprintSpeed);
+                break;
+            case MovementState.Crouching:
+                SetGroundVelocity(moveDirection, crouchSpeed);
                 break;
             case MovementState.Sliding:
                 HandleSlide();
