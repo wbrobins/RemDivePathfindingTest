@@ -182,7 +182,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 20293344}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -242,6 +242,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   camera: {fileID: 86345862}
   shootDelay: 0.5
+  weaponId: Pistol
+  weapons:
+  - Pistol
+  - Shotgun
 --- !u!1 &31096271
 GameObject:
   m_ObjectHideFlags: 0

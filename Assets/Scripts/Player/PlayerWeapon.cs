@@ -1,4 +1,5 @@
 using System.Collections;
+using NUnit.Framework;
 using UnityEngine;
 
 public class PlayerWeapon : MonoBehaviour
@@ -8,12 +9,14 @@ public class PlayerWeapon : MonoBehaviour
     [SerializeField] private float shootDelay = .1f;
 
     public string weaponId;
-    public Weapon Weapon {get; private set;}
+    public string[] weapons;
+    public Weapon CurrWeapon {get; private set;}
+    private GameObject currWeaponPrefab;
 
     void Awake()
     {
-        Weapon = new Weapon(weaponId);
-        shootDelay = Weapon.Base.ShootDelay;
+        Assert.IsNotEmpty(weapons);
+        SetWeapon(0);
     }
 
     void Update()
@@ -23,6 +26,27 @@ public class PlayerWeapon : MonoBehaviour
             shooting = true;
             StartCoroutine(ShootRoutine());
         }
+
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            SetWeapon(0);
+        } 
+        else if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            SetWeapon(1);
+        }
+    }
+
+    void SetWeapon(int slot)
+    {
+        if(CurrWeapon != null)
+        {
+            Destroy(currWeaponPrefab);
+        }
+        CurrWeapon = new Weapon(weapons[slot]);
+        shootDelay = CurrWeapon.Base.ShootDelay;
+        Debug.Log("Current Weapon: " + CurrWeapon.Base.Name);
+        currWeaponPrefab = Instantiate(CurrWeapon.Base.BasePrefab, transform.position, camera.transform.rotation, transform);
     }
 
     IEnumerator ShootRoutine()

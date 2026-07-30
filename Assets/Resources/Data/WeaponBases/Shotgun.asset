@@ -10,8 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 511418679f0640948a5c94f6d61d0e9c, type: 3}
-  m_Name: Pistol
+  m_Name: Shotgun
   m_EditorClassIdentifier: 
-  weaponName: Pistol
-  shootDelay: 0.3
-  basePrefab: {fileID: 5932101213155506952, guid: 96fa66195e863c64c81dd01831abff92, type: 3}
+  weaponName: Shotgun
+  shootDelay: 1
+  basePrefab: {fileID: 1543581443964988012, guid: 8d2f2020e0f8761469be8aa2a4cfd063, type: 3}
