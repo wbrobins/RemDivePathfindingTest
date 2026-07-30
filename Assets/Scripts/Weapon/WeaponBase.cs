@@ -1,16 +1,14 @@
 using UnityEngine;
 
-public class WeaponBase : MonoBehaviour
+[CreateAssetMenu(fileName = "New Weapon", menuName = "Weapons/Create new weapon")]
+public class WeaponBase : ScriptableObject
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+    [SerializeField] string weaponName;
+    [SerializeField] float shootDelay;
+    [SerializeField] GameObject basePrefab;
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+
+    public string Name => weaponName;
+    public float ShootDelay => shootDelay;
+    public GameObject BasePrefab => basePrefab;
 }

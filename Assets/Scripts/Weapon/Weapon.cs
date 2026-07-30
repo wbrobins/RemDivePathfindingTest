@@ -1,16 +1,19 @@
 using UnityEngine;
 
-public class Weapon : MonoBehaviour
+public class Weapon
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+    [SerializeField] WeaponBase weaponBase;
+    [SerializeField] private string weapon_id;
+    [SerializeField] float shootDelay;
 
-    // Update is called once per frame
-    void Update()
+    public WeaponBase Base => weaponBase;
+    public string WeaponID => weapon_id;
+    public float ShootDelay => shootDelay;
+
+    public Weapon(string id)
     {
-        
+        weapon_id = id;
+        weaponBase = Resources.Load<WeaponBase>($"Data/WeaponBases/" + id);
+        shootDelay = Base.ShootDelay;
     }
 }

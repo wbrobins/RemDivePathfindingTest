@@ -5,7 +5,16 @@ public class PlayerWeapon : MonoBehaviour
 {
     private bool shooting = false;
     [SerializeField] private new GameObject camera;
-    [SerializeField] private float shootDelay = 0.5f;
+    [SerializeField] private float shootDelay = .1f;
+
+    public string weaponId;
+    public Weapon Weapon {get; private set;}
+
+    void Awake()
+    {
+        Weapon = new Weapon(weaponId);
+        shootDelay = Weapon.Base.ShootDelay;
+    }
 
     void Update()
     {
