@@ -78,12 +78,6 @@ public class PlayerController : MonoBehaviour
 
         UpdateMovementState();
         UpdateCameraHeight();
-
-        if (Input.GetMouseButtonDown(0) && !shooting)
-        {
-            shooting = true;
-            StartCoroutine(ShootRoutine());
-        }
     }
 
     void FixedUpdate()
@@ -306,39 +300,4 @@ public class PlayerController : MonoBehaviour
 
         targetCameraHeight = standingHeight;
     }
-
-    IEnumerator ShootRoutine()
-    {
-        //raycast logic here
-        Vector3 origin = camera.transform.position;
-        Vector3 direction = camera.transform.forward;
-
-        Debug.DrawRay(origin, direction * 50f, Color.red, 1f);
-
-        if (Physics.Raycast(origin, direction, out RaycastHit hit, 50f))
-        {
-            if (hit.collider.CompareTag("Enemy"))
-            {
-                EnemyBehavior enemyBehavior = hit.collider.GetComponent<EnemyBehavior>();
-
-                if (enemyBehavior != null)
-                {
-                    enemyBehavior.TakeDamage(1);
-                }
-            } 
-            else if (hit.collider.CompareTag("Explodable"))
-            {
-                ExplosiveBarrel explosiveBarrel = hit.collider.GetComponent<ExplosiveBarrel>();
-
-                if(explosiveBarrel != null)
-                {
-                    explosiveBarrel.Explode();
-                }
-            }
-        }
-
-        yield return new WaitForSeconds(shootDelay);
-        shooting = false;
-    }
-
 }
