@@ -8,7 +8,6 @@ public class PlayerWeapon : MonoBehaviour
     [SerializeField] private new GameObject camera;
     [SerializeField] private float shootDelay = .1f;
 
-    public string weaponId;
     public string[] weapons;
     public Weapon CurrWeapon {get; private set;}
     private GameObject currWeaponPrefab;
@@ -65,7 +64,7 @@ public class PlayerWeapon : MonoBehaviour
 
                 if (enemyBehavior != null)
                 {
-                    enemyBehavior.TakeDamage(1);
+                    enemyBehavior.TakeDamage(CurrWeapon.Damage);
                 }
             } 
             else if (hit.collider.CompareTag("Explodable"))
