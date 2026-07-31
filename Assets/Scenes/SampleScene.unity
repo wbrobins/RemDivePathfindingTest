@@ -242,7 +242,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   camera: {fileID: 86345862}
   shootDelay: 0.5
-  weaponId: Pistol
   weapons:
   - Pistol
   - Shotgun

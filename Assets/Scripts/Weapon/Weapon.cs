@@ -19,4 +19,12 @@ public class Weapon
         shootDelay = Base.ShootDelay;
         damage = Base.Damage;
     }
+
+    public Weapon(string id, float nShootDelay, int nDamage)
+    {
+        weapon_id = id;
+        weaponBase = Resources.Load<WeaponBase>($"Data/WeaponBases/" + id);
+        shootDelay = nShootDelay;
+        damage = nDamage;
+    }
 }

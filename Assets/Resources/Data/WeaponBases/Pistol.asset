@@ -14,4 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   weaponName: Pistol
   shootDelay: 0.3
+  damage: 2
   basePrefab: {fileID: 5932101213155506952, guid: 96fa66195e863c64c81dd01831abff92, type: 3}
