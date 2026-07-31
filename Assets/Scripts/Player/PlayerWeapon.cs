@@ -6,16 +6,17 @@ public class PlayerWeapon : MonoBehaviour
 {
     private bool shooting = false;
     [SerializeField] private new GameObject camera;
-    [SerializeField] private float shootDelay = .1f;
+    [SerializeField] private int currWeaponSlot = 0;
 
-    public string[] weapons;
+    public Weapon[] weapons;
     public Weapon CurrWeapon {get; private set;}
     private GameObject currWeaponPrefab;
 
     void Awake()
     {
         Assert.IsNotEmpty(weapons);
-        SetWeapon(0);
+        SetUp();
+        SetWeapon(currWeaponSlot);
     }
 
     void Update()
@@ -33,6 +34,35 @@ public class PlayerWeapon : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.Alpha2))
         {
             SetWeapon(1);
+        } 
+        else if (Input.GetKeyDown(KeyCode.F))
+        {
+            CycleWeapon();
+        }
+    }
+
+    void SetUp()
+    {
+        foreach(Weapon weapon in weapons)
+        {
+            weapon.SetShootDelay(weapon.Base.ShootDelay);
+            weapon.SetDamage(weapon.Base.Damage);
+        }
+    }
+
+    void CycleWeapon()
+    {
+        switch (currWeaponSlot)
+        {
+            case 0:
+                SetWeapon(1);
+                break;
+            case 1:
+                SetWeapon(0);
+                break;
+            default:
+                Debug.Log("Weapon error: wrong value passed @ PlayerWeapon.cs");
+                return;
         }
     }
 
@@ -42,8 +72,8 @@ public class PlayerWeapon : MonoBehaviour
         {
             Destroy(currWeaponPrefab);
         }
-        CurrWeapon = new Weapon(weapons[slot]);
-        shootDelay = CurrWeapon.Base.ShootDelay;
+        CurrWeapon = weapons[slot];
+        currWeaponSlot = slot;
         Debug.Log("Current Weapon: " + CurrWeapon.Base.Name);
         currWeaponPrefab = Instantiate(CurrWeapon.Base.BasePrefab, transform.position, camera.transform.rotation, transform);
     }
@@ -78,7 +108,7 @@ public class PlayerWeapon : MonoBehaviour
             }
         }
 
-        yield return new WaitForSeconds(shootDelay);
+        yield return new WaitForSeconds(CurrWeapon.ShootDelay);
         shooting = false;
     }
 }

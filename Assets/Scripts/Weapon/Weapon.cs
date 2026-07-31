@@ -1,5 +1,6 @@
 using UnityEngine;
 
+[System.Serializable]
 public class Weapon
 {
     [SerializeField] WeaponBase weaponBase;
@@ -26,5 +27,15 @@ public class Weapon
         weaponBase = Resources.Load<WeaponBase>($"Data/WeaponBases/" + id);
         shootDelay = nShootDelay;
         damage = nDamage;
+    }
+
+    public void SetDamage(int nDamage)
+    {
+        damage = nDamage;
+    }
+
+    public void SetShootDelay(float nShootDelay)
+    {
+        shootDelay = nShootDelay;
     }
 }
