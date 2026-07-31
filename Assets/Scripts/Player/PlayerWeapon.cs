@@ -23,7 +23,6 @@ public class PlayerWeapon : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0) && !shooting)
         {
-            shooting = true;
             StartCoroutine(ShootRoutine());
         }
 
@@ -38,6 +37,10 @@ public class PlayerWeapon : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.F))
         {
             CycleWeapon();
+        } 
+        else if (Input.GetKeyDown(KeyCode.R) && !shooting)
+        {
+            StartCoroutine(ReloadRoutine());
         }
     }
 
@@ -47,6 +50,7 @@ public class PlayerWeapon : MonoBehaviour
         {
             weapon.SetShootDelay(weapon.Base.ShootDelay);
             weapon.SetDamage(weapon.Base.Damage);
+            weapon.SetAmmo(weapon.Base.MaxBarrelAmmo, weapon.Base.MaxTotalAmmo);
         }
     }
 
@@ -78,37 +82,76 @@ public class PlayerWeapon : MonoBehaviour
         currWeaponPrefab = Instantiate(CurrWeapon.Base.BasePrefab, transform.position, camera.transform.rotation, transform);
     }
 
+    void Reload()
+    {
+        Debug.Log("Reloading...");
+        if(CurrWeapon.TotalAmmo >= CurrWeapon.Base.MaxBarrelAmmo)
+        {
+            CurrWeapon.SetAmmo(CurrWeapon.Base.MaxBarrelAmmo, CurrWeapon.TotalAmmo - (CurrWeapon.Base.MaxBarrelAmmo - CurrWeapon.CurrBarrelAmmo));
+        }
+        else if(CurrWeapon.TotalAmmo < CurrWeapon.Base.MaxBarrelAmmo)
+        {
+            CurrWeapon.SetAmmo(CurrWeapon.TotalAmmo, 0);
+        }
+    }
+
     IEnumerator ShootRoutine()
     {
-        //raycast logic here
-        Vector3 origin = transform.position;
-        Vector3 direction = camera.transform.forward;
-
-        Debug.DrawRay(origin, direction * 50f, Color.red, 1f);
-
-        if (Physics.Raycast(origin, direction, out RaycastHit hit, 50f))
+        //shoot
+        if (CurrWeapon.CurrBarrelAmmo > 0)
         {
-            if (hit.collider.CompareTag("Enemy"))
-            {
-                EnemyBehavior enemyBehavior = hit.collider.GetComponent<EnemyBehavior>();
+            shooting = true;
 
-                if (enemyBehavior != null)
-                {
-                    enemyBehavior.TakeDamage(CurrWeapon.Damage);
-                }
-            } 
-            else if (hit.collider.CompareTag("Explodable"))
-            {
-                ExplosiveBarrel explosiveBarrel = hit.collider.GetComponent<ExplosiveBarrel>();
+            //raycast logic here
+            Vector3 origin = transform.position;
+            Vector3 direction = camera.transform.forward;
 
-                if(explosiveBarrel != null)
+            Debug.DrawRay(origin, direction * 50f, Color.red, 1f);
+
+            if (Physics.Raycast(origin, direction, out RaycastHit hit, 50f))
+            {
+                if (hit.collider.CompareTag("Enemy"))
                 {
-                    explosiveBarrel.Explode();
+                    EnemyBehavior enemyBehavior = hit.collider.GetComponent<EnemyBehavior>();
+
+                    if (enemyBehavior != null)
+                    {
+                        enemyBehavior.TakeDamage(CurrWeapon.Damage);
+                    }
+                } 
+                else if (hit.collider.CompareTag("Explodable"))
+                {
+                    ExplosiveBarrel explosiveBarrel = hit.collider.GetComponent<ExplosiveBarrel>();
+
+                    if(explosiveBarrel != null)
+                    {
+                        explosiveBarrel.Explode();
+                    }
                 }
             }
+            CurrWeapon.DepleteAmmo(1);
+            yield return new WaitForSeconds(CurrWeapon.ShootDelay);
+            shooting = false;
         }
+        //reload
+        else if(CurrWeapon.CurrBarrelAmmo == 0 && CurrWeapon.TotalAmmo > 0)
+        {
+            shooting = true;
+            yield return new WaitForSeconds(1);
+            Reload();
+            shooting = false;
+        }
+        else
+        {
+            Debug.Log("Out of ammo");
+        }
+    }
 
-        yield return new WaitForSeconds(CurrWeapon.ShootDelay);
+    IEnumerator ReloadRoutine()
+    {
+        shooting = true;
+        yield return new WaitForSeconds(1);
+        Reload();
         shooting = false;
     }
 }
