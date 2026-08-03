@@ -6,8 +6,10 @@ public class PlayerWeapon : MonoBehaviour
 {
     private bool shooting = false;
     [SerializeField] private new GameObject camera;
+    [SerializeField] private GameObject playerHand;
     [SerializeField] private int currWeaponSlot = 0;
 
+    public bool Shooting => shooting;
     public Weapon[] weapons;
     public Weapon CurrWeapon {get; private set;}
     private GameObject currWeaponPrefab;
@@ -119,15 +121,11 @@ public class PlayerWeapon : MonoBehaviour
                         enemyBehavior.TakeDamage(CurrWeapon.Damage);
                     }
                 } 
-                else if (hit.collider.CompareTag("Explodable"))
+                else if (hit.collider.TryGetComponent(out CarryableBehavior explosive) && explosive.IsExplodable)
                 {
-                    ExplosiveBarrel explosiveBarrel = hit.collider.GetComponent<ExplosiveBarrel>();
-
-                    if(explosiveBarrel != null)
-                    {
-                        explosiveBarrel.Explode();
-                    }
+                    explosive.Explode();
                 }
+                
             }
             CurrWeapon.DepleteAmmo(1);
             yield return new WaitForSeconds(CurrWeapon.ShootDelay);

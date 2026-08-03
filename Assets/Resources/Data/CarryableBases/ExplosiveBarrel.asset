@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 42130ed3152fd6f4f9ab02f34507e830, type: 3}
+  m_Name: ExplosiveBarrel
+  m_EditorClassIdentifier: 
+  carryableName: Explosive Barrel
+  explodable: 1
+  explodeRange: 10
+  explodeDamage: 4
+  explosionForce: 4
+  explosionUpwardsModifier: 3
+  basePrefab: {fileID: 2376360744996083528, guid: b4308c395b538ca4fa873d7a52a0f48c, type: 3}
