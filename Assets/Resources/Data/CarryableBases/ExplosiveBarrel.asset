@@ -13,6 +13,10 @@ MonoBehaviour:
   m_Name: ExplosiveBarrel
   m_EditorClassIdentifier: 
   carryableName: Explosive Barrel
+  holdPositionOffset: {x: -1, y: -4, z: 0}
+  holdRotationOffset: {x: 0, y: 0, z: 0}
+  holdScale: {x: 1, y: 1, z: 1}
+  throwDamage: 0
   explodable: 1
   explodeRange: 10
   explodeDamage: 4

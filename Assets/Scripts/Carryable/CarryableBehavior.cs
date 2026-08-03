@@ -1,10 +1,13 @@
+using System.Collections;
 using UnityEngine;
 
 public class CarryableBehavior : MonoBehaviour
 {
     [SerializeField] private CarryableBase carryableBase;
+
     private Rigidbody rb;
     private Collider carryableCollider;
+    private bool thrown = false;
 
     public bool IsExplodable => Carryable.Base.Explodable;
     
@@ -49,9 +52,23 @@ public class CarryableBehavior : MonoBehaviour
         carryableCollider.enabled = true;
     }
 
-    public void Throw()
+    public void Throw(Vector3 direction, float throwForce)
     {
-        
+        thrown = true;
+
+        transform.SetParent(null);
+        transform.localScale = Vector3.one;
+
+
+        rb.isKinematic = false;
+        rb.useGravity = true;
+        carryableCollider.enabled = true;
+
+        rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+        rb.linearVelocity = direction * throwForce;
+
+        StartCoroutine(ThrowRoutine());
     }
 
     public void Explode()
@@ -74,6 +91,33 @@ public class CarryableBehavior : MonoBehaviour
         }
 
         Destroy(gameObject);
+    }
+
+    IEnumerator ThrowRoutine()
+    {
+        yield return new WaitForSeconds(5f);
+        thrown = false;
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (thrown)
+        {
+            if (collision.transform.CompareTag("Enemy"))
+            {
+                EnemyBehavior enemy = collision.transform.GetComponent<EnemyBehavior>();
+
+                if (enemy != null)
+                {
+                    enemy.TakeDamage(Carryable.ThrowDamage);
+                }  
+
+                if (carryableBase.Explodable)
+                {
+                    Explode();
+                }
+                }
+        }
     }
 
     private void OnDrawGizmos()

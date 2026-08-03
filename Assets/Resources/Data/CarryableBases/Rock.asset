@@ -13,6 +13,10 @@ MonoBehaviour:
   m_Name: Rock
   m_EditorClassIdentifier: 
   carryableName: Rock
+  holdPositionOffset: {x: -1, y: -3, z: 0}
+  holdRotationOffset: {x: 0, y: 0, z: 0}
+  holdScale: {x: 1, y: 1, z: 1}
+  throwDamage: 0
   explodable: 0
   explodeRange: 0
   explodeDamage: 0

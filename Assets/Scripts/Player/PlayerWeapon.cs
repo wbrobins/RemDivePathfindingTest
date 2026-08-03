@@ -6,7 +6,8 @@ public class PlayerWeapon : MonoBehaviour
 {
     private bool shooting = false;
     [SerializeField] private new GameObject camera;
-    [SerializeField] private GameObject playerHand;
+    [SerializeField] private GameObject playerHandObj;
+    private PlayerHand playerHand;
     [SerializeField] private int currWeaponSlot = 0;
 
     public bool Shooting => shooting;
@@ -16,6 +17,8 @@ public class PlayerWeapon : MonoBehaviour
 
     void Awake()
     {
+        playerHand = playerHandObj.GetComponent<PlayerHand>();
+
         Assert.IsNotEmpty(weapons);
         SetUp();
         SetWeapon(currWeaponSlot);
@@ -23,7 +26,7 @@ public class PlayerWeapon : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetMouseButtonDown(0) && !shooting)
+        if (Input.GetMouseButtonDown(0) && !shooting && !playerHand.Carrying)
         {
             StartCoroutine(ShootRoutine());
         }

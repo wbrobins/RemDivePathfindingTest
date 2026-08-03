@@ -57,8 +57,11 @@ public class EnemyBehavior : MonoBehaviour
 
     public void GoToStartPoint()
     {
-        agent.stoppingDistance = 0;
-        agent.SetDestination(startPoint);
+        if(agent.enabled == true)
+        {
+            agent.stoppingDistance = 0;
+            agent.SetDestination(startPoint);
+        }
     }
 
     public void FollowTarget(Vector3 position)
