@@ -116,7 +116,11 @@ public class CarryableBehavior : MonoBehaviour
                 {
                     Explode();
                 }
-                }
+            }
+            else if (collision.transform.CompareTag("Ground") && Carryable.Explodable)
+            {
+                Explode();
+            }
         }
     }
 

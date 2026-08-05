@@ -17,24 +17,22 @@ public class Weapon
     public int CurrBarrelAmmo => currBarrelAmmo;
     public int TotalAmmo => totalAmmo;
 
-    public Weapon(string id)
+    public Weapon(WeaponBase weaponBase)
     {
-        weapon_id = id;
-        weaponBase = Resources.Load<WeaponBase>($"Data/WeaponBases/" + id);
-        shootDelay = Base.ShootDelay;
-        damage = Base.Damage;
-        currBarrelAmmo = Base.MaxBarrelAmmo;
-        totalAmmo = Base.MaxTotalAmmo;
+        this.weaponBase = weaponBase;
+        shootDelay = weaponBase.ShootDelay;
+        damage = weaponBase.Damage;
+        currBarrelAmmo = weaponBase.MaxBarrelAmmo;
+        totalAmmo = weaponBase.MaxTotalAmmo;
     }
 
-    public Weapon(string id, float nShootDelay, int nDamage)
+    public Weapon(WeaponBase weaponBase, float nShootDelay, int nDamage)
     {
-        weapon_id = id;
-        weaponBase = Resources.Load<WeaponBase>($"Data/WeaponBases/" + id);
+        this.weaponBase = weaponBase;
         shootDelay = nShootDelay;
         damage = nDamage;
-        currBarrelAmmo = Base.MaxBarrelAmmo;
-        totalAmmo = Base.MaxTotalAmmo;
+        currBarrelAmmo = weaponBase.MaxBarrelAmmo;
+        totalAmmo = weaponBase.MaxTotalAmmo;
     }
 
     public void SetDamage(int nDamage)

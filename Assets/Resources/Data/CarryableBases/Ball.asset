@@ -10,16 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 42130ed3152fd6f4f9ab02f34507e830, type: 3}
-  m_Name: Rock
+  m_Name: Ball
   m_EditorClassIdentifier: 
-  carryableName: Rock
-  holdPositionOffset: {x: 0, y: -3, z: 0}
+  carryableName: Ball
+  holdPositionOffset: {x: 0, y: 0, z: 0}
   holdRotationOffset: {x: 0, y: 0, z: 0}
   holdScale: {x: 1, y: 1, z: 1}
-  throwDamage: 5
+  throwDamage: 3
   explodable: 0
   explodeRange: 0
   explodeDamage: 0
   explosionForce: 0
   explosionUpwardsModifier: 0
-  basePrefab: {fileID: 2327234094679123732, guid: e5a5225a9bb7a4f46959bdc87f7f5609, type: 3}
+  basePrefab: {fileID: 2964755642638364354, guid: 20294b589e8016e48bad955b9dbf526d, type: 3}

@@ -10,6 +10,7 @@ public class EnemyBehavior : MonoBehaviour
     private Vector3 startPoint;
     private Transform firePoint;
     [SerializeField] private GameObject projectilePrefab;
+    [SerializeField] private EnemyBase enemyBase;
 
     [Header("Knockback")]
     [Tooltip("How long physics fully controls the enemy after an explosion before the NavMeshAgent takes back over")]
@@ -18,14 +19,13 @@ public class EnemyBehavior : MonoBehaviour
     private Rigidbody rb;
     private Coroutine knockbackRoutine;
 
-    public string enemyId;
 
     public Enemy Enemy { get; private set; }
 
 
     void Awake()
     {
-        SetUp(new Enemy(enemyId));
+        SetUp(new Enemy(enemyBase));
         rb = GetComponent<Rigidbody>();
     }
 

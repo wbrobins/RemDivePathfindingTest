@@ -20,15 +20,14 @@ public class Enemy
     public float StopDistance => stopDistance;
     
 
-    public Enemy(string id)
+    public Enemy(EnemyBase enemyBase)
     {
-        enemy_id = id;
-        enemyBase = Resources.Load<EnemyBase>($"Data/EnemyBases/" + id);
-        hp = Base.HP;
-        maxHp = Base.HP;
-        shootDelay = Base.ShootDelay;
-        projectileSpeed = Base.ProjectileSpeed;
-        stopDistance = Base.StopDistance;
+        this.enemyBase = enemyBase;
+        hp = enemyBase.HP;
+        maxHp = enemyBase.HP;
+        shootDelay = enemyBase.ShootDelay;
+        projectileSpeed = enemyBase.ProjectileSpeed;
+        stopDistance = enemyBase.StopDistance;
     }
 
     public void Hit(int damage)
