@@ -8,7 +8,8 @@ public enum MovementState
     Crouching,
     Jumping,
     Sliding,
-    JumpSliding
+    JumpSliding,
+    Grappling
 }
 
 public class PlayerController : MonoBehaviour
@@ -42,11 +43,29 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float groundCheckRadius = 0.3f;
     [SerializeField] private LayerMask groundCheckMask = ~0;
 
+    [Header("Grapple")]
+    [SerializeField] private float grappleLookRange = 25f;
+    [SerializeField] private float grappleSpeed = 20f;
+    [Tooltip("Distance from the grapple point at which the player auto-detaches")]
+    [SerializeField] private float grappleArriveDistance = 1.5f;
+    [Tooltip("Momentum carried forward if E is pressed the instant the grapple starts")]
+    [SerializeField] private float minGrappleExitSpeed = 5f;
+    [Tooltip("Momentum carried forward if the grapple completes (or is cancelled right at the point)")]
+    [SerializeField] private float maxGrappleExitSpeed = 20f;
+    [SerializeField] private LayerMask grappleLookMask = ~0;
+    private const string GrappleTag = "Grapple";
+
     private bool jumpPressed;
     private bool grounded;
     private bool shooting = false;
     private float slideTimer;
     private Vector3 slideDirection;
+
+    private bool lookingAtGrapplePoint;
+    private Transform lookedAtGrapplePoint;
+    private Transform grappleTarget;
+    private Vector3 grappleStartPosition;
+    private float grappleTotalDistance;
 
     private MovementState currState = MovementState.Walking;
 
@@ -76,8 +95,30 @@ public class PlayerController : MonoBehaviour
             EnterSlide();
         }
 
+        CheckGrappleLookAt();
+
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            if (currState == MovementState.Grappling)
+            {
+                Debug.Log("Exiting grapple");
+                ExitGrapple();
+            }
+            else if (lookingAtGrapplePoint)
+            {
+                Debug.Log("Starting grapple");
+                StartGrapple(lookedAtGrapplePoint);
+            }
+        }
+
         UpdateMovementState();
         UpdateCameraHeight();
+
+        if (Input.GetMouseButtonDown(0) && !shooting)
+        {
+            shooting = true;
+            StartCoroutine(ShootRoutine());
+        }
     }
 
     void FixedUpdate()
@@ -85,6 +126,7 @@ public class PlayerController : MonoBehaviour
         CheckGrounded();
         HandleMovement();
         HandleJump();
+        HandleGrapple();
     }
 
     void CheckGrounded()
@@ -128,6 +170,11 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
+        if (currState == MovementState.Grappling)
+        {
+            return;
+        }
+
         if (currState == MovementState.JumpSliding)
         {
             if (grounded)
@@ -151,7 +198,6 @@ public class PlayerController : MonoBehaviour
         }
         else if (Input.GetKey(KeyCode.LeftControl))
         {
-            // Crouch takes priority over sprint if both are held
             currState = MovementState.Crouching;
             targetCameraHeight = crouchHeight;
         }
@@ -196,6 +242,8 @@ public class PlayerController : MonoBehaviour
                 break;
             case MovementState.Sliding:
                 HandleSlide();
+                break;
+            case MovementState.Grappling:
                 break;
             case MovementState.Jumping:
             case MovementState.JumpSliding:
@@ -298,6 +346,107 @@ public class PlayerController : MonoBehaviour
     {
         currState = MovementState.JumpSliding;
 
-        targetCameraHeight = standingHeight;
+        targetCameraHeight = slidingHeight;
     }
+
+    void CheckGrappleLookAt()
+    {
+        lookingAtGrapplePoint = false;
+        lookedAtGrapplePoint = null;
+
+        if (Physics.Raycast(camera.transform.position, camera.transform.forward, out RaycastHit hit, grappleLookRange, grappleLookMask))
+        {
+            if (hit.collider.CompareTag(GrappleTag))
+            {
+                lookingAtGrapplePoint = true;
+                lookedAtGrapplePoint = hit.collider.transform;
+            }
+        }
+    }
+
+    void StartGrapple(Transform target)
+    {
+        grappleTarget = target;
+        grappleStartPosition = transform.position;
+        grappleTotalDistance = Mathf.Max(Vector3.Distance(grappleStartPosition, target.position), 0.01f);
+
+        targetCameraHeight = standingHeight;
+        rb.useGravity = false;
+
+        currState = MovementState.Grappling;
+    }
+
+    void HandleGrapple()
+    {
+        if (currState != MovementState.Grappling)
+        {
+            return;
+        }
+
+        if (grappleTarget == null)
+        {
+            ExitGrapple();
+            return;
+        }
+
+        Vector3 toTarget = grappleTarget.position - transform.position;
+
+        if (toTarget.magnitude <= grappleArriveDistance)
+        {
+            ExitGrapple();
+            return;
+        }
+
+        rb.linearVelocity = toTarget.normalized * grappleSpeed;
+    }
+
+    void ExitGrapple()
+    {
+        if (currState != MovementState.Grappling)
+        {
+            return;
+        }
+
+        float traveled = Vector3.Distance(grappleStartPosition, transform.position);
+        float progress = Mathf.Clamp01(traveled / grappleTotalDistance);
+
+        Vector3 direction = grappleTarget != null
+            ? (grappleTarget.position - grappleStartPosition).normalized
+            : rb.linearVelocity.normalized;
+
+        float exitSpeed = Mathf.Lerp(minGrappleExitSpeed, maxGrappleExitSpeed, progress);
+
+        rb.useGravity = true;
+        rb.linearVelocity = direction * exitSpeed;
+
+        grappleTarget = null;
+
+        currState = MovementState.Jumping;
+    }
+
+    IEnumerator ShootRoutine()
+    {
+        //raycast logic here
+        Vector3 origin = camera.transform.position;
+        Vector3 direction = camera.transform.forward;
+
+        Debug.DrawRay(origin, direction * 10f, Color.red, 1f);
+
+        if (Physics.Raycast(origin, direction, out RaycastHit hit, 10f))
+        {
+            if (hit.collider.CompareTag("Enemy"))
+            {
+                EnemyBehavior enemyBehavior = hit.collider.GetComponent<EnemyBehavior>();
+
+                if (enemyBehavior != null)
+                {
+                    enemyBehavior.TakeDamage(1);
+                }
+            }
+        }
+
+        yield return new WaitForSeconds(shootDelay);
+        shooting = false;
+    }
+
 }
