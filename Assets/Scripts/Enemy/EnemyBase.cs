@@ -4,10 +4,19 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "New Enemy", menuName = "Enemies/Create new enemy")]
 public class EnemyBase : ScriptableObject
 {
+    public enum CombatType
+    {
+        Ranged,
+        Melee
+    }
+
     [SerializeField] string enemyName;
     [SerializeField] int hp;
     [SerializeField] float knockbackRecoveryDelay = .4f;
     [SerializeField] GameObject basePrefab;
+
+    [Header("Combat Type")]
+    [SerializeField] private CombatType combatType = CombatType.Ranged;
 
     [Header("Ranged Attack")]
     [SerializeField] float shootDelay;
@@ -31,6 +40,7 @@ public class EnemyBase : ScriptableObject
 
     public string Name => enemyName;
     public int HP => hp;
+    public CombatType ECombatType => combatType;
     public float ShootDelay => shootDelay;
     public float ProjectileSpeed => projectileSpeed;
     public float StopDistance => stopDistance;

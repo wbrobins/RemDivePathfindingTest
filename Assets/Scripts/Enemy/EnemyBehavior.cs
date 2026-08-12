@@ -63,6 +63,7 @@ public class EnemyBehavior : MonoBehaviour
         strafeSpeed = enemy.StrafeSpeed;
         strafeChangeInterval = enemy.StrafeChangeInterval;
         knockbackRecoveryDelay = enemy.KnockbackRecoveryDelay;
+        combatType = (CombatType)enemy.ECombatType;
     }
 
     void Start()
@@ -80,6 +81,11 @@ public class EnemyBehavior : MonoBehaviour
         }
 
         agent.updateRotation = false;
+    }
+
+    public CombatType GetCombatType()
+    {
+        return combatType;
     }
 
     public void Engage(Transform target)
@@ -223,7 +229,15 @@ public class EnemyBehavior : MonoBehaviour
     {
         if(agent.enabled == true)
         {
-            agent.stoppingDistance = Enemy.StopDistance;
+            if(combatType == CombatType.Ranged)
+            {
+                agent.stoppingDistance = Enemy.StopDistance;
+            }
+            else if (combatType == CombatType.Melee)
+            {
+                agent.stoppingDistance = Enemy.MeleeRange;
+            }
+            
             agent.SetDestination(position);
             transform.LookAt(position); 
         }

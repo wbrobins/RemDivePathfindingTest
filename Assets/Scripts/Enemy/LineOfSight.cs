@@ -100,7 +100,7 @@ public class LineOfSight : MonoBehaviour
                 if(!tooFar) //follow and shoot if player is visible and not too far from start point
                 {
                     parent.Engage(target.transform); //follow player if visible
-                    if(shoot_coroutine == null) //shoot player if visible
+                    if(shoot_coroutine == null && parent.GetCombatType() == EnemyBehavior.CombatType.Ranged) //shoot player if visible and enemy is ranged
                     {
                         shoot_coroutine = StartCoroutine(parent.ShootTarget(target.transform));
                     }

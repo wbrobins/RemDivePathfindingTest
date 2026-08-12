@@ -13,9 +13,16 @@ MonoBehaviour:
   m_Name: Enemy1
   m_EditorClassIdentifier: 
   enemyName: Enemy 1
-  sprite: {fileID: 0}
   hp: 5
+  knockbackRecoveryDelay: 0.4
+  basePrefab: {fileID: 1513446171409640933, guid: f98e8de300dcd8141a772170027b06b2, type: 3}
+  combatType: 0
   shootDelay: 2
   projectileSpeed: 10
   stopDistance: 10
-  basePrefab: {fileID: 1513446171409640933, guid: f98e8de300dcd8141a772170027b06b2, type: 3}
+  minRange: 5
+  strafeSpeed: 5
+  strafeChangeInterval: 1.5
+  meleeRange: 2
+  meleeDamage: 10
+  meleeCooldown: 1.5
