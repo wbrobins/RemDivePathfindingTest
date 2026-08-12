@@ -17,5 +17,5 @@ MonoBehaviour:
   hp: 5
   shootDelay: 2
   projectileSpeed: 10
-  stopDistance: 4
+  stopDistance: 10
   basePrefab: {fileID: 1513446171409640933, guid: f98e8de300dcd8141a772170027b06b2, type: 3}

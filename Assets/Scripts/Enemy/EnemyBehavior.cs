@@ -4,6 +4,12 @@ using UnityEngine.AI;
 
 public class EnemyBehavior : MonoBehaviour
 {
+    public enum CombatType
+    {
+        Ranged,
+        Melee
+    }
+ 
     public NavMeshAgent agent;
     public GameObject player;
     public bool following;
@@ -11,15 +17,33 @@ public class EnemyBehavior : MonoBehaviour
     private Transform firePoint;
     [SerializeField] private GameObject projectilePrefab;
     [SerializeField] private EnemyBase enemyBase;
-
+ 
+    [Header("Combat Type")]
+    [SerializeField] private CombatType combatType = CombatType.Ranged;
+ 
+    [Header("Melee Attack")]
+    [SerializeField] private float meleeRange = 2f;
+    [SerializeField] private int meleeDamage = 10;
+    [SerializeField] private float meleeCooldown = 1.5f;
+    private float lastMeleeTime = -Mathf.Infinity;
+ 
+    [Header("Ranged Strafing")]
+    [Tooltip("How fast the enemy sidesteps while holding position and shooting")]
+    [SerializeField] private float strafeSpeed = 3f;
+    [Tooltip("How often a new random strafe direction is picked")]
+    [SerializeField] private float strafeChangeInterval = 1.5f;
+    private float nextStrafeSwitchTime;
+    private float lastStrafeTickTime = -1f;
+    private int strafeDirection = 1;
+ 
     [Header("Knockback")]
     [Tooltip("How long physics fully controls the enemy after an explosion before the NavMeshAgent takes back over")]
     [SerializeField] private float knockbackRecoveryDelay = 0.4f;
-
+ 
     private Rigidbody rb;
     private Coroutine knockbackRoutine;
-
-
+    private Coroutine shootRoutine;
+ 
     public Enemy Enemy { get; private set; }
 
 
@@ -48,6 +72,124 @@ public class EnemyBehavior : MonoBehaviour
         {
             rb.isKinematic = true;
         }
+
+        agent.updateRotation = false;
+    }
+
+    public void Engage(Transform target)
+    {
+        if(agent == null || !agent.enabled)
+        {
+            return;
+        }
+
+        agent.updateRotation = false;
+
+        following = true;
+        float distance = Vector3.Distance(transform.position, target.position);
+
+        if(combatType == CombatType.Melee)
+        {
+            EngageMelee(target, distance);
+        }
+        else
+        {
+            EngageRanged(target, distance);
+        }
+    }
+
+    public void Disengage()
+    {
+        following = false;
+        StopShooting();
+    }
+
+    void EngageMelee(Transform target, float distance)
+    {
+        FollowTarget(target.position);
+
+        if(distance <= meleeRange && Time.time >= lastMeleeTime + meleeCooldown)
+        {
+            PerformMeleeAttack(target);
+        }
+    }
+
+    void PerformMeleeAttack(Transform target)
+    {
+        lastMeleeTime = Time.time;
+        //anim here
+
+        if(Vector3.Distance(transform.position, target.position) <= meleeRange)
+        {
+            Debug.Log("Player hit by melee attack");
+            //health logic here
+        }
+    }
+
+    void EngageRanged(Transform target, float distance)
+    {
+        if(shootRoutine == null)
+        {
+            shootRoutine = StartCoroutine(ShootTarget(target));
+        }
+
+        if(distance > Enemy.StopDistance)
+        {
+            FollowTarget(target.position);
+            return;
+        }
+
+        transform.LookAt(target.position);
+        HandleStrafing(target);
+    }
+
+    void HandleStrafing(Transform target)
+    {
+        float now = Time.time;
+        float dt = lastStrafeTickTime < 0f ? 0f : now - lastStrafeTickTime;
+        lastStrafeTickTime = now;
+
+        // Pick a new direction periodically
+        if (now >= nextStrafeSwitchTime)
+        {
+            nextStrafeSwitchTime = now + strafeChangeInterval;
+            strafeDirection = Random.value < 0.5f ? -1 : 1;
+        }
+
+        // Face the player
+        Vector3 lookDirection = target.position - transform.position;
+        lookDirection.y = 0f;
+
+        if (lookDirection.sqrMagnitude > 0.001f)
+        {
+            transform.rotation = Quaternion.LookRotation(lookDirection);
+        }
+
+        // Move sideways relative to the player
+        Vector3 toTarget = (transform.position - target.position).normalized;
+        Vector3 strafeDir = Vector3.Cross(toTarget, Vector3.up) * strafeDirection;
+
+        Vector3 desiredPosition =
+            transform.position + strafeDir * strafeSpeed * dt;
+
+        if (NavMesh.SamplePosition(
+            desiredPosition,
+            out NavMeshHit navHit,
+            2f,
+            NavMesh.AllAreas))
+        {
+            agent.stoppingDistance = 0f;
+            agent.SetDestination(navHit.position);
+        }
+    }
+
+    void StopShooting()
+    {
+        if(shootRoutine != null)
+        {
+            StopCoroutine(shootRoutine);
+            shootRoutine = null;
+        }
     }
 
     public Vector3 GetStartPoint()
@@ -61,7 +203,9 @@ public class EnemyBehavior : MonoBehaviour
         {
             agent.stoppingDistance = 0;
             agent.SetDestination(startPoint);
+            agent.updateRotation = true;
         }
+        StopShooting();
     }
 
     public void FollowTarget(Vector3 position)
@@ -96,6 +240,7 @@ public class EnemyBehavior : MonoBehaviour
         Debug.Log("Damage done: " + damage);
         if (Enemy.HP == 0)
         {
+            StopShooting();
             Destroy(gameObject);
             Debug.Log("Enemy killed");
         }

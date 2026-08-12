@@ -761,11 +761,11 @@ CapsuleCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.5000001
+  m_Radius: 5
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}
@@ -1745,11 +1745,11 @@ MonoBehaviour:
   groundCheckMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  grappleLookRange: 25
-  grappleSpeed: 20
+  grappleLookRange: 100
+  grappleSpeed: 100
   grappleArriveDistance: 1.5
-  minGrappleExitSpeed: 5
-  maxGrappleExitSpeed: 20
+  minGrappleExitSpeed: 10
+  maxGrappleExitSpeed: 30
   grappleLookMask:
     serializedVersion: 2
     m_Bits: 4294967295
