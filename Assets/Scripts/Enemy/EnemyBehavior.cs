@@ -22,23 +22,23 @@ public class EnemyBehavior : MonoBehaviour
     [SerializeField] private CombatType combatType = CombatType.Ranged;
  
     [Header("Melee Attack")]
-    [SerializeField] private float meleeRange = 2f;
-    [SerializeField] private int meleeDamage = 10;
-    [SerializeField] private float meleeCooldown = 1.5f;
+    [SerializeField] private float meleeRange;
+    [SerializeField] private int meleeDamage;
+    [SerializeField] private float meleeCooldown;
     private float lastMeleeTime = -Mathf.Infinity;
  
     [Header("Ranged Strafing")]
     [Tooltip("How fast the enemy sidesteps while holding position and shooting")]
-    [SerializeField] private float strafeSpeed = 3f;
+    [SerializeField] private float strafeSpeed;
     [Tooltip("How often a new random strafe direction is picked")]
-    [SerializeField] private float strafeChangeInterval = 1.5f;
+    [SerializeField] private float strafeChangeInterval;
     private float nextStrafeSwitchTime;
     private float lastStrafeTickTime = -1f;
     private int strafeDirection = 1;
  
     [Header("Knockback")]
     [Tooltip("How long physics fully controls the enemy after an explosion before the NavMeshAgent takes back over")]
-    [SerializeField] private float knockbackRecoveryDelay = 0.4f;
+    [SerializeField] private float knockbackRecoveryDelay;
  
     private Rigidbody rb;
     private Coroutine knockbackRoutine;
@@ -57,6 +57,12 @@ public class EnemyBehavior : MonoBehaviour
     {
         Enemy = enemy;
         agent.stoppingDistance = Enemy.StopDistance;
+        meleeRange = enemy.MeleeRange;
+        meleeDamage = enemy.MeleeDamage;
+        meleeCooldown = enemy.MeleeCooldown;
+        strafeSpeed = enemy.StrafeSpeed;
+        strafeChangeInterval = enemy.StrafeChangeInterval;
+        knockbackRecoveryDelay = enemy.KnockbackRecoveryDelay;
     }
 
     void Start()
