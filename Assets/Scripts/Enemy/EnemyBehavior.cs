@@ -136,11 +136,16 @@ public class EnemyBehavior : MonoBehaviour
         if(distance > Enemy.StopDistance)
         {
             FollowTarget(target.position);
-            return;
         }
-
-        transform.LookAt(target.position);
-        HandleStrafing(target);
+        else if (distance < Enemy.MinRange)
+        {
+            RetreatFrom(target);
+        }
+        else
+        {
+           HandleStrafing(target); 
+           transform.LookAt(target.position);
+        }
     }
 
     void HandleStrafing(Transform target)
@@ -218,6 +223,36 @@ public class EnemyBehavior : MonoBehaviour
         }
     }
 
+    public void RetreatFrom(Transform target)
+    {
+        if (!agent.enabled)
+        {
+            return;
+        }
+
+        Vector3 awayFromTarget = transform.position - target.position;
+        awayFromTarget.y = 0f;
+        awayFromTarget.Normalize();
+
+        Vector3 retreatPosition = transform.position + awayFromTarget * 5f;
+
+        if (NavMesh.SamplePosition(retreatPosition, out NavMeshHit navHit, 2f, NavMesh.AllAreas))
+        {
+            agent.stoppingDistance = 0f;
+            agent.SetDestination(navHit.position);
+        }
+
+        // Continue facing the player while retreating
+        Vector3 lookDirection = target.position - transform.position;
+        lookDirection.y = 0f;
+
+        if (lookDirection.sqrMagnitude > 0.001f)
+        {
+            transform.rotation = Quaternion.LookRotation(lookDirection);
+        }
+    }
+
+
     public IEnumerator ShootTarget(Transform target)
     {
         while (true)
@@ -242,13 +277,13 @@ public class EnemyBehavior : MonoBehaviour
         {
             StopShooting();
             Destroy(gameObject);
-            Debug.Log("Enemy killed");
+            //Debug.Log("Enemy killed");
         }
     }
 
     public void ApplyKnockback(Vector3 explosionOrigin, float explosionForce, float explosionRadius, float upwardsModifier = 1f)
     {
-        Debug.Log("ApplyKnockback called");
+        //Debug.Log("ApplyKnockback called");
         if (rb == null)
         {
             Debug.Log("No rigidbody!");
@@ -260,17 +295,17 @@ public class EnemyBehavior : MonoBehaviour
             StopCoroutine(knockbackRoutine);
         }
 
-        Debug.Log("Starting knockback coroutine");
+        //Debug.Log("Starting knockback coroutine");
         knockbackRoutine = StartCoroutine(KnockbackRoutine(explosionOrigin, explosionForce, explosionRadius, upwardsModifier));
     }
 
     private IEnumerator KnockbackRoutine(Vector3 origin, float force, float radius, float upwardsModifier)
     {
-        Debug.Log("Coroutine started");
+        //Debug.Log("Coroutine started");
         // Hand full control to physics for the duration of the knockback.
         agent.enabled = false;
         rb.isKinematic = false;
-        Debug.Log("kinematic disabled");
+        //Debug.Log("kinematic disabled");
 
         rb.linearVelocity = Vector3.zero;
         rb.AddExplosionForce(force, origin, radius, upwardsModifier, ForceMode.Impulse);

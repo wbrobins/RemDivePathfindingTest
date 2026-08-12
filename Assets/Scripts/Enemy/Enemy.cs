@@ -9,6 +9,7 @@ public class Enemy
     [SerializeField] float shootDelay;
     [SerializeField] float projectileSpeed;
     [SerializeField] float stopDistance;
+    [SerializeField] float minRange;
 
 
     public EnemyBase Base => enemyBase;
@@ -18,6 +19,7 @@ public class Enemy
     public float ShootDelay => shootDelay;
     public float ProjectileSpeed => projectileSpeed;
     public float StopDistance => stopDistance;
+    public float MinRange => minRange;
     
 
     public Enemy(EnemyBase enemyBase)
@@ -28,6 +30,7 @@ public class Enemy
         shootDelay = enemyBase.ShootDelay;
         projectileSpeed = enemyBase.ProjectileSpeed;
         stopDistance = enemyBase.StopDistance;
+        minRange = enemyBase.MinRange;
     }
 
     public void Hit(int damage)

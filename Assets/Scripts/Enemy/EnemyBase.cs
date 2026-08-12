@@ -10,6 +10,7 @@ public class EnemyBase : ScriptableObject
     [SerializeField] float shootDelay;
     [SerializeField] float projectileSpeed;
     [SerializeField] float stopDistance;
+    [SerializeField] float minRange;
     [SerializeField] GameObject basePrefab;
 
     public string Name => enemyName;
@@ -18,5 +19,6 @@ public class EnemyBase : ScriptableObject
     public float ShootDelay => shootDelay;
     public float ProjectileSpeed => projectileSpeed;
     public float StopDistance => stopDistance;
+    public float MinRange => minRange;
     public GameObject BasePrefab => basePrefab;
 }
