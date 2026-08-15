@@ -10,6 +10,11 @@ public class EnemyBase : ScriptableObject
         Melee
     }
 
+    public enum MoveType
+    {
+        Ground,
+        Air
+    }
     [SerializeField] string enemyName;
     [SerializeField] int hp;
     [SerializeField] float knockbackRecoveryDelay = .4f;
@@ -17,6 +22,7 @@ public class EnemyBase : ScriptableObject
 
     [Header("Combat Type")]
     [SerializeField] private CombatType combatType = CombatType.Ranged;
+    [SerializeField] private MoveType moveType = MoveType.Ground;
 
     [Header("Ranged Attack")]
     [SerializeField] float shootDelay;
@@ -41,6 +47,7 @@ public class EnemyBase : ScriptableObject
     public string Name => enemyName;
     public int HP => hp;
     public CombatType ECombatType => combatType;
+    public MoveType EMoveType => moveType;
     public float ShootDelay => shootDelay;
     public float ProjectileSpeed => projectileSpeed;
     public float StopDistance => stopDistance;

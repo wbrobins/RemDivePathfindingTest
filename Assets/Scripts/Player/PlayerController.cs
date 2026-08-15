@@ -15,6 +15,7 @@ public enum MovementState
 public class PlayerController : MonoBehaviour
 {
     private Rigidbody rb;
+    private CapsuleCollider pCollider;
 
     [SerializeField] private new GameObject camera;
     [SerializeField] private Transform cameraTransform;
@@ -42,6 +43,12 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Transform groundCheck;
     [SerializeField] private float groundCheckRadius = 0.3f;
     [SerializeField] private LayerMask groundCheckMask = ~0;
+    [Tooltip("How long after a jump impulse the ground check is ignored, so landing detection can't instantly cancel the jump")]
+    [SerializeField] private float jumpGraceDuration = 0.15f;
+    [Tooltip("Small constant downward push while grounded, keeps the player glued to slopes instead of gravity slowly accumulating")]
+    [SerializeField] private float groundStickForce = 3f;
+    private float jumpGraceEndTime;
+    private Vector3 groundNormal = Vector3.up;
 
     [Header("Grapple")]
     [SerializeField] private float grappleLookRange = 25f;
@@ -72,6 +79,7 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+        pCollider = GetComponent<CapsuleCollider>();
 
         rb.interpolation = RigidbodyInterpolation.Interpolate;
 
@@ -101,12 +109,10 @@ public class PlayerController : MonoBehaviour
         {
             if (currState == MovementState.Grappling)
             {
-                Debug.Log("Exiting grapple");
                 ExitGrapple();
             }
             else if (lookingAtGrapplePoint)
             {
-                Debug.Log("Starting grapple");
                 StartGrapple(lookedAtGrapplePoint);
             }
         }
@@ -131,7 +137,7 @@ public class PlayerController : MonoBehaviour
 
     void CheckGrounded()
     {
-        if (rb.linearVelocity.y > 0.1f)
+        if (Time.time < jumpGraceEndTime)
         {
             grounded = false;
             return;
@@ -146,6 +152,18 @@ public class PlayerController : MonoBehaviour
             {
                 grounded = true;
                 break;
+            }
+        }
+
+        if (grounded)
+        {
+            if (Physics.Raycast(groundCheck.position + Vector3.up * 0.1f, Vector3.down, out RaycastHit slopeHit, groundCheckRadius + 0.3f, groundCheckMask))
+            {
+                groundNormal = slopeHit.normal;
+            }
+            else
+            {
+                groundNormal = Vector3.up;
             }
         }
     }
@@ -246,6 +264,7 @@ public class PlayerController : MonoBehaviour
             case MovementState.Grappling:
                 break;
             case MovementState.Jumping:
+                break;
             case MovementState.JumpSliding:
                 ApplyAirControl(moveDirection, walkSpeed);
                 break;
@@ -254,11 +273,8 @@ public class PlayerController : MonoBehaviour
 
     void SetGroundVelocity(Vector3 moveDirection, float moveSpeed)
     {
-        rb.linearVelocity = new Vector3(
-            moveDirection.x * moveSpeed,
-            rb.linearVelocity.y,
-            moveDirection.z * moveSpeed
-        );
+        Vector3 slopeDirection = Vector3.ProjectOnPlane(moveDirection, groundNormal).normalized;
+        rb.linearVelocity = slopeDirection * moveSpeed - groundNormal * groundStickForce;
     }
 
     void ApplyAirControl(Vector3 moveDirection, float moveSpeed)
@@ -294,6 +310,7 @@ public class PlayerController : MonoBehaviour
             }
 
             grounded = false;
+            jumpGraceEndTime = Time.time + jumpGraceDuration;
         }
 
         jumpPressed = false;
@@ -332,9 +349,20 @@ public class PlayerController : MonoBehaviour
 
     void HandleSlide()
     {
-        slideTimer -= Time.fixedDeltaTime;
+        Vector3 downhillDirection = Vector3.ProjectOnPlane(Vector3.down, groundNormal).normalized;
 
-        rb.linearVelocity = slideDirection * slideSpeed + Vector3.up * rb.linearVelocity.y;
+        bool goingDownhill =
+            grounded &&
+            downhillDirection.sqrMagnitude > 0.001f &&
+            Vector3.Dot(slideDirection, downhillDirection) > 0f;
+
+        if (!goingDownhill)
+        {
+            slideTimer -= Time.fixedDeltaTime;
+        }
+
+        rb.linearVelocity = slideDirection * slideSpeed
+                        + Vector3.up * rb.linearVelocity.y;
 
         if (slideTimer <= 0)
         {

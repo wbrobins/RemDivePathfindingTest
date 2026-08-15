@@ -9,6 +9,12 @@ public class EnemyBehavior : MonoBehaviour
         Ranged,
         Melee
     }
+
+    public enum MoveType
+    {
+        Ground,
+        Air
+    }
  
     public NavMeshAgent agent;
     public GameObject player;
@@ -20,6 +26,7 @@ public class EnemyBehavior : MonoBehaviour
  
     [Header("Combat Type")]
     [SerializeField] private CombatType combatType = CombatType.Ranged;
+    [SerializeField] private MoveType moveType = MoveType.Ground;
  
     [Header("Melee Attack")]
     [SerializeField] private float meleeRange;
@@ -64,6 +71,7 @@ public class EnemyBehavior : MonoBehaviour
         strafeChangeInterval = enemy.StrafeChangeInterval;
         knockbackRecoveryDelay = enemy.KnockbackRecoveryDelay;
         combatType = (CombatType)enemy.ECombatType;
+        moveType = (MoveType)enemy.EMoveType;
     }
 
     void Start()
@@ -81,6 +89,11 @@ public class EnemyBehavior : MonoBehaviour
         }
 
         agent.updateRotation = false;
+
+        if(moveType == MoveType.Air)
+        {
+            rb.useGravity =false;
+        }
     }
 
     public CombatType GetCombatType()
