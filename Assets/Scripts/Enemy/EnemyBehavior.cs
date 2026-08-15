@@ -19,6 +19,7 @@ public class EnemyBehavior : MonoBehaviour
     public NavMeshAgent agent;
     public GameObject player;
     public bool following;
+    private Transform currentTarget;
     private Vector3 startPoint;
     private Transform firePoint;
     [SerializeField] private GameObject projectilePrefab;
@@ -103,26 +104,26 @@ public class EnemyBehavior : MonoBehaviour
 
     public void Engage(Transform target)
     {
-        if(agent == null || !agent.enabled)
+        if (agent == null || !agent.enabled)
         {
             return;
         }
 
-        agent.updateRotation = false;
-
+        currentTarget = target;
         following = true;
+
         float distance = Vector3.Distance(transform.position, target.position);
 
-        if(combatType == CombatType.Melee)
+        if (combatType == CombatType.Melee)
         {
-            EngageMelee(target, distance);
+            EngageMelee(target, distance); 
         }
         else
         {
-            EngageRanged(target, distance);
+            EngageRanged(target, distance);  
         }
-    }
-
+            
+}
     public void Disengage()
     {
         following = false;
@@ -155,7 +156,7 @@ public class EnemyBehavior : MonoBehaviour
     {
         if(shootRoutine == null)
         {
-            shootRoutine = StartCoroutine(ShootTarget(target));
+            shootRoutine = StartCoroutine(ShootTarget());
         }
 
         if(distance > Enemy.StopDistance)
@@ -286,26 +287,39 @@ public class EnemyBehavior : MonoBehaviour
     }
 
 
-    public IEnumerator ShootTarget(Transform target)
+    public IEnumerator ShootTarget()
     {
-        while (true)
+        while (following && currentTarget != null)
         {
             yield return new WaitForSeconds(Enemy.ShootDelay);
 
+            if (!following || currentTarget == null)
+            {
+                yield break;
+            }
+
             GameObject projectile = Instantiate(projectilePrefab, firePoint.position, Quaternion.identity);
 
-            Vector3 aimPoint = target.position + Vector3.up * 1.0f;
+            Vector3 aimPoint = currentTarget.position + Vector3.up * 1.0f;
             Vector3 direction = (aimPoint - firePoint.position).normalized;
 
             Rigidbody projectileRb = projectile.GetComponent<Rigidbody>();
             projectileRb.linearVelocity = direction * Enemy.ProjectileSpeed;
         }
+
+        shootRoutine = null;
     }
 
-    public void TakeDamage(int damage)
+    public void TakeDamage(int damage, GameObject source)
     {
         Enemy.Hit(damage);
         Debug.Log("Damage done: " + damage);
+
+        if (source.CompareTag("Player"))
+        {
+            Engage(source.transform);
+        }
+
         if (Enemy.HP == 0)
         {
             StopShooting();

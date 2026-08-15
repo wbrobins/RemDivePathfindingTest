@@ -85,7 +85,7 @@ public class CarryableBehavior : MonoBehaviour
                 if (enemyBehavior != null)
                 {
                     enemyBehavior.ApplyKnockback(transform.position, Carryable.ExplosionForce, Carryable.ExplodeRange,Carryable.ExplosionUpwardsModifier);
-                    enemyBehavior.TakeDamage(Carryable.ExplodeDamage);
+                    enemyBehavior.TakeDamage(Carryable.ExplodeDamage, gameObject);
                 }
             }
         }
@@ -109,7 +109,7 @@ public class CarryableBehavior : MonoBehaviour
 
                 if (enemy != null)
                 {
-                    enemy.TakeDamage(Carryable.ThrowDamage);
+                    enemy.TakeDamage(Carryable.ThrowDamage, gameObject);
                 }  
 
                 if (carryableBase.Explodable)

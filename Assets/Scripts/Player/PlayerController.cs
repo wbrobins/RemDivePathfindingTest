@@ -468,7 +468,7 @@ public class PlayerController : MonoBehaviour
 
                 if (enemyBehavior != null)
                 {
-                    enemyBehavior.TakeDamage(1);
+                    enemyBehavior.TakeDamage(1, gameObject);
                 }
             }
         }

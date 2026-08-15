@@ -121,7 +121,7 @@ public class PlayerWeapon : MonoBehaviour
 
                     if (enemyBehavior != null)
                     {
-                        enemyBehavior.TakeDamage(CurrWeapon.Damage);
+                        enemyBehavior.TakeDamage(CurrWeapon.Damage, gameObject);
                     }
                 } 
                 else if (hit.collider.TryGetComponent(out CarryableBehavior explosive) && explosive.IsExplodable)
