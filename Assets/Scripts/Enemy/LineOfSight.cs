@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class LineOfSight : MonoBehaviour
@@ -14,7 +15,8 @@ public class LineOfSight : MonoBehaviour
     private SphereCollider detection_collider;
     private Coroutine detect_player;
     private Coroutine lose_target;
-    private Coroutine shoot_coroutine;
+
+    private readonly HashSet<Collider> playerCollidersInRange = new HashSet<Collider>();
 
     void Awake()
     {
@@ -23,35 +25,58 @@ public class LineOfSight : MonoBehaviour
 
     void Update()
     {
-        DrawLineOfSight();
+        if (parent.showLoS)
+        {
+           DrawLineOfSight(); 
+        }
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if(other.tag == "Player")
+        if (other.tag != "Player")
         {
-            if(lose_target != null)
-            {
-                StopCoroutine(lose_target);
-                lose_target = null;
-            }
+            return;
+        }
 
-            target = other.gameObject;
-            player_collider=other;
+        bool wasEmpty = playerCollidersInRange.Count == 0;
+        playerCollidersInRange.Add(other);
 
-            if(detect_player == null)
-            {
-                detect_player = StartCoroutine(DetectPlayer());
-            }
+        Collider rootCollider = other.transform.root.GetComponent<Collider>();
+        player_collider = rootCollider != null ? rootCollider : other;
+        target = other.transform.root.gameObject;
+
+        if (!wasEmpty)
+        {
+            return;
+        }
+
+        if (lose_target != null)
+        {
+            StopCoroutine(lose_target);
+            lose_target = null;
+        }
+
+        if (detect_player == null)
+        {
+            detect_player = StartCoroutine(DetectPlayer());
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        if(other.tag == "Player")
+        if (other.tag != "Player")
         {
-            lose_target = StartCoroutine(LoseTargetDelay());
+            return;
         }
+
+        playerCollidersInRange.Remove(other);
+
+        if (playerCollidersInRange.Count > 0)
+        {
+            return;
+        }
+
+        lose_target = StartCoroutine(LoseTargetDelay());
     }
 
     IEnumerator DetectPlayer()
@@ -64,16 +89,19 @@ public class LineOfSight : MonoBehaviour
 
             int points_hidden = 0;
 
-            foreach(Vector3 point in points)
+            foreach (Vector3 point in points)
             {
                 Vector3 target_direction = point - transform.position;
                 float target_distance = target_direction.magnitude;
                 float target_angle = Vector3.Angle(target_direction.normalized, transform.forward);
                 bool covered = IsPointCovered(target_direction.normalized, target_distance);
 
-                Color ray_color = (covered || target_angle > losAngle) ? Color.red : Color.green;
+                if (parent.showLoS)
+                {     
+                    Color ray_color = (covered || target_angle > losAngle) ? Color.red : Color.green;
 
-                Debug.DrawRay(transform.position, target_direction, ray_color, 1.0f);
+                    Debug.DrawRay(transform.position, target_direction, ray_color, 1.0f);
+                }
 
                 if (covered || target_angle > losAngle)
                 {
@@ -81,14 +109,10 @@ public class LineOfSight : MonoBehaviour
                 }
             }
 
-            if(points_hidden >= points.Length)
+            if (points_hidden >= points.Length)
             {
                 //Debug.Log("Player hidden");
-                if(shoot_coroutine != null)
-                {
-                    StopCoroutine(shoot_coroutine);
-                    shoot_coroutine = null;
-                }
+                parent.Disengage();
             }
             else
             {
@@ -97,25 +121,15 @@ public class LineOfSight : MonoBehaviour
 
                 bool tooFar = distance > goHomeDistance;
 
-                if(!tooFar) //follow and shoot if player is visible and not too far from start point
+                if (!tooFar) // engage (chase/strafe/melee/shoot - EnemyBehavior decides which) if visible and not too far from start
                 {
-                    parent.Engage(target.transform); //follow player if visible
-                    if(shoot_coroutine == null && parent.GetCombatType() == EnemyBehavior.CombatType.Ranged) //shoot player if visible and enemy is ranged
-                    {
-                        //shoot_coroutine = StartCoroutine(parent.ShootTarget());
-                    }
+                    parent.Engage(target.transform);
                 }
-                else   //return to start point if too far
+                else // too far from home, give up and head back
                 {
+                    parent.Disengage();
                     parent.GoToStartPoint();
-                    if(shoot_coroutine != null)
-                    {
-                        StopCoroutine(shoot_coroutine);
-                        shoot_coroutine = null;
-                    }
-
                 }
-                
             }
         }
     }
@@ -126,22 +140,17 @@ public class LineOfSight : MonoBehaviour
 
         target = null;
 
-        if(detect_player != null)
+        if (detect_player != null)
         {
             StopCoroutine(detect_player);
             detect_player = null;
         }
 
-        if(shoot_coroutine != null)
-        {
-            StopCoroutine(shoot_coroutine);
-            shoot_coroutine = null;
-        }
-
+        parent.Disengage();
         parent.GoToStartPoint();
     }
 
-    private Vector3[] GetBoundingPoints( Bounds bounds )
+    private Vector3[] GetBoundingPoints(Bounds bounds)
     {
         Vector3[] bounding_points =
         {
@@ -157,23 +166,25 @@ public class LineOfSight : MonoBehaviour
         return bounding_points;
     }
 
-    private bool IsPointCovered( Vector3 target_direction, float target_distance )
+    private bool IsPointCovered(Vector3 target_direction, float target_distance)
     {
-        RaycastHit[] hits = Physics.RaycastAll(transform.position, target_direction.normalized, target_distance );
+        RaycastHit[] hits = Physics.RaycastAll(transform.position, target_direction.normalized, target_distance);
 
-        foreach ( RaycastHit hit in hits )
+        foreach (RaycastHit hit in hits)
         {
-            Debug.DrawLine(transform.position, hit.point, Color.yellow, 1.0f);
-            if ( hit.transform.gameObject.layer == LayerMask.NameToLayer( "Cover" ) )
+            if (parent.showLoS)
             {
-                float cover_distance = Vector3.Distance(transform.position, hit.point );
+                Debug.DrawLine(transform.position, hit.point, Color.yellow, 1.0f);
+            }
+            if (hit.transform.gameObject.layer == LayerMask.NameToLayer("Cover"))
+            {
+                float cover_distance = Vector3.Distance(transform.position, hit.point);
 
-                if ( cover_distance < target_distance)
+                if (cover_distance < target_distance)
                 {
                     //Debug.Log("Point covered");
-                    return true;  
+                    return true;
                 }
-                    
             }
         }
 
@@ -190,8 +201,8 @@ public class LineOfSight : MonoBehaviour
 
         Debug.DrawRay(transform.position, transform.forward * view_distance, Color.blue);
 
-        Debug.DrawRay(transform.position, left_boundary*view_distance, Color.cyan);
+        Debug.DrawRay(transform.position, left_boundary * view_distance, Color.cyan);
 
-        Debug.DrawRay(transform.position, right_boundary*view_distance, Color.cyan);
+        Debug.DrawRay(transform.position, right_boundary * view_distance, Color.cyan);
     }
 }

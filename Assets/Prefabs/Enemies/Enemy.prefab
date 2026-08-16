@@ -154,6 +154,13 @@ MonoBehaviour:
   following: 0
   projectilePrefab: {fileID: 3900131945318901171, guid: 117a0b9f71d2d604ebbd630793c4db84, type: 3}
   enemyBase: {fileID: 11400000, guid: 8f3363a1182258446a84169b652faed9, type: 2}
+  combatType: 0
+  moveType: 0
+  meleeRange: 0
+  meleeDamage: 0
+  meleeCooldown: 0
+  strafeSpeed: 3
+  strafeChangeInterval: 2
   knockbackRecoveryDelay: 0.4
 --- !u!54 &359201585799234223
 Rigidbody:

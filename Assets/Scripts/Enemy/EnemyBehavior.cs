@@ -19,11 +19,13 @@ public class EnemyBehavior : MonoBehaviour
     public NavMeshAgent agent;
     public GameObject player;
     public bool following;
+    public bool showLoS = true;
     private Transform currentTarget;
     private Vector3 startPoint;
     private Transform firePoint;
     [SerializeField] private GameObject projectilePrefab;
     [SerializeField] private EnemyBase enemyBase;
+    [SerializeField] private float speed;
  
     [Header("Combat Type")]
     [SerializeField] private CombatType combatType = CombatType.Ranged;
@@ -71,6 +73,7 @@ public class EnemyBehavior : MonoBehaviour
         strafeSpeed = enemy.StrafeSpeed;
         strafeChangeInterval = enemy.StrafeChangeInterval;
         knockbackRecoveryDelay = enemy.KnockbackRecoveryDelay;
+        speed = enemy.Speed;
         combatType = (CombatType)enemy.ECombatType;
         moveType = (MoveType)enemy.EMoveType;
     }
@@ -90,6 +93,7 @@ public class EnemyBehavior : MonoBehaviour
         }
 
         agent.updateRotation = false;
+        agent.speed = speed;
 
         if(moveType == MoveType.Air)
         {
@@ -97,6 +101,20 @@ public class EnemyBehavior : MonoBehaviour
         }
     }
 
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.G))
+        {
+            if (showLoS)
+            {
+                showLoS = false;
+            }
+            else
+            {
+                showLoS = true;
+            }
+        }
+    }
     public CombatType GetCombatType()
     {
         return combatType;
@@ -109,6 +127,7 @@ public class EnemyBehavior : MonoBehaviour
             return;
         }
 
+        agent.speed = speed;
         currentTarget = target;
         following = true;
 
@@ -127,6 +146,7 @@ public class EnemyBehavior : MonoBehaviour
     public void Disengage()
     {
         following = false;
+        agent.updateRotation = true;
         StopShooting();
     }
 
@@ -154,6 +174,7 @@ public class EnemyBehavior : MonoBehaviour
 
     void EngageRanged(Transform target, float distance)
     {
+        agent.updateRotation = false;
         if(shootRoutine == null)
         {
             shootRoutine = StartCoroutine(ShootTarget());

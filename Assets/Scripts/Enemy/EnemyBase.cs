@@ -17,6 +17,7 @@ public class EnemyBase : ScriptableObject
     }
     [SerializeField] string enemyName;
     [SerializeField] int hp;
+    [SerializeField] float speed = 5;
     [SerializeField] float knockbackRecoveryDelay = .4f;
     [SerializeField] GameObject basePrefab;
 
@@ -46,6 +47,7 @@ public class EnemyBase : ScriptableObject
 
     public string Name => enemyName;
     public int HP => hp;
+    public float Speed => speed;
     public CombatType ECombatType => combatType;
     public MoveType EMoveType => moveType;
     public float ShootDelay => shootDelay;
