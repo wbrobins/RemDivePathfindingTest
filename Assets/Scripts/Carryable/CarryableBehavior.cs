@@ -4,6 +4,7 @@ using UnityEngine;
 public class CarryableBehavior : MonoBehaviour
 {
     [SerializeField] private CarryableBase carryableBase;
+    [SerializeField] private float dropOffset = 1.5f;
 
     private Rigidbody rb;
     private Collider carryableCollider;
@@ -41,11 +42,12 @@ public class CarryableBehavior : MonoBehaviour
         carryableCollider.enabled = false;
     }
 
-    public void Drop()
+    public void Drop(Vector3 direction)
     {
         transform.SetParent(null);
-
         transform.localScale = Vector3.one;
+
+        transform.position += direction.normalized * dropOffset;
 
         rb.isKinematic = false;
         rb.useGravity = true;

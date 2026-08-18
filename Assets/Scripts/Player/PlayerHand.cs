@@ -39,9 +39,10 @@ public class PlayerHand : MonoBehaviour
                     }
                 } 
             }
-            else if (carrying)
+            else if (carrying && currentCarryable != null)
             {
-                currentCarryable.Drop();
+                Vector3 direction = camera.transform.forward;
+                currentCarryable.Drop(direction);
                 currentCarryable = null;
                 carrying = false;
             }
