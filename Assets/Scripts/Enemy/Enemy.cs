@@ -21,6 +21,7 @@ public class Enemy
     [SerializeField] float speed;
     [SerializeField] private CombatType combatType = CombatType.Ranged;
     [SerializeField] private MoveType moveType = MoveType.Ground;
+    [SerializeField] int rangedDamage;
     [SerializeField] float shootDelay;
     [SerializeField] float projectileSpeed;
     [SerializeField] float stopDistance;
@@ -40,6 +41,7 @@ public class Enemy
     public float Speed => speed;
     public CombatType ECombatType => combatType;
     public MoveType EMoveType => moveType;
+    public int RangedDamage => rangedDamage;
     public float ShootDelay => shootDelay;
     public float ProjectileSpeed => projectileSpeed;
     public float StopDistance => stopDistance;
@@ -57,6 +59,7 @@ public class Enemy
         hp = enemyBase.HP;
         maxHp = enemyBase.HP;
         speed = enemyBase.Speed;
+        rangedDamage = enemyBase.RangedDamage;
         shootDelay = enemyBase.ShootDelay;
         projectileSpeed = enemyBase.ProjectileSpeed;
         stopDistance = enemyBase.StopDistance;

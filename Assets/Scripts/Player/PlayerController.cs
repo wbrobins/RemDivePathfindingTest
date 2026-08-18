@@ -1,5 +1,7 @@
 using System.Collections;
+using UnityEditor.SearchService;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public enum MovementState
 {
@@ -16,6 +18,8 @@ public class PlayerController : MonoBehaviour
 {
     private Rigidbody rb;
     private CapsuleCollider pCollider;
+
+    [SerializeField] public int hp = 10;
 
     [SerializeField] private new GameObject camera;
     [SerializeField] private Transform cameraTransform;
@@ -452,6 +456,15 @@ public class PlayerController : MonoBehaviour
         currState = MovementState.Jumping;
     }
 
+    public void TakeDamage(int damage)
+    {
+        hp -= damage;
+        if(hp <= 0)
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        }
+    }
+    
     IEnumerator ShootRoutine()
     {
         //raycast logic here

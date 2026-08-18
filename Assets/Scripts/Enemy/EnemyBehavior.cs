@@ -168,7 +168,8 @@ public class EnemyBehavior : MonoBehaviour
         if(Vector3.Distance(transform.position, target.position) <= meleeRange)
         {
             Debug.Log("Player hit by melee attack");
-            //health logic here
+            PlayerController player = target.GetComponent<PlayerController>();
+            player.TakeDamage(Enemy.MeleeDamage);
         }
     }
 
@@ -319,12 +320,14 @@ public class EnemyBehavior : MonoBehaviour
                 yield break;
             }
 
-            GameObject projectile = Instantiate(projectilePrefab, firePoint.position, Quaternion.identity);
+            GameObject projectileInstance = Instantiate(projectilePrefab, firePoint.position, Quaternion.identity);
+            Projectile projectile = projectileInstance.GetComponent<Projectile>();
+            projectile.SetDamage(Enemy.RangedDamage);
 
             Vector3 aimPoint = currentTarget.position + Vector3.up * 1.0f;
             Vector3 direction = (aimPoint - firePoint.position).normalized;
 
-            Rigidbody projectileRb = projectile.GetComponent<Rigidbody>();
+            Rigidbody projectileRb = projectileInstance.GetComponent<Rigidbody>();
             projectileRb.linearVelocity = direction * Enemy.ProjectileSpeed;
         }
 

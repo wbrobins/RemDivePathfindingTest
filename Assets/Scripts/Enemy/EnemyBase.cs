@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 
@@ -26,6 +27,7 @@ public class EnemyBase : ScriptableObject
     [SerializeField] private MoveType moveType = MoveType.Ground;
 
     [Header("Ranged Attack")]
+    [SerializeField] int rangedDamage = 2;
     [SerializeField] float shootDelay;
     [SerializeField] float projectileSpeed;
     [SerializeField] float stopDistance;
@@ -50,6 +52,7 @@ public class EnemyBase : ScriptableObject
     public float Speed => speed;
     public CombatType ECombatType => combatType;
     public MoveType EMoveType => moveType;
+    public int RangedDamage => rangedDamage;
     public float ShootDelay => shootDelay;
     public float ProjectileSpeed => projectileSpeed;
     public float StopDistance => stopDistance;
