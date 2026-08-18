@@ -266,7 +266,7 @@ MonoBehaviour:
   shootDelay: 2
   slideSpeed: 15
   slideDuration: 0.75
-  slideJumpMultiplier: 1.2
+  slideJumpMultiplier: 1.1
   airControlStrength: 2
   groundCheck: {fileID: 3662438517423644468}
   groundCheckRadius: 0.5
@@ -282,7 +282,7 @@ MonoBehaviour:
   maxGrappleExitSpeed: 10
   grappleLookMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 63
 --- !u!54 &4924204385549590538
 Rigidbody:
   m_ObjectHideFlags: 0

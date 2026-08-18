@@ -2699,14 +2699,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
-    - target: {fileID: 2145110102053727134, guid: 694f68422eab9024d865882ad80064cd, type: 3}
-      propertyPath: slideJumpMultiplier
-      value: 1.1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2145110102053727134, guid: 694f68422eab9024d865882ad80064cd, type: 3}
-      propertyPath: grappleLookMask.m_Bits
-      value: 63
-      objectReference: {fileID: 0}
     - target: {fileID: 4791245135656045557, guid: 694f68422eab9024d865882ad80064cd, type: 3}
       propertyPath: m_LocalPosition.x
       value: 14.26
