@@ -464,6 +464,11 @@ public class PlayerController : MonoBehaviour
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
     }
+
+    public GameObject GetCamera()
+    {
+        return camera;
+    }
     
     IEnumerator ShootRoutine()
     {
