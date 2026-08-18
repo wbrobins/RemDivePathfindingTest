@@ -337,7 +337,7 @@ public class EnemyBehavior : MonoBehaviour
     public void TakeDamage(int damage, GameObject source)
     {
         Enemy.Hit(damage);
-        Debug.Log("Damage done: " + damage);
+        Debug.Log("Damage done: " + damage + " from " + source.name);
 
         if (source.CompareTag("Player"))
         {
