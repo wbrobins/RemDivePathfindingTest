@@ -47,7 +47,7 @@ public class PlayerHand : MonoBehaviour
             }
         }
 
-        if (Input.GetMouseButtonDown(0) && carrying && !playerWeapon.Shooting)
+        if (Input.GetMouseButtonDown(0) && carrying && !playerWeapon.Shooting && currentCarryable != null)
         {
             currentCarryable.Throw(camera.transform.forward, throwForce);
             currentCarryable = null;

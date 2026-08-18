@@ -9,6 +9,7 @@ public class PlayerWeapon : MonoBehaviour
     [SerializeField] private GameObject playerHandObj;
     private PlayerHand playerHand;
     [SerializeField] private int currWeaponSlot = 0;
+    [SerializeField] private LayerMask shootRaycastMask = ~0;
 
     public bool Shooting => shooting;
     public Weapon[] weapons;
@@ -113,7 +114,7 @@ public class PlayerWeapon : MonoBehaviour
 
             Debug.DrawRay(origin, direction * 50f, Color.red, 1f);
 
-            if (Physics.Raycast(origin, direction, out RaycastHit hit, 50f))
+            if (Physics.Raycast(origin, direction, out RaycastHit hit, 50f, shootRaycastMask))
             {
                 if (hit.collider.CompareTag("Enemy"))
                 {
@@ -127,6 +128,7 @@ public class PlayerWeapon : MonoBehaviour
                 else if (hit.collider.TryGetComponent(out CarryableBehavior explosive) && explosive.IsExplodable)
                 {
                     explosive.Explode();
+                    Debug.Log("Explode!");
                 }
                 
             }

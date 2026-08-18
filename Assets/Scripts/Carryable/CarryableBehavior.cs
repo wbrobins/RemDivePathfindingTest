@@ -59,6 +59,8 @@ public class CarryableBehavior : MonoBehaviour
         transform.SetParent(null);
         transform.localScale = Vector3.one;
 
+        transform.position += Vector3.up;
+
 
         rb.isKinematic = false;
         rb.useGravity = true;

@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 1335640675110945377}
   - component: {fileID: 1633139362837425509}
   - component: {fileID: 359201585799234223}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Enemy
   m_TagString: Enemy
   m_Icon: {fileID: 0}
@@ -152,8 +152,10 @@ MonoBehaviour:
   agent: {fileID: 1335640675110945377}
   player: {fileID: 0}
   following: 0
+  showLoS: 1
   projectilePrefab: {fileID: 3900131945318901171, guid: 117a0b9f71d2d604ebbd630793c4db84, type: 3}
   enemyBase: {fileID: 11400000, guid: 8f3363a1182258446a84169b652faed9, type: 2}
+  speed: 0
   combatType: 0
   moveType: 0
   meleeRange: 0
@@ -198,7 +200,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8127388097326608257}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: FirePoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -232,7 +234,7 @@ GameObject:
   - component: {fileID: 4716443168889275651}
   - component: {fileID: 63488596763563321}
   - component: {fileID: 4149476323753697815}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -318,7 +320,7 @@ GameObject:
   - component: {fileID: 6942004349372852102}
   - component: {fileID: 2919564594573308768}
   - component: {fileID: 7636142424306639997}
-  m_Layer: 2
+  m_Layer: 7
   m_Name: LineOfSight
   m_TagString: Untagged
   m_Icon: {fileID: 0}

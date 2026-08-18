@@ -252,6 +252,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8eb46230c7ac5d94896f7d57150352b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hp: 10
   camera: {fileID: 6483596503616826858}
   cameraTransform: {fileID: 450136636272070367}
   standingHeight: 0
@@ -748,6 +749,9 @@ MonoBehaviour:
   camera: {fileID: 6483596503616826858}
   playerHandObj: {fileID: 105139761829034220}
   currWeaponSlot: 0
+  shootRaycastMask:
+    serializedVersion: 2
+    m_Bits: 127
   weapons:
   - weaponBase: {fileID: 11400000, guid: b414136a059aa4f45b3880c6f7a115f1, type: 2}
     weapon_id: 
