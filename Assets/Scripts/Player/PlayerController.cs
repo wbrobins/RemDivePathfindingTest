@@ -33,7 +33,6 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float crouchSpeed = 2.5f;
     [SerializeField] private float crouchHeight = -0.5f;
     [SerializeField] private float jumpForce = 5f;
-    [SerializeField] private float shootDelay = 2.0f;
     [SerializeField] private float slideSpeed = 15f;
     [SerializeField] private float slideDuration = .75f;
     [SerializeField] private float slideJumpMultiplier = 1.2f;
@@ -68,7 +67,6 @@ public class PlayerController : MonoBehaviour
 
     private bool jumpPressed;
     private bool grounded;
-    private bool shooting = false;
     private float slideTimer;
     private Vector3 slideDirection;
 

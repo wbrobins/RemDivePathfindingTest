@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 937165767022210149}
   - component: {fileID: 7351331290648605501}
   - component: {fileID: 1985859565028087568}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: PlayerHand
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -105,7 +105,7 @@ BoxCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
@@ -263,7 +263,6 @@ MonoBehaviour:
   crouchSpeed: 2.5
   crouchHeight: -0.5
   jumpForce: 30
-  shootDelay: 2
   slideSpeed: 15
   slideDuration: 0.75
   slideJumpMultiplier: 1.1
@@ -638,7 +637,7 @@ GameObject:
   - component: {fileID: 6179174225214112711}
   - component: {fileID: 6969741783169372533}
   - component: {fileID: 2963501712387504835}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: PlayerWeapon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -730,7 +729,7 @@ BoxCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
@@ -751,7 +750,7 @@ MonoBehaviour:
   currWeaponSlot: 0
   shootRaycastMask:
     serializedVersion: 2
-    m_Bits: 127
+    m_Bits: 123
   weapons:
   - weaponBase: {fileID: 11400000, guid: b414136a059aa4f45b3880c6f7a115f1, type: 2}
     weapon_id: 

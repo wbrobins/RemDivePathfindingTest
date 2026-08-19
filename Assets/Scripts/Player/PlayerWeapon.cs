@@ -116,6 +116,7 @@ public class PlayerWeapon : MonoBehaviour
 
             if (Physics.Raycast(origin, direction, out RaycastHit hit, 50f, shootRaycastMask))
             {
+                Debug.Log(hit.collider.name);
                 if (hit.collider.CompareTag("Enemy"))
                 {
                     EnemyBehavior enemyBehavior = hit.collider.GetComponent<EnemyBehavior>();
