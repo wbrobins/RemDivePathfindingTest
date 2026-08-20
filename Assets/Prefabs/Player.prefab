@@ -747,6 +747,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   camera: {fileID: 6483596503616826858}
   playerHandObj: {fileID: 105139761829034220}
+  player: {fileID: 799085490292847894}
   currWeaponSlot: 0
   shootRaycastMask:
     serializedVersion: 2

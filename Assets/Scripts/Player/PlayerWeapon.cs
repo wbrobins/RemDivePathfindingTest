@@ -8,6 +8,7 @@ public class PlayerWeapon : MonoBehaviour
     [SerializeField] private new GameObject camera;
     [SerializeField] private GameObject playerHandObj;
     private PlayerHand playerHand;
+    [SerializeField] private GameObject player;
     [SerializeField] private int currWeaponSlot = 0;
     [SerializeField] private LayerMask shootRaycastMask = ~0;
 
@@ -124,6 +125,7 @@ public class PlayerWeapon : MonoBehaviour
                     if (enemyBehavior != null)
                     {
                         enemyBehavior.TakeDamage(CurrWeapon.Damage, gameObject);
+                        enemyBehavior.Engage(player.transform);
                     }
                 } 
                 else if (hit.collider.TryGetComponent(out CarryableBehavior explosive) && explosive.IsExplodable)

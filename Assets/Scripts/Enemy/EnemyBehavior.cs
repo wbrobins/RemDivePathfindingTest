@@ -252,7 +252,7 @@ public class EnemyBehavior : MonoBehaviour
 
     public void GoToStartPoint()
     {
-        if(agent.enabled == true)
+        if(agent.enabled == true && agent.isOnNavMesh)
         {
             agent.stoppingDistance = 0;
             agent.SetDestination(startPoint);
@@ -391,6 +391,7 @@ public class EnemyBehavior : MonoBehaviour
             yield break;
         }
 
+        yield return new WaitUntil(() => agent.isOnNavMesh);  // dont move until agent is back on navmesh
         agent.enabled = true;
         rb.isKinematic = true;
         agent.Warp(transform.position); // resync the agent's internal state to the post-knockback position
