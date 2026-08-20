@@ -53,7 +53,7 @@ public class EnemyBehavior : MonoBehaviour
     public void SetUp(Enemy enemy)
     {
         Enemy = enemy;
-        agent.stoppingDistance = Enemy.StopDistance;
+        //agent.stoppingDistance = Enemy.StopDistance;
         meleeRange = enemy.MeleeRange;
         meleeDamage = enemy.MeleeDamage;
         meleeCooldown = enemy.MeleeCooldown;
@@ -81,6 +81,10 @@ public class EnemyBehavior : MonoBehaviour
         if(movement is AerialMovement)
         {
             rb.useGravity = false;
+            if(agent != null)
+            {
+                agent.enabled = false;
+            }
         }
         else
         {
@@ -109,12 +113,12 @@ public class EnemyBehavior : MonoBehaviour
 
     public void Engage(Transform target)
     {
-        if (agent == null || !agent.enabled)
-        {
-            return;
-        }
+        //if (agent == null || !agent.enabled)
+        //{
+        //    return;
+        //}
 
-        agent.speed = speed;
+        //agent.speed = speed;
         currentTarget = target;
         following = true;
 
@@ -133,8 +137,13 @@ public class EnemyBehavior : MonoBehaviour
     public void Disengage()
     {
         following = false;
-        agent.updateRotation = true;
+        currentTarget = null;
+        if(movement is GroundMovement)
+        {
+            agent.updateRotation = true; 
+        }
         StopShooting();
+        movement.GoToStartPoint();
     }
 
     void EngageMelee(Transform target, float distance)

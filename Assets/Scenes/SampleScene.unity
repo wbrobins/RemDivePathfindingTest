@@ -742,12 +742,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   aerialSpeed: 6
+  acceleration: 8
   rotationSpeed: 5
   detectionRadius: 1.5
   obstacleAvoidanceDistance: 3
   obstacleMask:
     serializedVersion: 2
     m_Bits: 0
+  avoidanceStrength: 2
   strafeSpeed: 4
   strafeChangeInterval: 2
 --- !u!114 &883021693
@@ -913,7 +915,7 @@ Rigidbody:
   m_UseGravity: 0
   m_IsKinematic: 1
   m_Interpolate: 0
-  m_Constraints: 64
+  m_Constraints: 0
   m_CollisionDetection: 1
 --- !u!1 &916069593
 GameObject:
@@ -1892,7 +1894,7 @@ BoxCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}

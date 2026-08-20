@@ -2,19 +2,29 @@ using UnityEngine;
 
 public class AerialMovement : EnemyMovement
 {
-    [Header("Aerial Controls")]
+    [Header("Movement")]
     [SerializeField] private float aerialSpeed = 6f;
+    [SerializeField] private float acceleration = 8f;
     [SerializeField] private float rotationSpeed = 5f;
+
+    [Header("Obstacle Avoidance")]
     [SerializeField] private float detectionRadius = 1.5f;
     [SerializeField] private float obstacleAvoidanceDistance = 3f;
     [SerializeField] private LayerMask obstacleMask;
+    [SerializeField] private float avoidanceStrength = 2f;
 
-    [Header("Aerial Strafing")]
+    [Header("Strafing")]
     [SerializeField] private float strafeSpeed = 4f;
     [SerializeField] private float strafeChangeInterval = 2f;
 
-    private float nextStrafeSwitchTime;
+    private Vector3 desiredDirection;
+    private Vector3 currentVelocity;
+
+    private Transform currentTarget;
+
+    private bool strafing;
     private int strafeDirection = 1;
+    private float nextStrafeSwitchTime;
 
     private Vector3 startPoint;
 
@@ -25,68 +35,118 @@ public class AerialMovement : EnemyMovement
         startPoint = transform.position;
     }
 
-    public override void MoveTo(Vector3 position)
+    private void Update()
     {
-        Vector3 toTarget = position - transform.position;
-
-        if(toTarget.sqrMagnitude < .01f)
+        if (desiredDirection.sqrMagnitude < 0.001f)
         {
             return;
         }
 
-        Vector3 moveDirection = toTarget.normalized;
+        Vector3 finalDirection =
+            GetAvoidanceDirection(desiredDirection);
 
-        if(Physics.SphereCast(transform.position, detectionRadius, moveDirection, out RaycastHit hit, obstacleAvoidanceDistance, obstacleMask, QueryTriggerInteraction.Ignore))
+        Vector3 targetVelocity =
+            finalDirection * aerialSpeed;
+
+        currentVelocity = Vector3.MoveTowards(
+            currentVelocity,
+            targetVelocity,
+            acceleration * Time.deltaTime
+        );
+
+        transform.position +=
+            currentVelocity * Time.deltaTime;
+
+        if (strafing && currentTarget != null)
         {
-            Vector3 avoidanceDirection = hit.normal;
+            FaceTarget(currentTarget);
+        }
+        else
+        {
+            FaceMovementDirection(currentVelocity);
+        }
+    }
 
-            moveDirection = (moveDirection + avoidanceDirection).normalized;
+    public override void MoveTo(Vector3 position)
+    {
+        Vector3 direction =
+            position - transform.position;
+
+        if (direction.sqrMagnitude < 0.01f)
+        {
+            desiredDirection = Vector3.zero;
+            return;
         }
 
-        transform.position += moveDirection * aerialSpeed * Time.deltaTime;
-        
-        FaceMovementDirection(moveDirection);
+        strafing = false;
+        currentTarget = null;
+
+        desiredDirection = direction.normalized;
     }
 
     public override void RetreatFrom(Transform target)
     {
-        Vector3 awayFromTarget = transform.position - target.position;
+        if (target == null)
+        {
+            return;
+        }
 
-        if(awayFromTarget.sqrMagnitude < .001f){return;}
+        Vector3 direction =
+            transform.position - target.position;
 
-        awayFromTarget.Normalize();
+        if (direction.sqrMagnitude < 0.001f)
+        {
+            return;
+        }
 
-        Vector3 retreatPosition = transform.position + awayFromTarget * 5f;
+        strafing = false;
+        currentTarget = null;
 
-        MoveTo(retreatPosition);
-
-        
+        desiredDirection = direction.normalized;
     }
 
     public override void Strafe(Transform target)
     {
-        if(target == null) {return;}
-
-        if(Time.time >= nextStrafeSwitchTime)
+        if (target == null)
         {
-            nextStrafeSwitchTime = Time.time + strafeChangeInterval;
-
-            strafeDirection = Random.value < .5f ? -1 : 1;
+            return;
         }
 
-        Vector3 toTarget = target.position - transform.position;
+        currentTarget = target;
+        strafing = true;
 
-        if(toTarget.sqrMagnitude < .001f){return;}
+        if (Time.time >= nextStrafeSwitchTime)
+        {
+            nextStrafeSwitchTime =
+                Time.time + strafeChangeInterval;
+
+            strafeDirection =
+                Random.value < 0.5f ? -1 : 1;
+        }
+
+        Vector3 toTarget =
+            target.position - transform.position;
+
+        if (toTarget.sqrMagnitude < 0.001f)
+        {
+            desiredDirection = Vector3.zero;
+            return;
+        }
 
         float distance = toTarget.magnitude;
 
-        Vector3 directionToTarget = toTarget.normalized;
+        Vector3 directionToTarget =
+            toTarget.normalized;
 
-        Vector3 strafeDirectionVector = Vector3.Cross(directionToTarget, Vector3.up) * strafeDirection;
+        Vector3 strafe =
+            Vector3.Cross(
+                directionToTarget,
+                Vector3.up
+            ) * strafeDirection;
 
         Vector3 distanceCorrection = Vector3.zero;
 
-        if(distance > enemy.Enemy.StopDistance)
+        if (distance > enemy.Enemy.StopDistance)
         {
             distanceCorrection = directionToTarget;
         }
@@ -95,17 +155,82 @@ public class AerialMovement : EnemyMovement
             distanceCorrection = -directionToTarget;
         }
 
-        Vector3 desiredDirection = strafeDirectionVector + distanceCorrection;
+        Vector3 direction =
+            strafe +
+            distanceCorrection;
 
-        if (desiredDirection.sqrMagnitude < .001f) { return; }
+        if (direction.sqrMagnitude > 0.001f)
+        {
+            desiredDirection =
+                direction.normalized;
+        }
+    }
 
-        desiredDirection.Normalize();
+    private Vector3 GetAvoidanceDirection(Vector3 movementDirection)
+    {
+        if (!Physics.SphereCast(
+            transform.position,
+            detectionRadius,
+            movementDirection,
+            out RaycastHit hit,
+            obstacleAvoidanceDistance,
+            obstacleMask,
+            QueryTriggerInteraction.Ignore))
+        {
+            return movementDirection;
+        }
 
-        Vector3 desiredPosition = transform.position + desiredDirection * strafeSpeed;
+        Vector3 avoidance =
+            hit.normal * avoidanceStrength;
 
-        MoveTo(desiredPosition);
+        Vector3 result =
+            movementDirection + avoidance;
 
-        FaceTarget(target);
+        if (result.sqrMagnitude < 0.001f)
+        {
+            return hit.normal;
+        }
+
+        return result.normalized;
+    }
+
+    private void FaceTarget(Transform target)
+    {
+        Vector3 direction =
+            target.position - transform.position;
+
+        if (direction.sqrMagnitude < 0.001f)
+        {
+            return;
+        }
+
+        Quaternion targetRotation =
+            Quaternion.LookRotation(direction);
+
+        transform.rotation =
+            Quaternion.Slerp(
+                transform.rotation,
+                targetRotation,
+                rotationSpeed * Time.deltaTime
+            );
+    }
+
+    private void FaceMovementDirection(Vector3 direction)
+    {
+        if (direction.sqrMagnitude < 0.001f)
+        {
+            return;
+        }
+
+        Quaternion targetRotation =
+            Quaternion.LookRotation(direction);
+
+        transform.rotation =
+            Quaternion.Slerp(
+                transform.rotation,
+                targetRotation,
+                rotationSpeed * Time.deltaTime
+            );
     }
 
     public override void GoToStartPoint()
@@ -115,35 +240,31 @@ public class AerialMovement : EnemyMovement
 
     public override void StopMovement()
     {
-        
-    }
-    
-    private void FaceTarget(Transform target)
-    {
-        Vector3 lookDirection = target.position - transform.position;
-
-        if(lookDirection.sqrMagnitude < .001f){return;}
-
-        Quaternion targetRotation = Quaternion.LookRotation(lookDirection);
-
-        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
+        desiredDirection = Vector3.zero;
+        currentVelocity = Vector3.zero;
+        currentTarget = null;
+        strafing = false;
     }
 
-    private void FaceMovementDirection(Vector3 direction)
+    public override void OnKnockbackEnd()
     {
-        if(direction.sqrMagnitude < .001f) {return;}
-
-        Quaternion targetRotation = Quaternion.LookRotation(direction);
-
-        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
+        currentVelocity = Vector3.zero;
+        desiredDirection = Vector3.zero;
     }
 
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.red;
 
-        Gizmos.DrawWireSphere(transform.position, detectionRadius);
+        Gizmos.DrawWireSphere(
+            transform.position,
+            detectionRadius
+        );
 
-        Gizmos.DrawRay(transform.position, transform.forward * obstacleAvoidanceDistance);
+        Gizmos.DrawRay(
+            transform.position,
+            transform.forward *
+            obstacleAvoidanceDistance
+        );
     }
 }
