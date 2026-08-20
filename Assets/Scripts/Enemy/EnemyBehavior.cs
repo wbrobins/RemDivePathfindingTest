@@ -9,12 +9,6 @@ public class EnemyBehavior : MonoBehaviour
         Ranged,
         Melee
     }
-
-    public enum MoveType
-    {
-        Ground,
-        Air
-    }
  
     public NavMeshAgent agent;
     public GameObject player;
@@ -29,22 +23,13 @@ public class EnemyBehavior : MonoBehaviour
  
     [Header("Combat Type")]
     [SerializeField] private CombatType combatType = CombatType.Ranged;
-    [SerializeField] private MoveType moveType = MoveType.Ground;
+
  
     [Header("Melee Attack")]
     [SerializeField] private float meleeRange;
     [SerializeField] private int meleeDamage;
     [SerializeField] private float meleeCooldown;
     private float lastMeleeTime = -Mathf.Infinity;
- 
-    [Header("Ranged Strafing")]
-    [Tooltip("How fast the enemy sidesteps while holding position and shooting")]
-    [SerializeField] private float strafeSpeed;
-    [Tooltip("How often a new random strafe direction is picked")]
-    [SerializeField] private float strafeChangeInterval;
-    private float nextStrafeSwitchTime;
-    private float lastStrafeTickTime = -1f;
-    private int strafeDirection = 1;
  
     [Header("Knockback")]
     [Tooltip("How long physics fully controls the enemy after an explosion before the NavMeshAgent takes back over")]
@@ -53,6 +38,8 @@ public class EnemyBehavior : MonoBehaviour
     private Rigidbody rb;
     private Coroutine knockbackRoutine;
     private Coroutine shootRoutine;
+
+    [SerializeField] private EnemyMovement movement;
  
     public Enemy Enemy { get; private set; }
 
@@ -70,12 +57,9 @@ public class EnemyBehavior : MonoBehaviour
         meleeRange = enemy.MeleeRange;
         meleeDamage = enemy.MeleeDamage;
         meleeCooldown = enemy.MeleeCooldown;
-        strafeSpeed = enemy.StrafeSpeed;
-        strafeChangeInterval = enemy.StrafeChangeInterval;
         knockbackRecoveryDelay = enemy.KnockbackRecoveryDelay;
         speed = enemy.Speed;
         combatType = (CombatType)enemy.ECombatType;
-        moveType = (MoveType)enemy.EMoveType;
     }
 
     void Start()
@@ -92,12 +76,15 @@ public class EnemyBehavior : MonoBehaviour
             rb.isKinematic = true;
         }
 
-        agent.updateRotation = false;
-        agent.speed = speed;
+        movement.Initialize(this);
 
-        if(moveType == MoveType.Air)
+        if(movement is AerialMovement)
         {
-            rb.useGravity =false;
+            rb.useGravity = false;
+        }
+        else
+        {
+            rb.useGravity = true;
         }
     }
 
@@ -152,7 +139,10 @@ public class EnemyBehavior : MonoBehaviour
 
     void EngageMelee(Transform target, float distance)
     {
-        FollowTarget(target.position);
+        if (distance > meleeRange)
+        {
+            movement.MoveTo(target.position);
+        }
 
         if(distance <= meleeRange && Time.time >= lastMeleeTime + meleeCooldown)
         {
@@ -175,7 +165,10 @@ public class EnemyBehavior : MonoBehaviour
 
     void EngageRanged(Transform target, float distance)
     {
-        agent.updateRotation = false;
+        if(movement is GroundMovement)
+        {
+            agent.updateRotation = false;
+        }
         if(shootRoutine == null)
         {
             shootRoutine = StartCoroutine(ShootTarget());
@@ -183,56 +176,16 @@ public class EnemyBehavior : MonoBehaviour
 
         if(distance > Enemy.StopDistance)
         {
-            FollowTarget(target.position);
+            movement.MoveTo(target.position);
         }
         else if (distance < Enemy.MinRange)
         {
-            RetreatFrom(target);
+            movement.RetreatFrom(target);
         }
         else
         {
-           HandleStrafing(target); 
+           movement.Strafe(target);
            transform.LookAt(target.position);
-        }
-    }
-
-    void HandleStrafing(Transform target)
-    {
-        float now = Time.time;
-        float dt = lastStrafeTickTime < 0f ? 0f : now - lastStrafeTickTime;
-        lastStrafeTickTime = now;
-
-        // Pick a new direction periodically
-        if (now >= nextStrafeSwitchTime)
-        {
-            nextStrafeSwitchTime = now + strafeChangeInterval;
-            strafeDirection = Random.value < 0.5f ? -1 : 1;
-        }
-
-        // Face the player
-        Vector3 lookDirection = target.position - transform.position;
-        lookDirection.y = 0f;
-
-        if (lookDirection.sqrMagnitude > 0.001f)
-        {
-            transform.rotation = Quaternion.LookRotation(lookDirection);
-        }
-
-        // Move sideways relative to the player
-        Vector3 toTarget = (transform.position - target.position).normalized;
-        Vector3 strafeDir = Vector3.Cross(toTarget, Vector3.up) * strafeDirection;
-
-        Vector3 desiredPosition =
-            transform.position + strafeDir * strafeSpeed * dt;
-
-        if (NavMesh.SamplePosition(
-            desiredPosition,
-            out NavMeshHit navHit,
-            2f,
-            NavMesh.AllAreas))
-        {
-            agent.stoppingDistance = 0f;
-            agent.SetDestination(navHit.position);
         }
     }
 
@@ -252,60 +205,18 @@ public class EnemyBehavior : MonoBehaviour
 
     public void GoToStartPoint()
     {
-        if(agent.enabled == true && agent.isOnNavMesh)
-        {
-            agent.stoppingDistance = 0;
-            agent.SetDestination(startPoint);
-            agent.updateRotation = true;
-        }
         StopShooting();
+        movement.GoToStartPoint();
     }
 
     public void FollowTarget(Vector3 position)
     {
-        if(agent.enabled == true)
-        {
-            if(combatType == CombatType.Ranged)
-            {
-                agent.stoppingDistance = Enemy.StopDistance;
-            }
-            else if (combatType == CombatType.Melee)
-            {
-                agent.stoppingDistance = Enemy.MeleeRange;
-            }
-            
-            agent.SetDestination(position);
-            transform.LookAt(position); 
-        }
+        movement.MoveTo(position);
     }
 
     public void RetreatFrom(Transform target)
     {
-        if (!agent.enabled)
-        {
-            return;
-        }
-
-        Vector3 awayFromTarget = transform.position - target.position;
-        awayFromTarget.y = 0f;
-        awayFromTarget.Normalize();
-
-        Vector3 retreatPosition = transform.position + awayFromTarget * 5f;
-
-        if (NavMesh.SamplePosition(retreatPosition, out NavMeshHit navHit, 2f, NavMesh.AllAreas))
-        {
-            agent.stoppingDistance = 0f;
-            agent.SetDestination(navHit.position);
-        }
-
-        // Continue facing the player while retreating
-        Vector3 lookDirection = target.position - transform.position;
-        lookDirection.y = 0f;
-
-        if (lookDirection.sqrMagnitude > 0.001f)
-        {
-            transform.rotation = Quaternion.LookRotation(lookDirection);
-        }
+        movement.RetreatFrom(target);
     }
 
 

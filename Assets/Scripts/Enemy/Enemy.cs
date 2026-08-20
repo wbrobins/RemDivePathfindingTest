@@ -8,19 +8,12 @@ public class Enemy
         Melee
     }
 
-    public enum MoveType
-    {
-        Ground,
-        Air
-    }
-
     [SerializeField] private EnemyBase enemyBase;
     [SerializeField] private string enemy_id;
     [SerializeField] int hp;
     [SerializeField] int maxHp;
     [SerializeField] float speed;
     [SerializeField] private CombatType combatType = CombatType.Ranged;
-    [SerializeField] private MoveType moveType = MoveType.Ground;
     [SerializeField] int rangedDamage;
     [SerializeField] float shootDelay;
     [SerializeField] float projectileSpeed;
@@ -40,7 +33,6 @@ public class Enemy
     public int MaxHP => maxHp;
     public float Speed => speed;
     public CombatType ECombatType => combatType;
-    public MoveType EMoveType => moveType;
     public int RangedDamage => rangedDamage;
     public float ShootDelay => shootDelay;
     public float ProjectileSpeed => projectileSpeed;
@@ -71,7 +63,6 @@ public class Enemy
         strafeChangeInterval = enemyBase.StrafeChangeInterval;
         knockbackRecoveryDelay = enemyBase.KnockbackRecoveryDelay;
         combatType = (CombatType)enemyBase.ECombatType;
-        moveType = (MoveType)enemyBase.EMoveType;
     }
 
     public void Hit(int damage)

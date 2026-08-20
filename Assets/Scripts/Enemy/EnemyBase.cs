@@ -11,11 +11,6 @@ public class EnemyBase : ScriptableObject
         Melee
     }
 
-    public enum MoveType
-    {
-        Ground,
-        Air
-    }
     [SerializeField] string enemyName;
     [SerializeField] int hp;
     [SerializeField] float speed = 5;
@@ -24,7 +19,6 @@ public class EnemyBase : ScriptableObject
 
     [Header("Combat Type")]
     [SerializeField] private CombatType combatType = CombatType.Ranged;
-    [SerializeField] private MoveType moveType = MoveType.Ground;
 
     [Header("Ranged Attack")]
     [SerializeField] int rangedDamage = 2;
@@ -51,7 +45,6 @@ public class EnemyBase : ScriptableObject
     public int HP => hp;
     public float Speed => speed;
     public CombatType ECombatType => combatType;
-    public MoveType EMoveType => moveType;
     public int RangedDamage => rangedDamage;
     public float ShootDelay => shootDelay;
     public float ProjectileSpeed => projectileSpeed;

@@ -10,15 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8ad8a5683b4afc54c9a91d7aae0316e4, type: 3}
-  m_Name: Enemy1
+  m_Name: FlyingEnemy
   m_EditorClassIdentifier: 
-  enemyName: Enemy 1
-  hp: 5
-  speed: 10
-  knockbackRecoveryDelay: 3
-  basePrefab: {fileID: 1513446171409640933, guid: f98e8de300dcd8141a772170027b06b2, type: 3}
+  enemyName: Flying Enemy
+  hp: 0
+  speed: 5
+  knockbackRecoveryDelay: 0.4
+  basePrefab: {fileID: 0}
   combatType: 0
-  moveType: 1
   rangedDamage: 2
   shootDelay: 2
   projectileSpeed: 10
