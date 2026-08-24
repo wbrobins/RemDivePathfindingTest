@@ -27,7 +27,7 @@ public class LineOfSight : MonoBehaviour
     {
         if (parent.showLoS)
         {
-           DrawLineOfSight(); 
+            DrawLineOfSight();
         }
     }
 
@@ -50,11 +50,7 @@ public class LineOfSight : MonoBehaviour
             return;
         }
 
-        if (lose_target != null)
-        {
-            StopCoroutine(lose_target);
-            lose_target = null;
-        }
+        StopLoseTargetDelay();
 
         if (detect_player == null)
         {
@@ -76,7 +72,24 @@ public class LineOfSight : MonoBehaviour
             return;
         }
 
-        lose_target = StartCoroutine(LoseTargetDelay());
+        StartLoseTargetDelay();
+    }
+
+    void StartLoseTargetDelay()
+    {
+        if (lose_target == null)
+        {
+            lose_target = StartCoroutine(LoseTargetDelay());
+        }
+    }
+
+    void StopLoseTargetDelay()
+    {
+        if (lose_target != null)
+        {
+            StopCoroutine(lose_target);
+            lose_target = null;
+        }
     }
 
     IEnumerator DetectPlayer()
@@ -97,7 +110,7 @@ public class LineOfSight : MonoBehaviour
                 bool covered = IsPointCovered(target_direction.normalized, target_distance);
 
                 if (parent.showLoS)
-                {     
+                {
                     Color ray_color = (covered || target_angle > losAngle) ? Color.red : Color.green;
 
                     Debug.DrawRay(transform.position, target_direction, ray_color, 1.0f);
@@ -112,7 +125,7 @@ public class LineOfSight : MonoBehaviour
             if (points_hidden >= points.Length)
             {
                 //Debug.Log("Player hidden");
-                parent.Disengage();
+                StartLoseTargetDelay();
             }
             else
             {
@@ -121,13 +134,14 @@ public class LineOfSight : MonoBehaviour
 
                 bool tooFar = distance > goHomeDistance;
 
-                if (!tooFar) // engage (chase/strafe/melee/shoot - EnemyBehavior decides which) if visible and not too far from start
+                if (!tooFar) 
                 {
                     parent.Engage(target.transform);
+                    StopLoseTargetDelay();
                 }
                 else // too far from home, give up and head back
                 {
-                    parent.Disengage();
+                    StartLoseTargetDelay();
                     parent.GoToStartPoint();
                 }
             }
@@ -148,6 +162,8 @@ public class LineOfSight : MonoBehaviour
 
         parent.Disengage();
         parent.GoToStartPoint();
+
+        lose_target = null;
     }
 
     private Vector3[] GetBoundingPoints(Bounds bounds)

@@ -138,4 +138,14 @@ public class GroundMovement : EnemyMovement
         }
     }
 
+    public override void OnKnockbackEnd()
+    {
+        if (!agent.enabled)
+        {
+            agent.enabled = true;
+        }
+
+        agent.Warp(transform.position);
+    }
+
 }
