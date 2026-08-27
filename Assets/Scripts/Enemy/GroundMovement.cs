@@ -31,7 +31,7 @@ public class GroundMovement : EnemyMovement
 
     public override void MoveTo(Vector3 position)
     {
-        if(agent.enabled == true)
+        if(agent.enabled == true && agent.isOnNavMesh)
         {
             if(enemy.GetCombatType() == EnemyBehavior.CombatType.Ranged)
             {
@@ -114,7 +114,10 @@ public class GroundMovement : EnemyMovement
             NavMesh.AllAreas))
         {
             agent.stoppingDistance = 0f;
-            agent.SetDestination(navHit.position);
+            if(agent.isOnNavMesh)
+            {
+                agent.SetDestination(navHit.position);
+            }
         }
     }
 
