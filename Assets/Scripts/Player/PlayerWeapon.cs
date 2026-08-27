@@ -16,6 +16,7 @@ public class PlayerWeapon : MonoBehaviour
     public Weapon[] weapons;
     public Weapon CurrWeapon {get; private set;}
     private GameObject currWeaponPrefab;
+    private PlayerController playerController;
 
     void Awake()
     {
@@ -24,6 +25,12 @@ public class PlayerWeapon : MonoBehaviour
         Assert.IsNotEmpty(weapons);
         SetUp();
         SetWeapon(currWeaponSlot);
+    }
+
+    void Start()
+    {
+        playerController = player.GetComponent<PlayerController>();
+        playerController.UpdateAmmoText(CurrWeapon);   
     }
 
     void Update()
@@ -75,6 +82,8 @@ public class PlayerWeapon : MonoBehaviour
                 Debug.Log("Weapon error: wrong value passed @ PlayerWeapon.cs");
                 return;
         }
+
+        playerController.UpdateAmmoText(CurrWeapon);   
     }
 
     void SetWeapon(int slot)
@@ -87,6 +96,10 @@ public class PlayerWeapon : MonoBehaviour
         currWeaponSlot = slot;
         Debug.Log("Current Weapon: " + CurrWeapon.Base.Name);
         currWeaponPrefab = Instantiate(CurrWeapon.Base.BasePrefab, transform.position, camera.transform.rotation, transform);
+        if(playerController != null) //only run after initial start
+        {
+            playerController.UpdateAmmoText(CurrWeapon);     
+        }
     }
 
     void Reload()
@@ -99,7 +112,7 @@ public class PlayerWeapon : MonoBehaviour
         else if(CurrWeapon.TotalAmmo < CurrWeapon.Base.MaxBarrelAmmo)
         {
             CurrWeapon.SetAmmo(CurrWeapon.TotalAmmo, 0);
-        }
+        }  
     }
 
     IEnumerator ShootRoutine()
@@ -136,6 +149,7 @@ public class PlayerWeapon : MonoBehaviour
                 
             }
             CurrWeapon.DepleteAmmo(1);
+            playerController.UpdateAmmoText(CurrWeapon); 
             yield return new WaitForSeconds(CurrWeapon.ShootDelay);
             shooting = false;
         }
@@ -150,14 +164,16 @@ public class PlayerWeapon : MonoBehaviour
         else
         {
             Debug.Log("Out of ammo");
-        }
+        }   
     }
 
     IEnumerator ReloadRoutine()
     {
         shooting = true;
+        playerController.UpdateAmmoText("Reloading...");  
         yield return new WaitForSeconds(1);
         Reload();
         shooting = false;
+        playerController.UpdateAmmoText(CurrWeapon);  
     }
 }

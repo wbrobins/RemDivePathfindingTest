@@ -1,4 +1,5 @@
 using System.Collections;
+using TMPro;
 using UnityEditor.SearchService;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -63,6 +64,11 @@ public class PlayerController : MonoBehaviour
     [Tooltip("Momentum carried forward if the grapple completes (or is cancelled right at the point)")]
     [SerializeField] private float maxGrappleExitSpeed = 20f;
     [SerializeField] private LayerMask grappleLookMask = ~0;
+
+    [Header("UI Hooks")]
+    [SerializeField] private TextMeshProUGUI ammoText;
+    [SerializeField] private TextMeshProUGUI healthText;
+
     private const string GrappleTag = "Grapple";
 
     private bool jumpPressed;
@@ -86,6 +92,7 @@ public class PlayerController : MonoBehaviour
         rb.interpolation = RigidbodyInterpolation.Interpolate;
 
         targetCameraHeight = standingHeight;
+        healthText.text = "Health: " + hp.ToString(); 
     }
 
     void Update()
@@ -451,6 +458,7 @@ public class PlayerController : MonoBehaviour
     public void TakeDamage(int damage)
     {
         hp -= damage;
+        healthText.text = "Health: " + hp.ToString();
         if(hp <= 0)
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
@@ -460,5 +468,15 @@ public class PlayerController : MonoBehaviour
     public GameObject GetCamera()
     {
         return camera;
+    }
+
+    public void UpdateAmmoText(Weapon weapon)
+    {
+        ammoText.text = "Ammo: " + weapon.CurrBarrelAmmo.ToString() + "/" + weapon.TotalAmmo.ToString();
+    }
+
+    public void UpdateAmmoText(string text)
+    {
+        ammoText.text = text;
     }
 }
