@@ -171,7 +171,7 @@ public class LineOfSight : MonoBehaviour
 
             if (hasLineOfSight)
             {
-                parent.Engage(target.transform);
+                parent.Engage(target.transform, hasLineOfSight);
             }
         }
     }

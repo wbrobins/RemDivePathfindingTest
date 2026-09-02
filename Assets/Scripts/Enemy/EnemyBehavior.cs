@@ -111,14 +111,8 @@ public class EnemyBehavior : MonoBehaviour
         return combatType;
     }
 
-    public void Engage(Transform target)
+    public void Engage(Transform target, bool canSeeTarget)
     {
-        //if (agent == null || !agent.enabled)
-        //{
-        //    return;
-        //}
-
-        //agent.speed = speed;
         currentTarget = target;
         following = true;
 
@@ -126,14 +120,14 @@ public class EnemyBehavior : MonoBehaviour
 
         if (combatType == CombatType.Melee)
         {
-            EngageMelee(target, distance); 
+            EngageMelee(target, distance, canSeeTarget);
         }
         else
         {
-            EngageRanged(target, distance);  
+            EngageRanged(target, distance, canSeeTarget);
         }
-            
-}
+    }
+
     public void Disengage()
     {
         following = false;
@@ -146,18 +140,19 @@ public class EnemyBehavior : MonoBehaviour
         movement.GoToStartPoint();
     }
 
-    void EngageMelee(Transform target, float distance)
+    void EngageMelee(Transform target, float distance, bool canSeeTarget)
     {
         if (distance > meleeRange)
         {
             movement.MoveTo(target.position);
         }
 
-        if(distance <= meleeRange && Time.time >= lastMeleeTime + meleeCooldown)
+        if (canSeeTarget && distance <= meleeRange && Time.time >= lastMeleeTime + meleeCooldown)
         {
             PerformMeleeAttack(target);
         }
     }
+
 
     void PerformMeleeAttack(Transform target)
     {
@@ -172,18 +167,28 @@ public class EnemyBehavior : MonoBehaviour
         }
     }
 
-    void EngageRanged(Transform target, float distance)
+    void EngageRanged(Transform target, float distance, bool canSeeTarget)
     {
-        if(movement is GroundMovement)
+        if (movement is GroundMovement)
         {
             agent.updateRotation = false;
         }
-        if(shootRoutine == null)
+
+        FaceTarget(target);
+
+        if (!canSeeTarget)
+        {
+            StopShooting();
+            movement.MoveTo(target.position);
+            return;
+        }
+
+        if (shootRoutine == null)
         {
             shootRoutine = StartCoroutine(ShootTarget());
         }
 
-        if(distance > Enemy.StopDistance)
+        if (distance > Enemy.StopDistance)
         {
             movement.MoveTo(target.position);
         }
@@ -193,11 +198,21 @@ public class EnemyBehavior : MonoBehaviour
         }
         else
         {
-           movement.Strafe(target);
-           transform.LookAt(target.position);
+            movement.Strafe(target);
         }
     }
 
+    private void FaceTarget(Transform target)
+    {
+        Vector3 lookDirection = target.position - transform.position;
+        lookDirection.y = 0f;
+
+        if (lookDirection.sqrMagnitude > 0.001f)
+        {
+            transform.rotation = Quaternion.LookRotation(lookDirection);
+        }
+    }
+    
     void StopShooting()
     {
         if(shootRoutine != null)
@@ -261,7 +276,7 @@ public class EnemyBehavior : MonoBehaviour
 
         if (source.CompareTag("Player"))
         {
-            Engage(source.transform);
+            Engage(source.transform, true);
         }
 
         if (Enemy.HP == 0)
@@ -305,16 +320,16 @@ public class EnemyBehavior : MonoBehaviour
 
         rb.linearVelocity = Vector3.zero;
 
-        // gameObject may have been destroyed by damage during the knockback window
+        //gameObject may have been destroyed by damage during the knockback window
         if (this == null || !gameObject.activeInHierarchy)
         {
             yield break;
         }
 
-        yield return new WaitUntil(() => agent.isOnNavMesh);  // dont move until agent is back on navmesh
+        yield return new WaitUntil(() => agent.isOnNavMesh);  //dont move until agent is back on navmesh
         agent.enabled = true;
         rb.isKinematic = true;
-        agent.Warp(transform.position); // resync the agent's internal state to the post-knockback position
+        agent.Warp(transform.position); //resync the agent's internal state to the post-knockback position
         GoToStartPoint();
 
         knockbackRoutine = null;
