@@ -52,6 +52,11 @@ public class LineOfSight : MonoBehaviour
 
         StopLoseTargetDelay();
 
+        if (!returningHome)
+        {
+            hasLineOfSight = false; 
+        }
+
         if (detect_player == null)
         {
             detect_player = StartCoroutine(DetectPlayer());
@@ -92,14 +97,36 @@ public class LineOfSight : MonoBehaviour
         }
     }
 
+    [SerializeField] private float homeArrivalThreshold = 0.5f;
+
+    private bool hasLineOfSight = false;
+    private bool returningHome = false;
+
     IEnumerator DetectPlayer()
     {
         while (true)
         {
             yield return new WaitForSeconds(.1f);
 
-            Vector3[] points = GetBoundingPoints(player_collider.bounds);
+            if (target == null)
+            {
+                yield break;
+            }
 
+            float distance = (parent.GetStartPoint() - parent.transform.position).magnitude;
+
+            if (returningHome)
+            {
+                if (distance <= homeArrivalThreshold)
+                {
+                    returningHome = false;
+                    hasLineOfSight = false;
+                    StopLoseTargetDelay();
+                }
+                continue; 
+            }
+
+            Vector3[] points = GetBoundingPoints(player_collider.bounds);
             int points_hidden = 0;
 
             foreach (Vector3 point in points)
@@ -112,7 +139,6 @@ public class LineOfSight : MonoBehaviour
                 if (parent.showLoS)
                 {
                     Color ray_color = (covered || target_angle > losAngle) ? Color.red : Color.green;
-
                     Debug.DrawRay(transform.position, target_direction, ray_color, 1.0f);
                 }
 
@@ -122,28 +148,30 @@ public class LineOfSight : MonoBehaviour
                 }
             }
 
-            if (points_hidden >= points.Length)
+            bool isHidden = points_hidden >= points.Length;
+            bool tooFar = distance > goHomeDistance;
+
+            if (tooFar)
             {
-                //Debug.Log("Player hidden");
+                returningHome = true;
                 StartLoseTargetDelay();
+                parent.GoToStartPoint();
+                continue;
+            }
+
+            if (!isHidden)
+            {
+                hasLineOfSight = true;
+                StopLoseTargetDelay();
             }
             else
             {
-                //Debug.Log("Player visible");
-                float distance = (parent.GetStartPoint() - parent.transform.position).magnitude;
+                StartLoseTargetDelay();
+            }
 
-                bool tooFar = distance > goHomeDistance;
-
-                if (!tooFar) 
-                {
-                    parent.Engage(target.transform);
-                    StopLoseTargetDelay();
-                }
-                else // too far from home, give up and head back
-                {
-                    StartLoseTargetDelay();
-                    parent.GoToStartPoint();
-                }
+            if (hasLineOfSight)
+            {
+                parent.Engage(target.transform);
             }
         }
     }
@@ -153,6 +181,7 @@ public class LineOfSight : MonoBehaviour
         yield return new WaitForSeconds(followDelay);
 
         target = null;
+        hasLineOfSight = false;
 
         if (detect_player != null)
         {
