@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -14,7 +15,23 @@ public class GroundMovement : EnemyMovement
     private float lastStrafeTickTime = -1f;
     private int strafeDirection = 1;
 
+    [Header("Jumping")]
+    [SerializeField] private float jumpHeight = 2f;
+    [SerializeField] private float jumpSpeed = 6f;   // horizontal speed during the jump
+    private Coroutine jumpRoutine;
+    private bool returnToStartAfterJump;
+
+    public override bool IsJumping => jumpRoutine != null;
+
     private Vector3 startPoint;
+
+    void Update()
+    {
+        if (jumpRoutine == null && agent.enabled && agent.isOnNavMesh && agent.isOnOffMeshLink)
+        {
+            jumpRoutine = StartCoroutine(JumpAcrossLink());
+        }
+    }
 
     public override void Initialize(EnemyBehavior enemy)
     {
@@ -22,6 +39,7 @@ public class GroundMovement : EnemyMovement
 
         startPoint = transform.position;
 
+        agent.autoTraverseOffMeshLink = false;
         agent.updateRotation = false;
         agent.speed = enemy.Enemy.Speed;
         strafeSpeed = enemy.Enemy.StrafeSpeed;
@@ -31,7 +49,7 @@ public class GroundMovement : EnemyMovement
 
     public override void MoveTo(Vector3 position)
     {
-        if(agent.enabled == true && agent.isOnNavMesh)
+        if(agent.enabled == true && agent.isOnNavMesh && !IsJumping)
         {
             if(enemy.GetCombatType() == EnemyBehavior.CombatType.Ranged)
             {
@@ -48,7 +66,7 @@ public class GroundMovement : EnemyMovement
 
     public override void RetreatFrom(Transform target)
     {
-        if (!agent.enabled || !agent.isOnNavMesh)
+        if (!agent.enabled || !agent.isOnNavMesh || IsJumping)
         {
             return;
         }
@@ -83,6 +101,8 @@ public class GroundMovement : EnemyMovement
         float now = Time.time;
         float dt = lastStrafeTickTime < 0f ? 0f : now - lastStrafeTickTime;
         lastStrafeTickTime = now;
+
+        if (IsJumping) return;
 
         // Pick a new direction periodically
         if (now >= nextStrafeSwitchTime)
@@ -128,6 +148,12 @@ public class GroundMovement : EnemyMovement
             return;
         }
 
+         if (IsJumping)
+        {
+            returnToStartAfterJump = true;   // Disengage only calls this once, so remember it
+            return;
+        }
+
         agent.stoppingDistance = 0f;
         agent.updateRotation = true;
         agent.SetDestination(startPoint);
@@ -149,6 +175,42 @@ public class GroundMovement : EnemyMovement
         }
 
         agent.Warp(transform.position);
+    }
+
+    private IEnumerator JumpAcrossLink()
+    {
+        OffMeshLinkData link = agent.currentOffMeshLinkData;
+        Vector3 start = transform.position;
+        Vector3 end = link.endPos + Vector3.up * agent.baseOffset;
+
+        float duration = Mathf.Max(0.1f, Vector3.Distance(start, end) / jumpSpeed);
+        float t = 0f;
+
+        while (t < 1f)
+        {
+            // knockback (or anything else) disabled the agent mid-jump: bail out
+            if (!agent.enabled || !agent.isOnOffMeshLink)
+            {
+                returnToStartAfterJump = false;
+                jumpRoutine = null;
+                yield break;
+            }
+
+            t += Time.deltaTime / duration;
+            float arc = 4f * jumpHeight * t * (1f - t);
+            transform.position = Vector3.Lerp(start, end, t) + Vector3.up * arc;
+            yield return null;
+        }
+
+        transform.position = end;
+        agent.CompleteOffMeshLink();
+        jumpRoutine = null;
+
+        if (returnToStartAfterJump)
+        {
+            returnToStartAfterJump = false;
+            GoToStartPoint();
+        }
     }
 
 }

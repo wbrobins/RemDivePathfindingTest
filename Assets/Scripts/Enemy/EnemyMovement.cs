@@ -22,4 +22,5 @@ public abstract class EnemyMovement : MonoBehaviour
     {
         
     }
+    public virtual bool IsJumping => false;
 }
