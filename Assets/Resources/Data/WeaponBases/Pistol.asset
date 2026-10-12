@@ -18,3 +18,4 @@ MonoBehaviour:
   maxBarrelAmmo: 12
   maxTotalAmmo: 500
   basePrefab: {fileID: 6949219968297497114, guid: 55b1fd5f577255c4a8338b61385780ec, type: 3}
+  fireSound: {fileID: 8300000, guid: ec9b46fce9301d14cb22d86c23cc14c3, type: 3}

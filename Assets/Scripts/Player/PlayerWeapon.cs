@@ -8,6 +8,7 @@ public class PlayerWeapon : MonoBehaviour
     [SerializeField] private new GameObject camera;
     [SerializeField] private GameObject playerHandObj;
     [SerializeField] private Animator animator;
+    [SerializeField] private AudioSource audioSource;
     private PlayerHand playerHand;
     [SerializeField] private GameObject player;
     [SerializeField] private int currWeaponSlot = 0;
@@ -102,6 +103,7 @@ public class PlayerWeapon : MonoBehaviour
         {
             playerController.UpdateAmmoText(CurrWeapon);     
         }
+        audioSource.resource = CurrWeapon.Base.FireSound;
     }
 
     void Reload()
@@ -137,7 +139,7 @@ public class PlayerWeapon : MonoBehaviour
 
             Debug.DrawRay(origin, direction * 50f, Color.red, 1f);
             animator.SetTrigger("Fire");
-            
+            audioSource.Play();
 
             if (Physics.Raycast(origin, direction, out RaycastHit hit, 50f, shootRaycastMask))
             {

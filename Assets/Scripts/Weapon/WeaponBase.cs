@@ -9,6 +9,7 @@ public class WeaponBase : ScriptableObject
     [SerializeField] int maxBarrelAmmo;
     [SerializeField] int maxTotalAmmo;
     [SerializeField] GameObject basePrefab;
+    [SerializeField] AudioClip fireSound;
 
 
     public string Name => weaponName;
@@ -17,4 +18,5 @@ public class WeaponBase : ScriptableObject
     public int MaxBarrelAmmo => maxBarrelAmmo;
     public int MaxTotalAmmo => maxTotalAmmo;
     public GameObject BasePrefab => basePrefab;
+    public AudioClip FireSound => fireSound;
 }
