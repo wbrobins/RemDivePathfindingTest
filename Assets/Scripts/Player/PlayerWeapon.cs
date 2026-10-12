@@ -75,9 +75,11 @@ public class PlayerWeapon : MonoBehaviour
         switch (currWeaponSlot)
         {
             case 0:
+                currWeaponPrefab.SetActive(false);
                 SetWeapon(1);
                 break;
             case 1:
+                currWeaponPrefab.SetActive(false);
                 SetWeapon(0);
                 break;
             default:
@@ -98,12 +100,21 @@ public class PlayerWeapon : MonoBehaviour
         currWeaponSlot = slot;
         Debug.Log("Current Weapon: " + CurrWeapon.Base.Name);
         currWeaponPrefab = Instantiate(CurrWeapon.Base.BasePrefab, transform.position, camera.transform.rotation, transform);
+        currWeaponPrefab.SetActive(false);
         SetLayerRecursive(currWeaponPrefab, LayerMask.NameToLayer("Weapon"));
-        if(playerController != null) //only run after initial start
+        if(playerController != null) 
         {
             playerController.UpdateAmmoText(CurrWeapon);     
         }
         audioSource.resource = CurrWeapon.Base.FireSound;
+        StartCoroutine(SwapDelay());
+    }
+
+    IEnumerator SwapDelay()
+    {
+        animator.SetTrigger("Swap");
+        yield return new WaitForSeconds(.1f);
+        currWeaponPrefab.SetActive(true);
     }
 
     void Reload()
