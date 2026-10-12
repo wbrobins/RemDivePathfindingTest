@@ -41,6 +41,8 @@ public class LineOfSight : MonoBehaviour
         bool wasEmpty = playerCollidersInRange.Count == 0;
         playerCollidersInRange.Add(other);
 
+        Debug.Log("OnTriggerEnter, wasEmpty=" + wasEmpty);
+
         Collider rootCollider = other.transform.root.GetComponent<Collider>();
         player_collider = rootCollider != null ? rootCollider : other;
         target = other.transform.root.gameObject;
@@ -113,7 +115,12 @@ public class LineOfSight : MonoBehaviour
                 yield break;
             }
 
-            float distance = (parent.GetStartPoint() - parent.transform.position).magnitude;
+            //float distance = (parent.GetStartPoint() - parent.transform.position).magnitude;
+            //Debug.Log($"Detect tick: returningHome={returningHome}, dist={distance}, inRange={playerCollidersInRange.Count}");
+
+            Vector3 toHome = parent.GetStartPoint() - parent.transform.position;
+            toHome.y = 0f;
+            float distance = toHome.magnitude;
 
             if (returningHome)
             {
@@ -178,6 +185,7 @@ public class LineOfSight : MonoBehaviour
 
     IEnumerator LoseTargetDelay()
     {
+        Debug.Log("LoseTargetDelay fired");
         yield return new WaitForSeconds(followDelay);
 
         target = null;
