@@ -1,9 +1,11 @@
 using System.Collections;
+using UnityEditor.UI;
 using UnityEngine;
 
 public class CarryableBehavior : MonoBehaviour
 {
     [SerializeField] private CarryableBase carryableBase;
+    [SerializeField] private AudioSource audioSource;
     [SerializeField] private float dropOffset = 1.5f;
 
     private Rigidbody rb;
@@ -94,7 +96,12 @@ public class CarryableBehavior : MonoBehaviour
             }
         }
 
-        Destroy(gameObject);
+        audioSource.Play();
+
+        foreach (Renderer r in GetComponentsInChildren<Renderer>()) r.enabled = false;
+        foreach (Collider c in GetComponentsInChildren<Collider>()) c.enabled = false;
+
+        Destroy(gameObject, audioSource.clip.length);
     }
 
     IEnumerator ThrowRoutine()
