@@ -7,6 +7,7 @@ public class PlayerWeapon : MonoBehaviour
     private bool shooting = false;
     [SerializeField] private new GameObject camera;
     [SerializeField] private GameObject playerHandObj;
+    [SerializeField] private Animator animator;
     private PlayerHand playerHand;
     [SerializeField] private GameObject player;
     [SerializeField] private int currWeaponSlot = 0;
@@ -96,6 +97,7 @@ public class PlayerWeapon : MonoBehaviour
         currWeaponSlot = slot;
         Debug.Log("Current Weapon: " + CurrWeapon.Base.Name);
         currWeaponPrefab = Instantiate(CurrWeapon.Base.BasePrefab, transform.position, camera.transform.rotation, transform);
+        SetLayerRecursive(currWeaponPrefab, LayerMask.NameToLayer("Weapon"));
         if(playerController != null) //only run after initial start
         {
             playerController.UpdateAmmoText(CurrWeapon);     
@@ -115,6 +117,13 @@ public class PlayerWeapon : MonoBehaviour
         }  
     }
 
+    void SetLayerRecursive(GameObject obj, int layer)
+    {
+        obj.layer = layer;
+        foreach (Transform child in obj.transform)
+            SetLayerRecursive(child.gameObject, layer);
+    }
+
     IEnumerator ShootRoutine()
     {
         //shoot
@@ -127,6 +136,8 @@ public class PlayerWeapon : MonoBehaviour
             Vector3 direction = camera.transform.forward;
 
             Debug.DrawRay(origin, direction * 50f, Color.red, 1f);
+            animator.SetTrigger("Fire");
+            
 
             if (Physics.Raycast(origin, direction, out RaycastHit hit, 50f, shootRaycastMask))
             {
