@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 4f0d0b6d855e8c541b1e54ff20f20ee2
+timeCreated: 1429472190
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 34608
+  packageName: PBR Barrels and Crates
+  packageVersion: 1.8
+  assetPath: Assets/PBS Barrels and Crates/Models/Materials/PBS Barrel Wet.mat
+  uploadId: 521233

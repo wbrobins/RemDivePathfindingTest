@@ -7,6 +7,7 @@ public class CarryableBehavior : MonoBehaviour
     [SerializeField] private CarryableBase carryableBase;
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private float dropOffset = 1.5f;
+    [SerializeField] private ParticleSystem particles;
 
     private Rigidbody rb;
     private Collider carryableCollider;
@@ -97,8 +98,13 @@ public class CarryableBehavior : MonoBehaviour
         }
 
         audioSource.Play();
+        particles.Play();
 
-        foreach (Renderer r in GetComponentsInChildren<Renderer>()) r.enabled = false;
+        foreach (Renderer r in GetComponentsInChildren<Renderer>()) 
+        {
+            if (r is ParticleSystemRenderer) continue;
+            r.enabled = false;
+        }
         foreach (Collider c in GetComponentsInChildren<Collider>()) c.enabled = false;
 
         Destroy(gameObject, audioSource.clip.length);

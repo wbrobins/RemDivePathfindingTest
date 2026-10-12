@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 357e7d124b7744cb38e2d5643f697ef7
+timeCreated: 1488501279
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 34608
+  packageName: PBR Barrels and Crates
+  packageVersion: 1.8
+  assetPath: Assets/PBS Barrels and Crates/Models/Materials/Bracing Metal.mat
+  uploadId: 521233

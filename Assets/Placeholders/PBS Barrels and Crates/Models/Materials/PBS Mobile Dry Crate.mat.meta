@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 0c3081a9ad933a249b7b2a9668cdd3ec
+timeCreated: 1431624338
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 34608
+  packageName: PBR Barrels and Crates
+  packageVersion: 1.8
+  assetPath: Assets/PBS Barrels and Crates/Models/Materials/PBS Mobile Dry Crate.mat
+  uploadId: 521233

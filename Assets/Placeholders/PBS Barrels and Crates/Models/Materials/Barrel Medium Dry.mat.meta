@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 1535d1f6a60835e4cb52663a8ba731c5
+timeCreated: 1465737094
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 34608
+  packageName: PBR Barrels and Crates
+  packageVersion: 1.8
+  assetPath: Assets/PBS Barrels and Crates/Models/Materials/Barrel Medium Dry.mat
+  uploadId: 521233

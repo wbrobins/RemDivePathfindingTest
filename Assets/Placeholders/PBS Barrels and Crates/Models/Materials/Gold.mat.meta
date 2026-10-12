@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 65b2a8c8aa3bb4177bd17e69b6e164fb
+timeCreated: 1488505805
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 34608
+  packageName: PBR Barrels and Crates
+  packageVersion: 1.8
+  assetPath: Assets/PBS Barrels and Crates/Models/Materials/Gold.mat
+  uploadId: 521233

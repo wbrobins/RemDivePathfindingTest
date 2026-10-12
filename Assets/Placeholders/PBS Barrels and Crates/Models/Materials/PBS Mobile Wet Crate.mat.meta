@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: ead71dd9abd42a540874524011bbc701
+timeCreated: 1431624587
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 34608
+  packageName: PBR Barrels and Crates
+  packageVersion: 1.8
+  assetPath: Assets/PBS Barrels and Crates/Models/Materials/PBS Mobile Wet Crate.mat
+  uploadId: 521233

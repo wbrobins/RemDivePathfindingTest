@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: e97a87f13e7714fbba5d6bd36759f8c5
+timeCreated: 1488505805
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 34608
+  packageName: PBR Barrels and Crates
+  packageVersion: 1.8
+  assetPath: Assets/PBS Barrels and Crates/Models/Materials/WoodDarkRough.mat
+  uploadId: 521233

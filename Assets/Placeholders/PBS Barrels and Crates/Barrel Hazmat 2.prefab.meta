@@ -1,0 +1,24 @@
+fileFormatVersion: 2
+guid: 9b29f4929e235b745b7dcc6fb798d94f
+labels:
+- Barrel
+- Metal
+- Steel
+- Worn
+- Weathered
+- Rust
+- Rusted
+- Strong
+timeCreated: 1435624977
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 34608
+  packageName: PBR Barrels and Crates
+  packageVersion: 1.8
+  assetPath: Assets/PBS Barrels and Crates/Barrel Hazmat 2.prefab
+  uploadId: 521233

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 83c8dcf530de14df68a51ed4832937ce
+timeCreated: 1488501279
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 34608
+  packageName: PBR Barrels and Crates
+  packageVersion: 1.8
+  assetPath: Assets/PBS Barrels and Crates/Models/Materials/BarrelWithTap.mat
+  uploadId: 521233
