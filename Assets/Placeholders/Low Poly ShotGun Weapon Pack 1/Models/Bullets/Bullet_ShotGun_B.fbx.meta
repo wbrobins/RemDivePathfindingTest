@@ -1,11 +1,11 @@
 fileFormatVersion: 2
-guid: 481dd53f1ed338d44aab4dcaddafa3d4
+guid: 875f803e15ca4134794dd18ac64bd572
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
   externalObjects: {}
   materials:
-    materialImportMode: 2
+    materialImportMode: 0
     materialName: 0
     materialSearch: 1
     materialLocation: 1
@@ -16,8 +16,6 @@ ModelImporter:
     optimizeGameObjects: 0
     removeConstantScaleCurves: 0
     motionNodeName: 
-    rigImportErrors: 
-    rigImportWarnings: 
     animationImportErrors: 
     animationImportWarnings: 
     animationRetargetingWarnings: 
@@ -67,7 +65,7 @@ ModelImporter:
     secondaryUVMinLightmapResolution: 40
     secondaryUVMinObjectScale: 1
     secondaryUVPackMargin: 4
-    useFileScale: 1
+    useFileScale: 0
     strictVertexDataChecks: 0
   tangentSpace:
     normalSmoothAngle: 60
@@ -109,8 +107,8 @@ ModelImporter:
   assetBundleVariant: 
 AssetOrigin:
   serializedVersion: 1
-  productId: 308387
-  packageName: Free Gun Packs
-  packageVersion: 0.0.1
-  assetPath: Assets/PolyOne/Free Gun/Model/M16A1.fbx
-  uploadId: 731363
+  productId: 283665
+  packageName: Low Poly ShotGun Weapon Pack 1
+  packageVersion: 1.0
+  assetPath: Assets/Low Poly ShotGun Weapon Pack 1/Models/Bullets/Bullet_ShotGun_B.fbx
+  uploadId: 724253

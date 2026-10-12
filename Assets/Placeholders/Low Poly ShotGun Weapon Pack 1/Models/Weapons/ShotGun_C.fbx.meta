@@ -1,11 +1,11 @@
 fileFormatVersion: 2
-guid: b7e98af8a925cb24b952f2a6d311fd15
+guid: 76ba83fd1e90bf74787dd6d5c80f87ef
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
   externalObjects: {}
   materials:
-    materialImportMode: 2
+    materialImportMode: 0
     materialName: 0
     materialSearch: 1
     materialLocation: 1
@@ -16,8 +16,6 @@ ModelImporter:
     optimizeGameObjects: 0
     removeConstantScaleCurves: 0
     motionNodeName: 
-    rigImportErrors: 
-    rigImportWarnings: 
     animationImportErrors: 
     animationImportWarnings: 
     animationRetargetingWarnings: 
@@ -67,7 +65,7 @@ ModelImporter:
     secondaryUVMinLightmapResolution: 40
     secondaryUVMinObjectScale: 1
     secondaryUVPackMargin: 4
-    useFileScale: 1
+    useFileScale: 0
     strictVertexDataChecks: 0
   tangentSpace:
     normalSmoothAngle: 60
@@ -109,8 +107,8 @@ ModelImporter:
   assetBundleVariant: 
 AssetOrigin:
   serializedVersion: 1
-  productId: 308387
-  packageName: Free Gun Packs
-  packageVersion: 0.0.1
-  assetPath: Assets/PolyOne/Free Gun/Model/HK_MP5.fbx
-  uploadId: 731363
+  productId: 283665
+  packageName: Low Poly ShotGun Weapon Pack 1
+  packageVersion: 1.0
+  assetPath: Assets/Low Poly ShotGun Weapon Pack 1/Models/Weapons/ShotGun_C.fbx
+  uploadId: 724253

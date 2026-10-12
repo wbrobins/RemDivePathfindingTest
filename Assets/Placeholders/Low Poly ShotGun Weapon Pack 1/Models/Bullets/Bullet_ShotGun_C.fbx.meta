@@ -1,16 +1,11 @@
 fileFormatVersion: 2
-guid: 4a2ff6a41cb24ce4a8e56cd7153e5f01
+guid: 832adda99d98f3147a5c2e23bd3e5215
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
-  externalObjects:
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: lambert1
-    second: {fileID: 2100000, guid: 29e9f9653be51124182813a7996fa883, type: 2}
+  externalObjects: {}
   materials:
-    materialImportMode: 2
+    materialImportMode: 0
     materialName: 0
     materialSearch: 1
     materialLocation: 1
@@ -21,8 +16,6 @@ ModelImporter:
     optimizeGameObjects: 0
     removeConstantScaleCurves: 0
     motionNodeName: 
-    rigImportErrors: 
-    rigImportWarnings: 
     animationImportErrors: 
     animationImportWarnings: 
     animationRetargetingWarnings: 
@@ -72,7 +65,7 @@ ModelImporter:
     secondaryUVMinLightmapResolution: 40
     secondaryUVMinObjectScale: 1
     secondaryUVPackMargin: 4
-    useFileScale: 1
+    useFileScale: 0
     strictVertexDataChecks: 0
   tangentSpace:
     normalSmoothAngle: 60
@@ -114,8 +107,8 @@ ModelImporter:
   assetBundleVariant: 
 AssetOrigin:
   serializedVersion: 1
-  productId: 308387
-  packageName: Free Gun Packs
-  packageVersion: 0.0.1
-  assetPath: Assets/PolyOne/Free Gun/Model/Sky_Box/SM_SkyBox.fbx
-  uploadId: 731363
+  productId: 283665
+  packageName: Low Poly ShotGun Weapon Pack 1
+  packageVersion: 1.0
+  assetPath: Assets/Low Poly ShotGun Weapon Pack 1/Models/Bullets/Bullet_ShotGun_C.fbx
+  uploadId: 724253

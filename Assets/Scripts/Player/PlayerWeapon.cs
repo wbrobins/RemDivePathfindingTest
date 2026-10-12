@@ -53,7 +53,7 @@ public class PlayerWeapon : MonoBehaviour
         {
             CycleWeapon();
         } 
-        else if (Input.GetKeyDown(KeyCode.R) && !shooting)
+        else if (Input.GetKeyDown(KeyCode.R) && !shooting && CurrWeapon.CurrBarrelAmmo != CurrWeapon.Base.MaxBarrelAmmo)
         {
             StartCoroutine(ReloadRoutine());
         }
@@ -181,6 +181,7 @@ public class PlayerWeapon : MonoBehaviour
     IEnumerator ReloadRoutine()
     {
         shooting = true;
+        animator.SetTrigger("Reload");
         playerController.UpdateAmmoText("Reloading...");  
         yield return new WaitForSeconds(1);
         Reload();

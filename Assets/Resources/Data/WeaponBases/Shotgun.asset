@@ -17,4 +17,4 @@ MonoBehaviour:
   damage: 4
   maxBarrelAmmo: 6
   maxTotalAmmo: 48
-  basePrefab: {fileID: 1543581443964988012, guid: 8d2f2020e0f8761469be8aa2a4cfd063, type: 3}
+  basePrefab: {fileID: 2932640980190783236, guid: 01fdab2e3c9dde44191c95c192b204ed, type: 3}
