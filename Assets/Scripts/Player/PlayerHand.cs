@@ -8,6 +8,7 @@ public class PlayerHand : MonoBehaviour
     [SerializeField] private new GameObject camera;
     [SerializeField] private GameObject playerWeaponObj;
     private PlayerWeapon playerWeapon;
+    private GameObject weaponRenderer;
 
     [SerializeField] private CarryableBehavior currentCarryable;
 
@@ -33,6 +34,8 @@ public class PlayerHand : MonoBehaviour
                 {
                     if(hit.collider.TryGetComponent(out CarryableBehavior carryable))
                     {
+                        weaponRenderer = playerWeaponObj.transform.GetChild(0).gameObject;
+                        weaponRenderer.SetActive(false);
                         currentCarryable = carryable;
                         currentCarryable.Pickup(transform);
                         carrying = true;
@@ -45,6 +48,8 @@ public class PlayerHand : MonoBehaviour
                 currentCarryable.Drop(direction);
                 currentCarryable = null;
                 carrying = false;
+                weaponRenderer = playerWeaponObj.transform.GetChild(0).gameObject;
+                weaponRenderer.SetActive(true);
             }
         }
 
@@ -52,6 +57,8 @@ public class PlayerHand : MonoBehaviour
         {
             currentCarryable.Throw(camera.transform.forward, throwForce);
             currentCarryable = null;
+            weaponRenderer = playerWeaponObj.transform.GetChild(0).gameObject;
+            weaponRenderer.SetActive(true);
             StartCoroutine(ThrowRoutine());
         }
     }
