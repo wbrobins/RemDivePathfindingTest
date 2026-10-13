@@ -912,7 +912,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1539139662294131351}
   - component: {fileID: 8693852228413061167}
-  - component: {fileID: 6421908870984753337}
   - component: {fileID: 2609251013474349649}
   m_Layer: 0
   m_Name: WeaponCamera
@@ -975,7 +974,7 @@ Camera:
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 256
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
@@ -987,14 +986,6 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
---- !u!81 &6421908870984753337
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7882821646641524156}
-  m_Enabled: 1
 --- !u!114 &2609251013474349649
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1054,7 +1045,7 @@ GameObject:
   - component: {fileID: 2963501712387504835}
   - component: {fileID: 8445050978864108416}
   - component: {fileID: 4939665230839804925}
-  m_Layer: 8
+  m_Layer: 2
   m_Name: PlayerWeapon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
