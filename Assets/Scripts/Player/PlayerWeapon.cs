@@ -177,14 +177,6 @@ public class PlayerWeapon : MonoBehaviour
             yield return new WaitForSeconds(CurrWeapon.ShootDelay);
             shooting = false;
         }
-        //reload
-        else if(CurrWeapon.CurrBarrelAmmo == 0 && CurrWeapon.TotalAmmo > 0)
-        {
-            shooting = true;
-            yield return new WaitForSeconds(1);
-            Reload();
-            shooting = false;
-        }
         else
         {
             Debug.Log("Out of ammo");
