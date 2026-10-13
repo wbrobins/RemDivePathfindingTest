@@ -1,4 +1,5 @@
 using System.Collections;
+using Microsoft.Unity.VisualStudio.Editor;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -19,6 +20,7 @@ public class EnemyBehavior : MonoBehaviour
     private Transform firePoint;
     [SerializeField] private GameObject projectilePrefab;
     [SerializeField] private EnemyBase enemyBase;
+    [SerializeField] private HealthBar hpBar;
     [SerializeField] private float speed;
  
     [Header("Combat Type")]
@@ -90,6 +92,8 @@ public class EnemyBehavior : MonoBehaviour
         {
             rb.useGravity = true;
         }
+
+        hpBar.SetHealth(Enemy.HP, Enemy.MaxHP);
     }
 
     void Update()
@@ -212,7 +216,7 @@ public class EnemyBehavior : MonoBehaviour
             transform.rotation = Quaternion.LookRotation(lookDirection);
         }
     }
-    
+
     void StopShooting()
     {
         if(shootRoutine != null)
@@ -272,6 +276,7 @@ public class EnemyBehavior : MonoBehaviour
     public void TakeDamage(int damage, GameObject source)
     {
         Enemy.Hit(damage);
+        hpBar.SetHealth(Enemy.HP, Enemy.MaxHP);
         Debug.Log("Damage done: " + damage + " from " + source.name);
 
         if (source.CompareTag("Player"))
@@ -308,7 +313,7 @@ public class EnemyBehavior : MonoBehaviour
     private IEnumerator KnockbackRoutine(Vector3 origin, float force, float radius, float upwardsModifier)
     {
         //Debug.Log("Coroutine started");
-        // Hand full control to physics for the duration of the knockback.
+        //hand full control to physics for the duration of the knockback.
         agent.enabled = false;
         rb.isKinematic = false;
         //Debug.Log("kinematic disabled");

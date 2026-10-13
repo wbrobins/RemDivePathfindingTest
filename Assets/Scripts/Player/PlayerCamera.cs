@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public class Camera : MonoBehaviour
+public class PlayerCamera : MonoBehaviour
 {
     public GameObject player;
     Vector2 rotation = Vector2.zero;

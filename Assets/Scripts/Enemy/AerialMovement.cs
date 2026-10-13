@@ -14,7 +14,7 @@ public class AerialMovement : EnemyMovement
     [SerializeField] private float avoidanceStrength = 2f;
 
     [Header("Strafing")]
-    [SerializeField] private float strafeSpeed = 4f;
+    //[SerializeField] private float strafeSpeed = 4f;
     [SerializeField] private float strafeChangeInterval = 2f;
 
     private Vector3 desiredDirection;
