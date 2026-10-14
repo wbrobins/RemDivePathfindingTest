@@ -1,4 +1,5 @@
 using System.Collections;
+using UnityEditor.ShaderGraph;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -33,6 +34,7 @@ public class GroundMovement : EnemyMovement
 
     private static readonly int MoveXHash = Animator.StringToHash("MoveX");
     private static readonly int MoveYHash = Animator.StringToHash("MoveY");
+    private static readonly int KnockedHash = Animator.StringToHash("Knocked");
 
     public MoveState State { get; private set; } = MoveState.Idle;
 
@@ -134,6 +136,8 @@ public class GroundMovement : EnemyMovement
     {
         if (animator == null) return;
 
+        animator.SetBool(KnockedHash, State == MoveState.Knockback);
+
         Vector2 move = Vector2.zero;
 
         // Jump / Knockback zero the locomotion blend tree. Trigger their own animations here later.
@@ -144,10 +148,6 @@ public class GroundMovement : EnemyMovement
 
             move = new Vector2(local.x, local.z) / Mathf.Max(0.01f, refSpeed);
             move = Vector2.ClampMagnitude(move, 1f);
-        }
-        else if (State == MoveState.Knockback)
-        {
-            animator.SetTrigger("Knocked");
         }
 
         animator.SetFloat(MoveXHash, move.x, animDamp, Time.deltaTime);
