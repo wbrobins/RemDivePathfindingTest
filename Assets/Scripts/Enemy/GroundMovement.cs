@@ -304,6 +304,7 @@ public class GroundMovement : EnemyMovement
 
     private IEnumerator JumpAcrossLink()
     {
+        animator.SetTrigger("Jump");
         OffMeshLinkData link = agent.currentOffMeshLinkData;
         Vector3 start = transform.position;
         Vector3 end = link.endPos + Vector3.up * agent.baseOffset;
@@ -326,7 +327,7 @@ public class GroundMovement : EnemyMovement
             transform.position = Vector3.Lerp(start, end, t) + Vector3.up * arc;
             yield return null;
         }
-
+        
         transform.position = end;
         agent.CompleteOffMeshLink();
         jumpRoutine = null;
