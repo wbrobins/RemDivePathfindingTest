@@ -18,6 +18,10 @@ public abstract class EnemyMovement : MonoBehaviour
     public abstract void GoToStartPoint();
 
     public abstract void StopMovement();
+    public virtual void OnKnockbackStart()
+    {
+        
+    }
     public virtual void OnKnockbackEnd()
     {
         

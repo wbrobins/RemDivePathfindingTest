@@ -4,6 +4,8 @@ using UnityEngine.AI;
 
 public class GroundMovement : EnemyMovement
 {
+    public enum MoveState { Idle, Chase, Strafe, Retreat, ReturnHome, Jump, Knockback }
+
     [SerializeField] private NavMeshAgent agent;
 
     [Header("Ranged Strafing")]
@@ -21,16 +23,46 @@ public class GroundMovement : EnemyMovement
     private Coroutine jumpRoutine;
     private bool returnToStartAfterJump;
 
+    [Header("Animation")]
+    [Tooltip("Animator with a 2D Freeform Directional blend tree driven by MoveX / MoveY. Apply Root Motion must be off.")]
+    [SerializeField] private Animator animator;
+    [Tooltip("Smoothing time for the blend tree parameters")]
+    [SerializeField] private float animDamp = 0.1f;
+    [Tooltip("Degrees per second when turning toward the travel direction while returning to the start point")]
+    [SerializeField] private float turnSpeed = 540f;
+
+    private static readonly int MoveXHash = Animator.StringToHash("MoveX");
+    private static readonly int MoveYHash = Animator.StringToHash("MoveY");
+
+    public MoveState State { get; private set; } = MoveState.Idle;
+
     public override bool IsJumping => jumpRoutine != null;
 
     private Vector3 startPoint;
+    private Vector3 lastPosition;
+    private Vector3 worldVelocity;   // measured from real movement, so it covers agent, jump and knockback
+    private float idleTimer;
 
     void Update()
     {
+        // Measure actual planar velocity
+        Vector3 delta = transform.position - lastPosition;
+        lastPosition = transform.position;
+        worldVelocity = Time.deltaTime > 0f ? delta / Time.deltaTime : Vector3.zero;
+        worldVelocity.y = 0f;
+
         if (jumpRoutine == null && agent.enabled && agent.isOnNavMesh && agent.isOnOffMeshLink)
         {
             jumpRoutine = StartCoroutine(JumpAcrossLink());
         }
+
+        UpdateState();
+        UpdateFacing();
+    }
+
+    void LateUpdate()
+    {
+        UpdateAnimator();
     }
 
     public override void Initialize(EnemyBehavior enemy)
@@ -38,19 +70,96 @@ public class GroundMovement : EnemyMovement
         base.Initialize(enemy);
 
         startPoint = transform.position;
+        lastPosition = transform.position;
 
         agent.autoTraverseOffMeshLink = false;
-        agent.updateRotation = false;
+        agent.updateRotation = false;   // this script and EnemyBehavior.FaceTarget handle all rotation
         agent.speed = enemy.Enemy.Speed;
         strafeSpeed = enemy.Enemy.StrafeSpeed;
         strafeChangeInterval = enemy.Enemy.StrafeChangeInterval;
     }
 
+    // ---------------------------------------------------------------- State machine
+
+    private void SetState(MoveState next)
+    {
+        if (State == MoveState.Knockback) return;                 // only OnKnockbackEnd leaves Knockback
+        if (IsJumping && next != MoveState.Jump) return;          // a jump owns the state until it lands
+        State = next;
+    }
+
+    private void UpdateState()
+    {
+        if (State == MoveState.Knockback) return;
+
+        if (IsJumping)
+        {
+            SetState(MoveState.Jump);
+            return;
+        }
+
+        if (State == MoveState.Jump)
+        {
+            State = MoveState.Idle;   // just landed; the next command moves us on
+        }
+
+        // Fall back to Idle once we've actually stopped (grace period avoids flicker between commands)
+        if (worldVelocity.sqrMagnitude < 0.01f)
+        {
+            idleTimer += Time.deltaTime;
+            if (idleTimer > 0.15f)
+            {
+                SetState(MoveState.Idle);
+            }
+        }
+        else
+        {
+            idleTimer = 0f;
+        }
+    }
+
+    private void UpdateFacing()
+    {
+        // Chase / Strafe / Retreat / melee are all faced toward the target by EnemyBehavior.FaceTarget
+        // (and Strafe/Retreat below). Only the walk back to the start point needs its own facing.
+        if (State != MoveState.ReturnHome) return;
+
+        Vector3 v = agent.velocity;
+        v.y = 0f;
+        if (v.sqrMagnitude < 0.05f) return;
+
+        transform.rotation = Quaternion.RotateTowards(
+            transform.rotation,
+            Quaternion.LookRotation(v),
+            turnSpeed * Time.deltaTime);
+    }
+
+    private void UpdateAnimator()
+    {
+        if (animator == null) return;
+
+        Vector2 move = Vector2.zero;
+
+        // Jump / Knockback zero the locomotion blend tree. Trigger their own animations here later.
+        if (State != MoveState.Jump && State != MoveState.Knockback)
+        {
+            Vector3 local = transform.InverseTransformDirection(worldVelocity);
+            float refSpeed = State == MoveState.Strafe ? strafeSpeed : agent.speed;
+
+            move = new Vector2(local.x, local.z) / Mathf.Max(0.01f, refSpeed);
+            move = Vector2.ClampMagnitude(move, 1f);
+        }
+
+        animator.SetFloat(MoveXHash, move.x, animDamp, Time.deltaTime);
+        animator.SetFloat(MoveYHash, move.y, animDamp, Time.deltaTime);
+    }
 
     public override void MoveTo(Vector3 position)
     {
         if(agent.enabled == true && agent.isOnNavMesh && !IsJumping)
         {
+            SetState(MoveState.Chase);
+
             if(enemy.GetCombatType() == EnemyBehavior.CombatType.Ranged)
             {
                 agent.stoppingDistance = enemy.Enemy.StopDistance;
@@ -71,6 +180,8 @@ public class GroundMovement : EnemyMovement
             return;
         }
 
+        SetState(MoveState.Retreat);
+
         Vector3 awayFromTarget = transform.position - target.position;
         awayFromTarget.y = 0f;
 
@@ -86,7 +197,7 @@ public class GroundMovement : EnemyMovement
             agent.SetDestination(navHit.position);
         }
 
-        // Continue facing the player while retreating
+        //continue facing the player while retreating
         Vector3 lookDirection = target.position - transform.position;
         lookDirection.y = 0f;
 
@@ -102,16 +213,19 @@ public class GroundMovement : EnemyMovement
         float dt = lastStrafeTickTime < 0f ? 0f : now - lastStrafeTickTime;
         lastStrafeTickTime = now;
 
-        if (IsJumping) return;
+        
+        if (IsJumping || !agent.enabled) return;
 
-        // Pick a new direction periodically
+        SetState(MoveState.Strafe);
+
+        
         if (now >= nextStrafeSwitchTime)
         {
             nextStrafeSwitchTime = now + strafeChangeInterval;
             strafeDirection = Random.value < 0.5f ? -1 : 1;
         }
 
-        // Face the player
+        
         Vector3 lookDirection = target.position - transform.position;
         lookDirection.y = 0f;
 
@@ -120,7 +234,7 @@ public class GroundMovement : EnemyMovement
             transform.rotation = Quaternion.LookRotation(lookDirection);
         }
 
-        // Move sideways relative to the player
+        
         Vector3 toTarget = (transform.position - target.position).normalized;
         Vector3 strafeDir = Vector3.Cross(toTarget, Vector3.up) * strafeDirection;
 
@@ -148,14 +262,15 @@ public class GroundMovement : EnemyMovement
             return;
         }
 
-         if (IsJumping)
+        if (IsJumping)
         {
-            returnToStartAfterJump = true;   // Disengage only calls this once, so remember it
+            returnToStartAfterJump = true;  
             return;
         }
 
+        SetState(MoveState.ReturnHome);
+
         agent.stoppingDistance = 0f;
-        agent.updateRotation = true;
         agent.SetDestination(startPoint);
     }
 
@@ -167,6 +282,11 @@ public class GroundMovement : EnemyMovement
         }
     }
 
+    public override void OnKnockbackStart()
+    {
+        State = MoveState.Knockback;
+    }
+
     public override void OnKnockbackEnd()
     {
         if (!agent.enabled)
@@ -175,7 +295,11 @@ public class GroundMovement : EnemyMovement
         }
 
         agent.Warp(transform.position);
+        State = MoveState.Idle;
+        idleTimer = 0f;
     }
+
+   
 
     private IEnumerator JumpAcrossLink()
     {
@@ -188,7 +312,7 @@ public class GroundMovement : EnemyMovement
 
         while (t < 1f)
         {
-            // knockback (or anything else) disabled the agent mid-jump: bail out
+            //knockback disabled the agent mid-jump: bail out
             if (!agent.enabled || !agent.isOnOffMeshLink)
             {
                 returnToStartAfterJump = false;

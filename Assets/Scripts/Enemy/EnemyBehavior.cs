@@ -1,5 +1,4 @@
 using System.Collections;
-using Microsoft.Unity.VisualStudio.Editor;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -136,16 +135,14 @@ public class EnemyBehavior : MonoBehaviour
     {
         following = false;
         currentTarget = null;
-        if(movement is GroundMovement)
-        {
-            agent.updateRotation = true; 
-        }
         StopShooting();
         movement.GoToStartPoint();
     }
 
     void EngageMelee(Transform target, float distance, bool canSeeTarget)
     {
+        FaceTarget(target);
+
         if (distance > meleeRange)
         {
             movement.MoveTo(target.position);
@@ -173,11 +170,6 @@ public class EnemyBehavior : MonoBehaviour
 
     void EngageRanged(Transform target, float distance, bool canSeeTarget)
     {
-        if (movement is GroundMovement)
-        {
-            agent.updateRotation = false;
-        }
-
         FaceTarget(target);
 
         if (!canSeeTarget)
@@ -316,6 +308,7 @@ public class EnemyBehavior : MonoBehaviour
         //hand full control to physics for the duration of the knockback.
         agent.enabled = false;
         rb.isKinematic = false;
+        movement.OnKnockbackStart();  
         //Debug.Log("kinematic disabled");
 
         rb.linearVelocity = Vector3.zero;
@@ -334,7 +327,7 @@ public class EnemyBehavior : MonoBehaviour
         yield return new WaitUntil(() => agent.isOnNavMesh);  //dont move until agent is back on navmesh
         agent.enabled = true;
         rb.isKinematic = true;
-        agent.Warp(transform.position); //resync the agent's internal state to the post-knockback position
+        movement.OnKnockbackEnd();   //re-enables + warps the agent and leaves the knockback state
         GoToStartPoint();
 
         knockbackRoutine = null;
