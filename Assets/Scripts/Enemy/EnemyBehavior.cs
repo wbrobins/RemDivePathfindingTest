@@ -41,6 +41,7 @@ public class EnemyBehavior : MonoBehaviour
     private Coroutine shootRoutine;
 
     [SerializeField] private EnemyMovement movement;
+    [SerializeField] private GameObject model;
  
     public Enemy Enemy { get; private set; }
 
@@ -268,6 +269,7 @@ public class EnemyBehavior : MonoBehaviour
     public void TakeDamage(int damage, GameObject source)
     {
         Enemy.Hit(damage);
+        model.GetComponent<DamageFlash>()?.TriggerFlash();
         hpBar.SetHealth(Enemy.HP, Enemy.MaxHP);
         Debug.Log("Damage done: " + damage + " from " + source.name);
 
@@ -320,13 +322,8 @@ public class EnemyBehavior : MonoBehaviour
             yield break;
         }
         
-        // 1. Re-enable the agent first so Unity registers it back into the system
         agent.enabled = true;
-
-        // 2. Sample or wait until it successfully finds the nearest valid point on the NavMesh
         yield return new WaitUntil(() => agent.isOnNavMesh); 
-
-        // 3. Now warp to the current transform position to clear any physics/velocity drift
         agent.Warp(transform.position);
         rb.isKinematic = true;
         
