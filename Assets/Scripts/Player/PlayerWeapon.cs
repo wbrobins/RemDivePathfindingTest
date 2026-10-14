@@ -50,7 +50,7 @@ public class PlayerWeapon : MonoBehaviour
         {
             SetWeapon(1);
         } 
-        else if (Input.GetKeyDown(KeyCode.F))
+        else if (Input.GetKeyDown(KeyCode.F) && !shooting)
         {
             CycleWeapon();
         } 
