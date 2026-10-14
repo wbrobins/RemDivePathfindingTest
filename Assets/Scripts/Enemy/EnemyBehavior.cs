@@ -304,12 +304,9 @@ public class EnemyBehavior : MonoBehaviour
 
     private IEnumerator KnockbackRoutine(Vector3 origin, float force, float radius, float upwardsModifier)
     {
-        //Debug.Log("Coroutine started");
-        //hand full control to physics for the duration of the knockback.
         agent.enabled = false;
         rb.isKinematic = false;
         movement.OnKnockbackStart();  
-        //Debug.Log("kinematic disabled");
 
         rb.linearVelocity = Vector3.zero;
         rb.AddExplosionForce(force, origin, radius, upwardsModifier, ForceMode.Impulse);
@@ -318,16 +315,23 @@ public class EnemyBehavior : MonoBehaviour
 
         rb.linearVelocity = Vector3.zero;
 
-        //gameObject may have been destroyed by damage during the knockback window
         if (this == null || !gameObject.activeInHierarchy)
         {
             yield break;
         }
-
-        yield return new WaitUntil(() => agent.isOnNavMesh);  //dont move until agent is back on navmesh
+        
+        // 1. Re-enable the agent first so Unity registers it back into the system
         agent.enabled = true;
+
+        // 2. Sample or wait until it successfully finds the nearest valid point on the NavMesh
+        yield return new WaitUntil(() => agent.isOnNavMesh); 
+
+        // 3. Now warp to the current transform position to clear any physics/velocity drift
+        agent.Warp(transform.position);
         rb.isKinematic = true;
-        movement.OnKnockbackEnd();   //re-enables + warps the agent and leaves the knockback state
+        
+        Debug.Log("Knockback successfully ended");
+        movement.OnKnockbackEnd();  
         GoToStartPoint();
 
         knockbackRoutine = null;

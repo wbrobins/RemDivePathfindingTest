@@ -45,7 +45,6 @@ public class GroundMovement : EnemyMovement
 
     void Update()
     {
-        // Measure actual planar velocity
         Vector3 delta = transform.position - lastPosition;
         lastPosition = transform.position;
         worldVelocity = Time.deltaTime > 0f ? delta / Time.deltaTime : Vector3.zero;
@@ -73,18 +72,18 @@ public class GroundMovement : EnemyMovement
         lastPosition = transform.position;
 
         agent.autoTraverseOffMeshLink = false;
-        agent.updateRotation = false;   // this script and EnemyBehavior.FaceTarget handle all rotation
+        agent.updateRotation = false;   
         agent.speed = enemy.Enemy.Speed;
         strafeSpeed = enemy.Enemy.StrafeSpeed;
         strafeChangeInterval = enemy.Enemy.StrafeChangeInterval;
     }
 
-    // ---------------------------------------------------------------- State machine
+   
 
     private void SetState(MoveState next)
     {
-        if (State == MoveState.Knockback) return;                 // only OnKnockbackEnd leaves Knockback
-        if (IsJumping && next != MoveState.Jump) return;          // a jump owns the state until it lands
+        if (State == MoveState.Knockback) return;                 
+        if (IsJumping && next != MoveState.Jump) return;          
         State = next;
     }
 
@@ -103,7 +102,6 @@ public class GroundMovement : EnemyMovement
             State = MoveState.Idle;   // just landed; the next command moves us on
         }
 
-        // Fall back to Idle once we've actually stopped (grace period avoids flicker between commands)
         if (worldVelocity.sqrMagnitude < 0.01f)
         {
             idleTimer += Time.deltaTime;
@@ -120,8 +118,6 @@ public class GroundMovement : EnemyMovement
 
     private void UpdateFacing()
     {
-        // Chase / Strafe / Retreat / melee are all faced toward the target by EnemyBehavior.FaceTarget
-        // (and Strafe/Retreat below). Only the walk back to the start point needs its own facing.
         if (State != MoveState.ReturnHome) return;
 
         Vector3 v = agent.velocity;
@@ -148,6 +144,10 @@ public class GroundMovement : EnemyMovement
 
             move = new Vector2(local.x, local.z) / Mathf.Max(0.01f, refSpeed);
             move = Vector2.ClampMagnitude(move, 1f);
+        }
+        else if (State == MoveState.Knockback)
+        {
+            animator.SetTrigger("Knocked");
         }
 
         animator.SetFloat(MoveXHash, move.x, animDamp, Time.deltaTime);
@@ -284,17 +284,18 @@ public class GroundMovement : EnemyMovement
 
     public override void OnKnockbackStart()
     {
+        Debug.Log("Knockback started");
         State = MoveState.Knockback;
     }
 
     public override void OnKnockbackEnd()
     {
-        if (!agent.enabled)
+        if (agent.isOnNavMesh)
         {
-            agent.enabled = true;
+            agent.Warp(transform.position);
         }
-
-        agent.Warp(transform.position);
+        
+        Debug.Log("Knockback ended");
         State = MoveState.Idle;
         idleTimer = 0f;
     }
