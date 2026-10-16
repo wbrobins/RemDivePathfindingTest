@@ -1,6 +1,4 @@
-using System.Collections;
 using TMPro;
-using UnityEditor.SearchService;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -53,6 +51,14 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float groundStickForce = 3f;
     private float jumpGraceEndTime;
     private Vector3 groundNormal = Vector3.up;
+
+    [Header("Crouch Clearance")]
+    [Tooltip("The CapsuleCollider on the head object (the one that holds the camera)")]
+    [SerializeField] private CapsuleCollider headCollider;
+    [SerializeField] private LayerMask ceilingCheckMask = ~0;
+    [Tooltip("Shrinks the check capsule slightly so brushing a wall or ceiling doesn't count as blocked")]
+    [SerializeField] private float clearanceMargin = 0.02f;
+    private readonly Collider[] ceilingHits = new Collider[8];
 
     [Header("Grapple")]
     [SerializeField] private float grappleLookRange = 25f;
@@ -171,6 +177,62 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    bool CanStandUp()
+    {
+        Transform head = headCollider.transform;
+
+        //where the head object sits when standing (same x/z, y = standingHeight in its parent's space)
+        Vector3 local = head.localPosition;
+        local.y = standingHeight;
+        Vector3 standingPos = head.parent != null ? head.parent.TransformPoint(local) : local;
+        Vector3 offset = standingPos - head.position;
+
+        //capsule axis and scale handling (direction: 0 = X, 1 = Y, 2 = Z)
+        Vector3 s = head.lossyScale;
+        Vector3 axis;
+        float axisScale, radialScale;
+        switch (headCollider.direction)
+        {
+            case 0:
+                axis = Vector3.right;
+                axisScale = Mathf.Abs(s.x);
+                radialScale = Mathf.Max(Mathf.Abs(s.y), Mathf.Abs(s.z));
+                break;
+            case 2:
+                axis = Vector3.forward;
+                axisScale = Mathf.Abs(s.z);
+                radialScale = Mathf.Max(Mathf.Abs(s.x), Mathf.Abs(s.y));
+                break;
+            default:
+                axis = Vector3.up;
+                axisScale = Mathf.Abs(s.y);
+                radialScale = Mathf.Max(Mathf.Abs(s.x), Mathf.Abs(s.z));
+                break;
+        }
+
+        float worldRadius = headCollider.radius * radialScale;
+        float halfSegment = Mathf.Max(0f, headCollider.height * axisScale * 0.5f - worldRadius);
+
+        Vector3 center = head.TransformPoint(headCollider.center) + offset;
+        Vector3 axisWorld = head.TransformDirection(axis);
+        Vector3 p0 = center + axisWorld * halfSegment;
+        Vector3 p1 = center - axisWorld * halfSegment;
+
+        int count = Physics.OverlapCapsuleNonAlloc(
+            p0, p1, Mathf.Max(0.01f, worldRadius - clearanceMargin),
+            ceilingHits, ceilingCheckMask, QueryTriggerInteraction.Ignore);
+
+        for (int i = 0; i < count; i++)
+        {
+            //ignore the player's own colliders
+            if (!ceilingHits[i].transform.IsChildOf(transform))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
     void UpdateCameraHeight()
     {
         Vector3 cameraPosition = cameraTransform.localPosition;
@@ -206,8 +268,16 @@ public class PlayerController : MonoBehaviour
                 }
                 else
                 {
-                    targetCameraHeight = standingHeight;
-                    currState = Input.GetKey(KeyCode.LeftShift) ? MovementState.Sprinting : MovementState.Walking;
+                    if (!CanStandUp())
+                    {
+                        currState = MovementState.Crouching;
+                        targetCameraHeight = crouchHeight;
+                    }
+                    else
+                    {
+                       targetCameraHeight = standingHeight;
+                        currState = Input.GetKey(KeyCode.LeftShift) ? MovementState.Sprinting : MovementState.Walking; 
+                    }
                 }
             }
             return;
@@ -217,7 +287,7 @@ public class PlayerController : MonoBehaviour
         {
             currState = MovementState.Jumping;
         }
-        else if (Input.GetKey(KeyCode.LeftControl))
+        else if (Input.GetKey(KeyCode.LeftControl) || (currState == MovementState.Crouching && !CanStandUp()))
         {
             currState = MovementState.Crouching;
             targetCameraHeight = crouchHeight;
@@ -296,7 +366,7 @@ public class PlayerController : MonoBehaviour
 
     void HandleJump()
     {
-        if (jumpPressed && grounded)
+        if (jumpPressed && grounded && !(currState == MovementState.Crouching && !CanStandUp()))
         {
             if (currState == MovementState.Sliding)
             {
@@ -345,8 +415,14 @@ public class PlayerController : MonoBehaviour
 
     void ExitSlide()
     {
-        targetCameraHeight = standingHeight;
+        if (!CanStandUp())
+        {
+            currState = MovementState.Crouching;
+            targetCameraHeight = crouchHeight;
+            return;
+        }
 
+        targetCameraHeight = standingHeight;
         currState = Input.GetKey(KeyCode.LeftShift) ? MovementState.Sprinting : MovementState.Walking;
     }
 

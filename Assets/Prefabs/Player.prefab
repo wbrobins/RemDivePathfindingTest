@@ -258,9 +258,9 @@ MonoBehaviour:
   standingHeight: 0
   slidingHeight: -1
   cameraTransitionSpeed: 10
-  walkSpeed: 5
-  sprintSpeed: 10
-  crouchSpeed: 2.5
+  walkSpeed: 8
+  sprintSpeed: 12
+  crouchSpeed: 6
   crouchHeight: -0.5
   jumpForce: 30
   slideSpeed: 15
@@ -274,6 +274,11 @@ MonoBehaviour:
     m_Bits: 4294967295
   jumpGraceDuration: 0.15
   groundStickForce: 3
+  headCollider: {fileID: 3694893314906222210}
+  ceilingCheckMask:
+    serializedVersion: 2
+    m_Bits: 447
+  clearanceMargin: 0.02
   grappleLookRange: 100
   grappleSpeed: 25
   grappleArriveDistance: 1.5
