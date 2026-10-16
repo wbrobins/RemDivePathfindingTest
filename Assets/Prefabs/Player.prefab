@@ -262,7 +262,7 @@ MonoBehaviour:
   sprintSpeed: 12
   crouchSpeed: 6
   crouchHeight: -0.5
-  jumpForce: 30
+  jumpForce: 35
   slideSpeed: 15
   slideDuration: 0.75
   slideJumpMultiplier: 1.1

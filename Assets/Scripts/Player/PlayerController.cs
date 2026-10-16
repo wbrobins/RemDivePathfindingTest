@@ -36,6 +36,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float slideDuration = .75f;
     [SerializeField] private float slideJumpMultiplier = 1.2f;
 
+    [SerializeField] private Vector3 lastCheckpointPos;
+
     [Header("Air Control")]
     [Tooltip("Higher = more responsive air steering, lower = more momentum preserved")]
     [SerializeField] private float airControlStrength = 2f;
@@ -92,6 +94,7 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
+        lastCheckpointPos = transform.position; 
         rb = GetComponent<Rigidbody>();
         pCollider = GetComponent<CapsuleCollider>();
 
@@ -177,17 +180,27 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    public void TeleportToLastCheckpoint()
+    {
+        transform.position = lastCheckpointPos;
+    }
+
+    public void UpdateCheckpoint(Vector3 pos)
+    {
+        lastCheckpointPos = pos;
+    }
+
     bool CanStandUp()
     {
         Transform head = headCollider.transform;
 
-        //where the head object sits when standing (same x/z, y = standingHeight in its parent's space)
+        //where the head object sits when standing
         Vector3 local = head.localPosition;
         local.y = standingHeight;
         Vector3 standingPos = head.parent != null ? head.parent.TransformPoint(local) : local;
         Vector3 offset = standingPos - head.position;
 
-        //capsule axis and scale handling (direction: 0 = X, 1 = Y, 2 = Z)
+        //capsule axis and scale handling 
         Vector3 s = head.lossyScale;
         Vector3 axis;
         float axisScale, radialScale;
@@ -218,9 +231,7 @@ public class PlayerController : MonoBehaviour
         Vector3 p0 = center + axisWorld * halfSegment;
         Vector3 p1 = center - axisWorld * halfSegment;
 
-        int count = Physics.OverlapCapsuleNonAlloc(
-            p0, p1, Mathf.Max(0.01f, worldRadius - clearanceMargin),
-            ceilingHits, ceilingCheckMask, QueryTriggerInteraction.Ignore);
+        int count = Physics.OverlapCapsuleNonAlloc(p0, p1, Mathf.Max(0.01f, worldRadius - clearanceMargin), ceilingHits, ceilingCheckMask, QueryTriggerInteraction.Ignore);
 
         for (int i = 0; i < count; i++)
         {
@@ -237,11 +248,7 @@ public class PlayerController : MonoBehaviour
     {
         Vector3 cameraPosition = cameraTransform.localPosition;
 
-        cameraPosition.y = Mathf.Lerp(
-            cameraPosition.y,
-            targetCameraHeight,
-            Time.deltaTime * cameraTransitionSpeed
-        );
+        cameraPosition.y = Mathf.Lerp(cameraPosition.y, targetCameraHeight, Time.deltaTime * cameraTransitionSpeed);
 
         cameraTransform.localPosition = cameraPosition;
     }
@@ -355,11 +362,7 @@ public class PlayerController : MonoBehaviour
         Vector3 currentHorizontal = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
         Vector3 desiredHorizontal = moveDirection * moveSpeed;
 
-        Vector3 newHorizontal = Vector3.Lerp(
-            currentHorizontal,
-            desiredHorizontal,
-            Time.fixedDeltaTime * airControlStrength
-        );
+        Vector3 newHorizontal = Vector3.Lerp(currentHorizontal, desiredHorizontal, Time.fixedDeltaTime * airControlStrength);
 
         rb.linearVelocity = new Vector3(newHorizontal.x, rb.linearVelocity.y, newHorizontal.z);
     }
@@ -430,18 +433,14 @@ public class PlayerController : MonoBehaviour
     {
         Vector3 downhillDirection = Vector3.ProjectOnPlane(Vector3.down, groundNormal).normalized;
 
-        bool goingDownhill =
-            grounded &&
-            downhillDirection.sqrMagnitude > 0.001f &&
-            Vector3.Dot(slideDirection, downhillDirection) > 0f;
+        bool goingDownhill = grounded && downhillDirection.sqrMagnitude > 0.001f && Vector3.Dot(slideDirection, downhillDirection) > 0f;
 
         if (!goingDownhill)
         {
             slideTimer -= Time.fixedDeltaTime;
         }
 
-        rb.linearVelocity = slideDirection * slideSpeed
-                        + Vector3.up * rb.linearVelocity.y;
+        rb.linearVelocity = slideDirection * slideSpeed + Vector3.up * rb.linearVelocity.y;
 
         if (slideTimer <= 0)
         {
@@ -517,9 +516,7 @@ public class PlayerController : MonoBehaviour
         float traveled = Vector3.Distance(grappleStartPosition, transform.position);
         float progress = Mathf.Clamp01(traveled / grappleTotalDistance);
 
-        Vector3 direction = grappleTarget != null
-            ? (grappleTarget.position - grappleStartPosition).normalized
-            : rb.linearVelocity.normalized;
+        Vector3 direction = grappleTarget != null ? (grappleTarget.position - grappleStartPosition).normalized : rb.linearVelocity.normalized;
 
         float exitSpeed = Mathf.Lerp(minGrappleExitSpeed, maxGrappleExitSpeed, progress);
 
