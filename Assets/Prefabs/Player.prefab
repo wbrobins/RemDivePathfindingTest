@@ -266,6 +266,7 @@ MonoBehaviour:
   slideSpeed: 15
   slideDuration: 0.75
   slideJumpMultiplier: 1.1
+  lastCheckpointPos: {x: 0, y: 0, z: 0}
   airControlStrength: 2
   groundCheck: {fileID: 3662438517423644468}
   groundCheckRadius: 0.5
@@ -633,7 +634,7 @@ GameObject:
   - component: {fileID: 3694893314906222210}
   m_Layer: 0
   m_Name: CameraHolder
-  m_TagString: Player
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

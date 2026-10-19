@@ -16,13 +16,17 @@ public class PlayerCamera : MonoBehaviour
 
     void Update()
     {
-        rotation.x += Input.GetAxis(xAxis) * 2;
-        rotation.y += Input.GetAxis(yAxis) * 2;
-        rotation.y = Math.Clamp(rotation.y, -90f, 90f);
-        var xQuat = Quaternion.AngleAxis(rotation.x, Vector3.up);
-        var yQuat = Quaternion.AngleAxis(rotation.y, Vector3.left);
+        if(Cursor.lockState == CursorLockMode.Locked)
+        {
+          rotation.x += Input.GetAxis(xAxis) * 2;
+            rotation.y += Input.GetAxis(yAxis) * 2;
+            rotation.y = Math.Clamp(rotation.y, -90f, 90f);
+            var xQuat = Quaternion.AngleAxis(rotation.x, Vector3.up);
+            var yQuat = Quaternion.AngleAxis(rotation.y, Vector3.left);
 
-        transform.localRotation = xQuat * yQuat;
+            transform.localRotation = xQuat * yQuat;  
+        }
+        
         //player.transform.localRotation = xQuat;
     }
 }

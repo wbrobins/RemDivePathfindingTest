@@ -37,7 +37,7 @@ public class PlayerWeapon : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetMouseButtonDown(0) && !shooting && !playerHand.Carrying)
+        if (Input.GetMouseButtonDown(0) && !shooting && !playerHand.Carrying && Cursor.lockState == CursorLockMode.Locked)
         {
             StartCoroutine(ShootRoutine());
         }
