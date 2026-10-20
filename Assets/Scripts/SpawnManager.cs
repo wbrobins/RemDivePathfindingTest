@@ -10,6 +10,8 @@ public class SpawnManager : MonoBehaviour
 
     private readonly List<EnemyBehavior> alive = new List<EnemyBehavior>();
 
+    [SerializeField] private UnityEngine.Events.UnityEvent onAllWavesDefeated;
+
     void Start()
     {
         if (autoStart)
@@ -20,20 +22,37 @@ public class SpawnManager : MonoBehaviour
 
     private IEnumerator RunWaves()
     {
-        foreach(Wave wave in waves)
+        for (int i = 0; i < waves.Count; i++)
         {
-            foreach(EnemySpawn spawn in wave.spawns)
+            Wave wave = waves[i];
+
+            foreach (EnemySpawn spawn in wave.spawns)
             {
                 Spawn(spawn);
             }
 
-            if (wave.waitUntilCleared)
-            {
-                yield return new WaitUntil(() => {alive.RemoveAll(e => e == null); return alive.Count == 0;});
-            }
+            bool isLastWave = i == waves.Count - 1;
 
-            yield return new WaitForSeconds(wave.delay);
+            if (wave.waitUntilCleared && !isLastWave)
+            {
+                yield return WaitUntilCleared();
+                yield return new WaitForSeconds(wave.delay);
+            }
+            else if (!wave.waitUntilCleared && !isLastWave)
+            {
+                yield return new WaitForSeconds(wave.delay);
+            }
         }
+
+        yield return WaitUntilCleared();
+        
+        Debug.Log("All waves defeated!");
+        onAllWavesDefeated?.Invoke();
+    }
+
+    private IEnumerator WaitUntilCleared()
+    {
+        yield return new WaitUntil(() =>{alive.RemoveAll(e => e == null); return alive.Count == 0;});
     }
 
     private EnemyBehavior Spawn(EnemySpawn spawn)

@@ -3,7 +3,7 @@ using UnityEngine;
 public class TutorialTriggerArea : MonoBehaviour
 {
     private TutorialHandler tutorialHandler;
-    [SerializeField] private string tText;
+    [SerializeField, TextArea(3,10)] private string tText;
 
     void Start()
     {
