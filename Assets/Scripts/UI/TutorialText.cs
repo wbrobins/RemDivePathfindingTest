@@ -13,6 +13,7 @@ public class TutorialText : MonoBehaviour
     {   
         //show cursor
         Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
         //pause game
         Time.timeScale = 0;
     }
@@ -30,15 +31,14 @@ public class TutorialText : MonoBehaviour
 
     public void NextScene()
     {
-        if(sceneName != null)
+        if (string.IsNullOrEmpty(sceneName))
         {
-           SceneManager.LoadScene(sceneName);
+            Debug.LogError("Scene not set");
+            return;
         }
-        else
-        {
-            Debug.Log("ERROR: Scene not set");
-        }
-        
+
+        Time.timeScale = 1;
+        SceneManager.LoadScene(sceneName);
     }
 
     public void DisplayText(string pText)
