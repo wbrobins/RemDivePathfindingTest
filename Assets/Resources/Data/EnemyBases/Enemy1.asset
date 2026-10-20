@@ -18,7 +18,6 @@ MonoBehaviour:
   knockbackRecoveryDelay: 3
   basePrefab: {fileID: 1513446171409640933, guid: f98e8de300dcd8141a772170027b06b2, type: 3}
   combatType: 0
-  moveType: 1
   rangedDamage: 2
   shootDelay: 2
   projectileSpeed: 10
@@ -27,5 +26,5 @@ MonoBehaviour:
   strafeSpeed: 5
   strafeChangeInterval: 1.5
   meleeRange: 2
-  meleeDamage: 10
+  meleeDamage: 2
   meleeCooldown: 1.5

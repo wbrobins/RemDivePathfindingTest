@@ -12,7 +12,7 @@ public class TutorialTriggerArea : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        if(other.tag == "Player")
+        if(other.tag == "Player" && other.GetComponent<PlayerController>() != null)
         {
             tutorialHandler.goToNextScene = true;
             tutorialHandler.DisplayTutorial(tText);

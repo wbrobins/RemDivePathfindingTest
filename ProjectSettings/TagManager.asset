@@ -10,6 +10,7 @@ TagManager:
   - Explodable
   - Grapple
   - LoS
+  - CameraHolder
   layers:
   - Default
   - TransparentFX
