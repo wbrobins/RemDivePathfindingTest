@@ -7,6 +7,8 @@ public class SpawnManager : MonoBehaviour
 {
     [SerializeField] private List<Wave> waves = new List<Wave>();
     [SerializeField] private bool autoStart = true;
+    [SerializeField, TextArea(3,10)] private string tText; 
+    private TutorialHandler tutorialHandler;
 
     private readonly List<EnemyBehavior> alive = new List<EnemyBehavior>();
 
@@ -14,6 +16,7 @@ public class SpawnManager : MonoBehaviour
 
     void Start()
     {
+        tutorialHandler = GameObject.Find("TutorialHandler").GetComponent<TutorialHandler>();
         if (autoStart)
         {
             StartCoroutine(RunWaves());
@@ -45,9 +48,20 @@ public class SpawnManager : MonoBehaviour
         }
 
         yield return WaitUntilCleared();
+        yield return new WaitForSeconds(2);
         
         Debug.Log("All waves defeated!");
         onAllWavesDefeated?.Invoke();
+        DisplayText();
+    }
+
+    public void DisplayText()
+    {
+        if(tText != null)
+        {
+            tutorialHandler.goToNextScene = true;
+            tutorialHandler.DisplayTutorial(tText);
+        }
     }
 
     private IEnumerator WaitUntilCleared()

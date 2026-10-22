@@ -1104,7 +1104,11 @@ PrefabInstance:
 
 
         Do your best to
-        defeat the waves of enemies!'
+        defeat the waves of enemies!
+
+
+        Like before, you can reference the
+        game controls at any time by pressing "Esc" on your keyboard.'
       objectReference: {fileID: 0}
     - target: {fileID: 3356588384236172527, guid: 89e1a8b6492a75245aa8357be939f287, type: 3}
       propertyPath: nextScene
@@ -2132,6 +2136,10 @@ MonoBehaviour:
       rotation: {x: 0, y: 1, z: 0, w: -0.00000004371139}
       snapToNavMesh: 0
   autoStart: 1
+  tText: 'Good job on defeating the enemies!
+
+
+    One more demo left.'
   onAllWavesDefeated:
     m_PersistentCalls:
       m_Calls: []
