@@ -1,9 +1,21 @@
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
 public class EnemyBehavior : MonoBehaviour
 {
+    public static readonly HashSet<EnemyBehavior> Active = new HashSet<EnemyBehavior>();
+    public static event Action<EnemyBehavior> OnEnemyRemoved;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void ResetStatics()
+    {
+        Active.Clear();
+        OnEnemyRemoved = null;
+    }
+
     public enum CombatType
     {
         Ranged,
@@ -332,5 +344,13 @@ public class EnemyBehavior : MonoBehaviour
         GoToStartPoint();
 
         knockbackRoutine = null;
+    }
+
+    void OnEnable()  => Active.Add(this);
+
+    void OnDisable()
+    {
+        Active.Remove(this);
+        OnEnemyRemoved?.Invoke(this);
     }
 }
