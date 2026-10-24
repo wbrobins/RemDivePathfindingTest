@@ -832,6 +832,14 @@ PrefabInstance:
         Find and kill all
         the enemies. Good luck!'
       objectReference: {fileID: 0}
+    - target: {fileID: 3356588384236172527, guid: 89e1a8b6492a75245aa8357be939f287, type: 3}
+      propertyPath: nextScene
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 3356588384236172527, guid: 89e1a8b6492a75245aa8357be939f287, type: 3}
+      propertyPath: surveyLink
+      value: https://youtu.be/dQw4w9WgXcQ?si=vvllYUGn3TksVnEv
+      objectReference: {fileID: 0}
     - target: {fileID: 5084014655599920690, guid: 89e1a8b6492a75245aa8357be939f287, type: 3}
       propertyPath: m_Name
       value: TutorialHandler
@@ -2123,7 +2131,11 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
   waitForSpawner: 0
-  tText: Good job!
+  tText: 'Good job getting through the demo!
+
+
+    Click the button to be sent to
+    the playtest survey, thank you for your participation.'
 --- !u!4 &1252757023
 Transform:
   m_ObjectHideFlags: 0

@@ -6,7 +6,9 @@ public class TutorialHandler : MonoBehaviour
     [SerializeField, TextArea(3,10)] private string text = "Yo";
     private TutorialText currObj;
     [SerializeField] private string nextScene;
+    [SerializeField] private string surveyLink;
     public bool goToNextScene = false;
+    public bool goToLink = false;
 
     void Start()
     {
@@ -26,6 +28,11 @@ public class TutorialHandler : MonoBehaviour
         {
            currObj.SetNextScene(nextScene); 
            currObj.SetButtonToNextScene();
+        } 
+        else if (goToLink)
+        {
+            currObj.SetLink(surveyLink);
+            currObj.SetButtonToLink();
         }
     }
 }

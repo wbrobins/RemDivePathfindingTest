@@ -1,5 +1,4 @@
 using System.Collections;
-using NUnit.Framework;
 using UnityEngine;
 
 public class PlayerWeapon : MonoBehaviour
@@ -24,7 +23,12 @@ public class PlayerWeapon : MonoBehaviour
     {
         playerHand = playerHandObj.GetComponent<PlayerHand>();
 
-        Assert.IsNotEmpty(weapons);
+        if (weapons == null || weapons.Length == 0)
+        {
+            Debug.LogError("PlayerWeapon: no weapons assigned.", this);
+            enabled = false;
+            return;
+        }
         SetUp();
         SetWeapon(currWeaponSlot);
     }

@@ -603,7 +603,7 @@ MonoBehaviour:
   ammoText: {fileID: 970869435756046631}
   healthText: {fileID: 1403026532046975668}
   alertText: {fileID: 3335206793546601710}
-  damageFlash: {fileID: 0}
+  damageFlash: {fileID: 1005306977153227476}
 --- !u!54 &4924204385549590538
 Rigidbody:
   m_ObjectHideFlags: 0

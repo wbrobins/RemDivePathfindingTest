@@ -7,7 +7,8 @@ public class CheckForEnemies : MonoBehaviour
 
     [Tooltip("Tick if a SpawnManager will call SetSpawningFinished(). Untick for scenes with only pre-placed enemies.")]
     [SerializeField] bool waitForSpawner = true;
-    [SerializeField] private string tText;
+    [SerializeField, TextArea(3,10)] private string tText;
+    private TutorialHandler tutorialHandler;
 
     bool spawningFinished;
     bool fired;
@@ -18,6 +19,7 @@ public class CheckForEnemies : MonoBehaviour
 
     void Start()
     {
+        tutorialHandler = GameObject.Find("TutorialHandler").GetComponent<TutorialHandler>();
         player = GameObject.Find("Player").GetComponent<PlayerController>();
         //start runs after every OnEnable in the scene, so Active is already populated
         spawningFinished = !waitForSpawner;
@@ -49,7 +51,8 @@ public class CheckForEnemies : MonoBehaviour
 
     public void DisplayFinalText()
     {
-        GameObject.Find("TutorialHandler").GetComponent<TutorialHandler>().DisplayTutorial(tText);
+        tutorialHandler.goToLink = true;
+        tutorialHandler.DisplayTutorial(tText);
     }
 }
 

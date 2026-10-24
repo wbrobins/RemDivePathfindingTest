@@ -9,7 +9,8 @@ public class TutorialText : MonoBehaviour
     public static bool AnyShowing => activeCount > 0;
     [SerializeField] private TextMeshProUGUI text;
     [SerializeField] private Button button;
-    [SerializeField] private string sceneName;
+    private string sceneName;
+    private string surveyLink;
     private bool showingTutorial = false;
 
     void Start()
@@ -28,9 +29,20 @@ public class TutorialText : MonoBehaviour
         button.onClick.AddListener(NextScene);
     }
 
+    public void SetButtonToLink()
+    {
+        button.onClick.RemoveAllListeners();
+        button.onClick.AddListener(OpenLink);
+    }
+
     public void SetNextScene(string pSceneName)
     {
         sceneName = pSceneName;
+    }
+
+    public void SetLink(string pLink)
+    {
+        surveyLink = pLink;
     }
 
     public void NextScene()
@@ -43,6 +55,11 @@ public class TutorialText : MonoBehaviour
 
         Time.timeScale = 1;
         SceneManager.LoadScene(sceneName);
+    }
+
+    public void OpenLink()
+    {
+        Application.OpenURL(surveyLink);
     }
 
     public void DisplayText(string pText)
