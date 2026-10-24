@@ -11,15 +11,18 @@ public class CheckForEnemies : MonoBehaviour
 
     bool spawningFinished;
     bool fired;
+    private PlayerController player;
 
     void OnEnable()  => EnemyBehavior.OnEnemyRemoved += HandleEnemyRemoved;
     void OnDisable() => EnemyBehavior.OnEnemyRemoved -= HandleEnemyRemoved;
 
     void Start()
     {
+        player = GameObject.Find("Player").GetComponent<PlayerController>();
         //start runs after every OnEnable in the scene, so Active is already populated
         spawningFinished = !waitForSpawner;
         Check();
+        player.UpdateAlertText("Enemies remaining: " + EnemyBehavior.Active.Count.ToString());
     }
 
     public void SetSpawningFinished()
@@ -28,7 +31,11 @@ public class CheckForEnemies : MonoBehaviour
         Check();
     }
 
-    void HandleEnemyRemoved(EnemyBehavior enemy) => Check();
+    void HandleEnemyRemoved(EnemyBehavior enemy)
+    {
+        Check();
+        player.UpdateAlertText("Enemies remaining: " + EnemyBehavior.Active.Count.ToString());
+    }
 
     void Check()
     {

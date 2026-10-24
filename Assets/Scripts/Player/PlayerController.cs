@@ -76,6 +76,7 @@ public class PlayerController : MonoBehaviour
     [Header("UI Hooks")]
     [SerializeField] private TextMeshProUGUI ammoText;
     [SerializeField] private TextMeshProUGUI healthText;
+    [SerializeField] private TextMeshProUGUI alertText;
 
     private const string GrappleTag = "Grapple";
 
@@ -188,6 +189,11 @@ public class PlayerController : MonoBehaviour
     public void UpdateCheckpoint(Vector3 pos)
     {
         lastCheckpointPos = pos;
+    }
+
+    public void UpdateAlertText(string pText)
+    {
+        alertText.text = pText;
     }
 
     bool CanStandUp()

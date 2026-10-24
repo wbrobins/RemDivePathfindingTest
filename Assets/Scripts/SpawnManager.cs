@@ -8,6 +8,7 @@ public class SpawnManager : MonoBehaviour
     [SerializeField] private List<Wave> waves = new List<Wave>();
     [SerializeField] private bool autoStart = true;
     [SerializeField, TextArea(3,10)] private string tText; 
+    private PlayerController player;
     private TutorialHandler tutorialHandler;
 
     private readonly List<EnemyBehavior> alive = new List<EnemyBehavior>();
@@ -16,6 +17,7 @@ public class SpawnManager : MonoBehaviour
 
     void Start()
     {
+        player = GameObject.Find("Player").GetComponent<PlayerController>();
         tutorialHandler = GameObject.Find("TutorialHandler").GetComponent<TutorialHandler>();
         if (autoStart)
         {
@@ -28,6 +30,8 @@ public class SpawnManager : MonoBehaviour
         for (int i = 0; i < waves.Count; i++)
         {
             Wave wave = waves[i];
+
+            player.UpdateAlertText("Wave: " + (i+1).ToString() + "/" + waves.Count.ToString());
 
             foreach (EnemySpawn spawn in wave.spawns)
             {
