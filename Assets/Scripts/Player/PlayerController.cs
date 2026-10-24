@@ -19,6 +19,7 @@ public class PlayerController : MonoBehaviour
     private CapsuleCollider pCollider;
 
     [SerializeField] public int hp = 10;
+    private int maximumHp;
 
     [SerializeField] private new GameObject camera;
     [SerializeField] private Transform cameraTransform;
@@ -77,6 +78,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private TextMeshProUGUI ammoText;
     [SerializeField] private TextMeshProUGUI healthText;
     [SerializeField] private TextMeshProUGUI alertText;
+    [SerializeField] private PlayerDamageFlash damageFlash;
 
     private const string GrappleTag = "Grapple";
 
@@ -103,6 +105,7 @@ public class PlayerController : MonoBehaviour
 
         targetCameraHeight = standingHeight;
         healthText.text = "Health: " + hp.ToString(); 
+        maximumHp = hp;
     }
 
     void Update()
@@ -537,6 +540,7 @@ public class PlayerController : MonoBehaviour
     public void TakeDamage(int damage)
     {
         hp -= damage;
+        damageFlash.Flash((float)damage/maximumHp * 2f);
         healthText.text = "Health: " + hp.ToString();
         if(hp <= 0)
         {

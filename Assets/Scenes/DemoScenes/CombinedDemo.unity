@@ -455,6 +455,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
+    - target: {fileID: 2145110102053727134, guid: 694f68422eab9024d865882ad80064cd, type: 3}
+      propertyPath: damageFlash
+      value: 
+      objectReference: {fileID: 379654804}
     - target: {fileID: 4791245135656045557, guid: 694f68422eab9024d865882ad80064cd, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -837,6 +841,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 89e1a8b6492a75245aa8357be939f287, type: 3}
+--- !u!114 &379654804 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1005306977153227476, guid: 694f68422eab9024d865882ad80064cd, type: 3}
+  m_PrefabInstance: {fileID: 301070903}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc52d647d7521c9408ea015d2f02843c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &387850596
 GameObject:
   m_ObjectHideFlags: 0
