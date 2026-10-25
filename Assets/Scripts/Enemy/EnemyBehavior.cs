@@ -54,6 +54,9 @@ public class EnemyBehavior : MonoBehaviour
 
     [SerializeField] private EnemyMovement movement;
     [SerializeField] private GameObject model;
+
+    [Tooltip("If true, this enemy continuously engages the player regardless of detection range")]
+    public bool aggroOnSpawn;
  
     public Enemy Enemy { get; private set; }
 
@@ -112,16 +115,22 @@ public class EnemyBehavior : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.G))
         {
-            if (showLoS)
-            {
-                showLoS = false;
-            }
-            else
-            {
-                showLoS = true;
-            }
+            showLoS = !showLoS;
+        }
+
+        if (aggroOnSpawn && player != null && knockbackRoutine == null)
+        {
+            Engage(player.transform, HasLineOfSight(player.transform));
         }
     }
+
+    private bool HasLineOfSight(Transform target)
+    {
+        Vector3 from = transform.position + Vector3.up;
+        Vector3 to = target.position + Vector3.up;
+        return !Physics.Linecast(from, to, LayerMask.GetMask("Cover"));
+    }
+    
     public CombatType GetCombatType()
     {
         return combatType;

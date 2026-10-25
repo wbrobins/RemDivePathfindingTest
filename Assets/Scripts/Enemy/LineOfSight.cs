@@ -33,6 +33,8 @@ public class LineOfSight : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        if (parent.aggroOnSpawn) return;
+        
         if (other.tag != "Player")
         {
             return;

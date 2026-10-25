@@ -90,6 +90,7 @@ public class SpawnManager : MonoBehaviour
         }
 
         enemy.transform.rotation = spawn.rotation;
+        enemy.aggroOnSpawn = spawn.aggroOnSpawn;
 
         alive.Add(enemy);
         return enemy;
@@ -114,4 +115,5 @@ public class EnemySpawn
     public Vector3 position;
     public Quaternion rotation;
     public bool snapToNavMesh = true;
+    public bool aggroOnSpawn = true; 
 }

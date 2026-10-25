@@ -3397,6 +3397,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Ball
       objectReference: {fileID: 0}
+    - target: {fileID: 5535236661574641131, guid: 20294b589e8016e48bad955b9dbf526d, type: 3}
+      propertyPath: carryableBase
+      value: 
+      objectReference: {fileID: 11400000, guid: 9da4ac054cb65a447a9102003971c54a, type: 2}
     - target: {fileID: 6916838114405135558, guid: 20294b589e8016e48bad955b9dbf526d, type: 3}
       propertyPath: m_LocalPosition.x
       value: -12.3
@@ -4344,6 +4348,30 @@ MonoBehaviour:
     - prefab: {fileID: 1633139362837425509, guid: f98e8de300dcd8141a772170027b06b2, type: 3}
       dataOverride: {fileID: 0}
       position: {x: 0, y: 2, z: 11}
+      rotation: {x: 0, y: 1, z: 0, w: -0.00000004371139}
+      snapToNavMesh: 0
+  - name: Wave 3
+    waitUntilCleared: 1
+    delay: 2
+    spawns:
+    - prefab: {fileID: 1633139362837425509, guid: f98e8de300dcd8141a772170027b06b2, type: 3}
+      dataOverride: {fileID: 0}
+      position: {x: -10, y: 2, z: 0}
+      rotation: {x: 0, y: 1, z: 0, w: -0.00000004371139}
+      snapToNavMesh: 0
+    - prefab: {fileID: 1633139362837425509, guid: f98e8de300dcd8141a772170027b06b2, type: 3}
+      dataOverride: {fileID: 0}
+      position: {x: 0, y: 2, z: 10}
+      rotation: {x: 0, y: 1, z: 0, w: -0.00000004371139}
+      snapToNavMesh: 0
+    - prefab: {fileID: 1633139362837425509, guid: f98e8de300dcd8141a772170027b06b2, type: 3}
+      dataOverride: {fileID: 0}
+      position: {x: 10, y: 2, z: 0}
+      rotation: {x: 0, y: 1, z: 0, w: -0.00000004371139}
+      snapToNavMesh: 0
+    - prefab: {fileID: 1633139362837425509, guid: f98e8de300dcd8141a772170027b06b2, type: 3}
+      dataOverride: {fileID: 0}
+      position: {x: 0, y: 2, z: -10}
       rotation: {x: 0, y: 1, z: 0, w: -0.00000004371139}
       snapToNavMesh: 0
   autoStart: 1
