@@ -72,13 +72,16 @@ public class PlayerController : MonoBehaviour
 
     [Header("Grapple")]
     [SerializeField] private float grappleLookRange = 25f;
-    [SerializeField] private float grappleSpeed = 20f;
     [Tooltip("Distance from the grapple point at which the player auto-detaches")]
     [SerializeField] private float grappleArriveDistance = 1.5f;
-    [Tooltip("Momentum carried forward if E is pressed the instant the grapple starts")]
+    [SerializeField] private float grappleSpeed = 20f;
+    [Tooltip("Momentum carried if you detach right where you started the grapple")]
     [SerializeField] private float minGrappleExitSpeed = 5f;
-    [Tooltip("Momentum carried forward if the grapple completes (or is cancelled right at the point)")]
+    [Tooltip("Momentum carried once you've traveled Exit Max Distance from where you started")]
     [SerializeField] private float maxGrappleExitSpeed = 20f;
+    [Tooltip("Distance traveled from the grapple start at which exit momentum reaches its max")]
+    [SerializeField] private float grappleExitMaxDistance = 25f;
+    private Vector3 grappleStartPosition;
     [SerializeField] private LayerMask grappleLookMask = ~0;
 
     [Header("UI Hooks")]
@@ -97,8 +100,6 @@ public class PlayerController : MonoBehaviour
     private bool lookingAtGrapplePoint;
     private Transform lookedAtGrapplePoint;
     private Transform grappleTarget;
-    private Vector3 grappleStartPosition;
-    private float grappleTotalDistance;
 
     private MovementState currState = MovementState.Walking;
 
@@ -505,7 +506,6 @@ public class PlayerController : MonoBehaviour
     {
         grappleTarget = target;
         grappleStartPosition = transform.position;
-        grappleTotalDistance = Mathf.Max(Vector3.Distance(grappleStartPosition, target.position), 0.01f);
 
         targetCameraHeight = standingHeight;
         rb.useGravity = false;
@@ -544,12 +544,11 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
+        Vector3 direction = grappleTarget != null ? (grappleTarget.position - transform.position).normalized : rb.linearVelocity.normalized;
+
         float traveled = Vector3.Distance(grappleStartPosition, transform.position);
-        float progress = Mathf.Clamp01(traveled / grappleTotalDistance);
-
-        Vector3 direction = grappleTarget != null ? (grappleTarget.position - grappleStartPosition).normalized : rb.linearVelocity.normalized;
-
-        float exitSpeed = Mathf.Lerp(minGrappleExitSpeed, maxGrappleExitSpeed, progress);
+        float t = Mathf.Clamp01(traveled / grappleExitMaxDistance);
+        float exitSpeed = Mathf.Lerp(minGrappleExitSpeed, maxGrappleExitSpeed, t);
 
         rb.useGravity = true;
         rb.linearVelocity = direction * exitSpeed;
