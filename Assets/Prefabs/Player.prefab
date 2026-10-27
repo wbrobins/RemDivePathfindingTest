@@ -581,6 +581,8 @@ MonoBehaviour:
   slideJumpMultiplier: 1.1
   lastCheckpointPos: {x: 0, y: 0, z: 0}
   airControlStrength: 2
+  rampUpTime: 0.2
+  rampDownTime: 0.1
   groundCheck: {fileID: 3662438517423644468}
   groundCheckRadius: 0.5
   groundCheckMask:
@@ -593,11 +595,11 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 447
   clearanceMargin: 0.02
-  grappleLookRange: 100
+  grappleLookRange: 25
   grappleSpeed: 25
   grappleArriveDistance: 1.5
   minGrappleExitSpeed: 7
-  maxGrappleExitSpeed: 10
+  maxGrappleExitSpeed: 25
   grappleLookMask:
     serializedVersion: 2
     m_Bits: 63
