@@ -43,6 +43,13 @@ public class PlayerController : MonoBehaviour
     [Tooltip("Higher = more responsive air steering, lower = more momentum preserved")]
     [SerializeField] private float airControlStrength = 2f;
 
+    [Header("Ground Acceleration")]
+    [Tooltip("Seconds to go from standstill to full speed of the current state")]
+    [SerializeField] private float rampUpTime = 0.2f;
+    [Tooltip("Seconds to go from full speed to standstill when no keys are held. Set to 0 for instant stop")]
+    [SerializeField] private float rampDownTime = 0.1f;
+    private Vector3 groundVelocity;
+
     [Header("Ground Check")]
     [Tooltip("Empty transform positioned at the player's feet")]
     [SerializeField] private Transform groundCheck;
@@ -336,6 +343,13 @@ public class PlayerController : MonoBehaviour
 
         Vector3 moveDirection = (right * x + forward * z).normalized;
 
+        bool isGroundState = currState == MovementState.Walking || currState == MovementState.Sprinting || currState == MovementState.Crouching;
+
+        if (!isGroundState)
+        {
+            groundVelocity = Vector3.ProjectOnPlane(rb.linearVelocity, groundNormal);
+        }
+
         switch (currState)
         {
             case MovementState.Walking:
@@ -363,7 +377,15 @@ public class PlayerController : MonoBehaviour
     void SetGroundVelocity(Vector3 moveDirection, float moveSpeed)
     {
         Vector3 slopeDirection = Vector3.ProjectOnPlane(moveDirection, groundNormal).normalized;
-        rb.linearVelocity = slopeDirection * moveSpeed - groundNormal * groundStickForce;
+        Vector3 targetVelocity = slopeDirection * moveSpeed;
+
+        bool hasInput = moveDirection.sqrMagnitude > 0.01f;
+        float time = hasInput ? rampUpTime : rampDownTime;
+        float rate = time > 0f ? moveSpeed / time : float.PositiveInfinity;
+
+        groundVelocity = Vector3.MoveTowards(groundVelocity, targetVelocity, rate * Time.fixedDeltaTime);
+
+        rb.linearVelocity = groundVelocity - groundNormal * groundStickForce;
     }
 
     void ApplyAirControl(Vector3 moveDirection, float moveSpeed)
