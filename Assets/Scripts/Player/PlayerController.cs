@@ -36,6 +36,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float slideSpeed = 15f;
     [SerializeField] private float slideDuration = .75f;
     [SerializeField] private float slideJumpMultiplier = 1.2f;
+    private bool sprintToggled;
+    private bool wantsSprint;
 
     [SerializeField] private Vector3 lastCheckpointPos;
 
@@ -118,6 +120,10 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        if (PauseMenu.IsPaused) return;
+
+        HandleSprintInput();
+
         if (currState == MovementState.Sliding && !Input.GetKey(KeyCode.LeftControl))
         {
             ExitSlide();
@@ -128,7 +134,9 @@ public class PlayerController : MonoBehaviour
             jumpPressed = true;
         }
 
-        if (Input.GetKeyDown(KeyCode.LeftControl) && currState == MovementState.Sprinting)
+        Vector3 flatVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
+
+        if (Input.GetKeyDown(KeyCode.LeftControl) && currState == MovementState.Sprinting && flatVelocity.sqrMagnitude > 1f)
         {
             EnterSlide();
         }
@@ -157,6 +165,23 @@ public class PlayerController : MonoBehaviour
         HandleMovement();
         HandleJump();
         HandleGrapple();
+    }
+
+    void HandleSprintInput()
+    {
+         if (!GameSettings.ToggleSprint)
+        {
+            sprintToggled = false;
+            wantsSprint = Input.GetKey(KeyCode.LeftShift);
+            return;
+        }
+
+        if (Input.GetKeyDown(KeyCode.LeftShift))
+        {
+            sprintToggled = !sprintToggled;
+        }
+
+        wantsSprint = sprintToggled;
     }
 
     void CheckGrounded()
@@ -300,7 +325,7 @@ public class PlayerController : MonoBehaviour
                     else
                     {
                        targetCameraHeight = standingHeight;
-                        currState = Input.GetKey(KeyCode.LeftShift) ? MovementState.Sprinting : MovementState.Walking; 
+                       currState = wantsSprint ? MovementState.Sprinting : MovementState.Walking;
                     }
                 }
             }
@@ -316,7 +341,7 @@ public class PlayerController : MonoBehaviour
             currState = MovementState.Crouching;
             targetCameraHeight = crouchHeight;
         }
-        else if (Input.GetKey(KeyCode.LeftShift))
+        else if (wantsSprint)
         {
             currState = MovementState.Sprinting;
             targetCameraHeight = standingHeight;
@@ -458,7 +483,7 @@ public class PlayerController : MonoBehaviour
         }
 
         targetCameraHeight = standingHeight;
-        currState = Input.GetKey(KeyCode.LeftShift) ? MovementState.Sprinting : MovementState.Walking;
+        currState = wantsSprint ? MovementState.Sprinting : MovementState.Walking;
     }
 
     void HandleSlide()
