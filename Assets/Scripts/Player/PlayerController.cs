@@ -72,6 +72,32 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float clearanceMargin = 0.02f;
     private readonly Collider[] ceilingHits = new Collider[8];
 
+    [Header("Slide Tuning")]
+    [Tooltip("Slide start boost only applies if this much time has passed since the last boosted slide")]
+    [SerializeField] private float slideBoostCooldown = 1.5f;
+    [Tooltip("Flat-ground slide speed lost per second")]
+    [SerializeField] private float slideDecay = 8f;
+    [Tooltip("Slide won't decay below this")]
+    [SerializeField] private float minSlideSpeed = 8f;
+    [Tooltip("Degrees per second the slide direction can rotate toward your input")]
+    [SerializeField] private float slideSteerRate = 90f;
+
+    [Header("Slide Jump Tuning")]
+    [Tooltip("Horizontal speed multiplier on slide jump (vertical still uses slideJumpMultiplier)")]
+    [SerializeField] private float slideJumpHorizontalBoost = 1.1f;
+    [SerializeField] private float maxSlideJumpSpeed = 18f;
+    [Tooltip("Degrees per second you can steer while in the air after a slide jump (speed is preserved)")]
+    [SerializeField] private float jumpSlideSteerRate = 120f;
+    [Tooltip("Speed kept when landing a slide jump into another slide. Keep boost x retention below 1 so chains bleed speed")]
+    [SerializeField] private float slideJumpLandingRetention = 0.85f;
+
+    [Header("Gravity")]
+    [SerializeField] private float riseGravityMultiplier = 1.2f;
+    [SerializeField] private float fallGravityMultiplier = 2f;
+
+    private float currentSlideSpeed;
+    private float nextSlideBoostTime;
+
     [Header("Grapple")]
     [SerializeField] private float grappleLookRange = 25f;
     [Tooltip("Distance from the grapple point at which the player auto-detaches")]
@@ -165,6 +191,7 @@ public class PlayerController : MonoBehaviour
         HandleMovement();
         HandleJump();
         HandleGrapple();
+        ApplyExtraGravity();
     }
 
     void HandleSprintInput()
@@ -313,6 +340,8 @@ public class PlayerController : MonoBehaviour
             {
                 if (Input.GetKey(KeyCode.LeftControl))
                 {
+                    rb.linearVelocity = new Vector3(rb.linearVelocity.x * slideJumpLandingRetention, rb.linearVelocity.y, rb.linearVelocity.z * slideJumpLandingRetention);
+
                     EnterSlide();
                 }
                 else
@@ -388,14 +417,14 @@ public class PlayerController : MonoBehaviour
                 SetGroundVelocity(moveDirection, crouchSpeed);
                 break;
             case MovementState.Sliding:
-                HandleSlide();
+                HandleSlide(moveDirection);
                 break;
             case MovementState.Grappling:
                 break;
             case MovementState.Jumping:
                 break;
             case MovementState.JumpSliding:
-                ApplyAirControl(moveDirection, walkSpeed);
+                ApplyAirControl(moveDirection);
                 break;
         }
     }
@@ -414,14 +443,20 @@ public class PlayerController : MonoBehaviour
         rb.linearVelocity = groundVelocity - groundNormal * groundStickForce;
     }
 
-    void ApplyAirControl(Vector3 moveDirection, float moveSpeed)
+    void ApplyAirControl(Vector3 moveDirection)
     {
-        Vector3 currentHorizontal = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
-        Vector3 desiredHorizontal = moveDirection * moveSpeed;
+        Vector3 flat = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
+        if (moveDirection.sqrMagnitude < 0.01f || flat.sqrMagnitude < 0.01f) return;
 
-        Vector3 newHorizontal = Vector3.Lerp(currentHorizontal, desiredHorizontal, Time.fixedDeltaTime * airControlStrength);
+        flat = Vector3.RotateTowards(flat, moveDirection * flat.magnitude, jumpSlideSteerRate * Mathf.Deg2Rad * Time.fixedDeltaTime, 0f);
+        rb.linearVelocity = new Vector3(flat.x, rb.linearVelocity.y, flat.z);
+    }
 
-        rb.linearVelocity = new Vector3(newHorizontal.x, rb.linearVelocity.y, newHorizontal.z);
+    void ApplyExtraGravity()
+    {
+        if (grounded || currState == MovementState.Grappling) return;
+        float mult = rb.linearVelocity.y > 0f ? riseGravityMultiplier : fallGravityMultiplier;
+        rb.AddForce(Physics.gravity * (mult - 1f), ForceMode.Acceleration);
     }
 
     void HandleJump()
@@ -430,9 +465,8 @@ public class PlayerController : MonoBehaviour
         {
             if (currState == MovementState.Sliding)
             {
-                Vector3 launchDirection = GetCameraFlatForward();
-
-                Vector3 slideMomentum = launchDirection * slideSpeed * slideJumpMultiplier;
+                float launchSpeed = Mathf.Min(currentSlideSpeed * slideJumpHorizontalBoost, maxSlideJumpSpeed);
+                Vector3 slideMomentum = slideDirection * launchSpeed;   //keeps momentum direction
                 rb.linearVelocity = new Vector3(slideMomentum.x, rb.linearVelocity.y, slideMomentum.z);
                 rb.AddForce(Vector3.up * jumpForce * slideJumpMultiplier, ForceMode.Impulse);
                 EnterJumpSlide();
@@ -465,12 +499,19 @@ public class PlayerController : MonoBehaviour
     void EnterSlide()
     {
         currState = MovementState.Sliding;
-
         slideTimer = slideDuration;
-
         targetCameraHeight = slidingHeight;
 
-        slideDirection = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z).normalized;
+        Vector3 flat = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
+        slideDirection = flat.normalized;
+
+        float entrySpeed = flat.magnitude;
+        if (Time.time >= nextSlideBoostTime)
+        {
+            entrySpeed = Mathf.Max(entrySpeed, slideSpeed);
+            nextSlideBoostTime = Time.time + slideBoostCooldown;
+        }
+        currentSlideSpeed = entrySpeed;
     }
 
     void ExitSlide()
@@ -486,18 +527,28 @@ public class PlayerController : MonoBehaviour
         currState = wantsSprint ? MovementState.Sprinting : MovementState.Walking;
     }
 
-    void HandleSlide()
+    void HandleSlide(Vector3 moveDirection)
     {
         Vector3 downhillDirection = Vector3.ProjectOnPlane(Vector3.down, groundNormal).normalized;
-
         bool goingDownhill = grounded && downhillDirection.sqrMagnitude > 0.001f && Vector3.Dot(slideDirection, downhillDirection) > 0f;
 
         if (!goingDownhill)
         {
             slideTimer -= Time.fixedDeltaTime;
+
+            // Decay on flat/uphill only, so your ramp slide still carries momentum
+            if (currentSlideSpeed > minSlideSpeed)
+                currentSlideSpeed = Mathf.Max(minSlideSpeed, currentSlideSpeed - slideDecay * Time.fixedDeltaTime);
         }
 
-        rb.linearVelocity = slideDirection * slideSpeed + Vector3.up * rb.linearVelocity.y;
+        // Steer without changing speed
+        if (moveDirection.sqrMagnitude > 0.01f)
+        {
+            slideDirection = Vector3.RotateTowards(slideDirection, moveDirection,
+                slideSteerRate * Mathf.Deg2Rad * Time.fixedDeltaTime, 0f).normalized;
+        }
+
+        rb.linearVelocity = slideDirection * currentSlideSpeed + Vector3.up * rb.linearVelocity.y;
 
         if (slideTimer <= 0)
         {

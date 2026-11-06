@@ -485,10 +485,10 @@ MonoBehaviour:
   sprintSpeed: 12
   crouchSpeed: 6
   crouchHeight: -0.5
-  jumpForce: 35
+  jumpForce: 45
   slideSpeed: 15
   slideDuration: 0.75
-  slideJumpMultiplier: 1.1
+  slideJumpMultiplier: 1
   lastCheckpointPos: {x: 0, y: 0, z: 0}
   airControlStrength: 2
   rampUpTime: 0.2
@@ -505,6 +505,16 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 447
   clearanceMargin: 0.02
+  slideBoostCooldown: 1.5
+  slideDecay: 8
+  minSlideSpeed: 8
+  slideSteerRate: 90
+  slideJumpHorizontalBoost: 1.1
+  maxSlideJumpSpeed: 18
+  jumpSlideSteerRate: 120
+  slideJumpLandingRetention: 0.85
+  riseGravityMultiplier: 1.2
+  fallGravityMultiplier: 2
   grappleLookRange: 25
   grappleArriveDistance: 1.5
   grappleSpeed: 25
