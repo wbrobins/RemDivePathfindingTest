@@ -9,6 +9,8 @@ public class Weapon
     [SerializeField] int damage;
     [SerializeField] int currBarrelAmmo;
     [SerializeField] int totalAmmo;
+    [SerializeField] int pelletsPerShot;
+    [SerializeField] float spreadAngle;
 
     public WeaponBase Base => weaponBase;
     public string WeaponID => weapon_id;
@@ -16,6 +18,8 @@ public class Weapon
     public int Damage => damage;
     public int CurrBarrelAmmo => currBarrelAmmo;
     public int TotalAmmo => totalAmmo;
+    public int PelletsPerShot => pelletsPerShot;
+    public float SpreadAngle => spreadAngle;
 
     public Weapon(WeaponBase weaponBase)
     {
@@ -24,15 +28,14 @@ public class Weapon
         damage = weaponBase.Damage;
         currBarrelAmmo = weaponBase.MaxBarrelAmmo;
         totalAmmo = weaponBase.MaxTotalAmmo;
+        pelletsPerShot = weaponBase.PelletsPerShot;
+        spreadAngle = weaponBase.SpreadAngle;
     }
 
-    public Weapon(WeaponBase weaponBase, float nShootDelay, int nDamage)
+    public Weapon(WeaponBase weaponBase, float nShootDelay, int nDamage) : this(weaponBase)
     {
-        this.weaponBase = weaponBase;
         shootDelay = nShootDelay;
         damage = nDamage;
-        currBarrelAmmo = weaponBase.MaxBarrelAmmo;
-        totalAmmo = weaponBase.MaxTotalAmmo;
     }
 
     public void SetDamage(int nDamage)
@@ -45,6 +48,12 @@ public class Weapon
         shootDelay = nShootDelay;
     }
 
+    public void SetSpread(int nPellets, float nSpreadAngle)
+    {
+        pelletsPerShot = Mathf.Max(1, nPellets);
+        spreadAngle = Mathf.Max(0f, nSpreadAngle);
+    }
+
     public void SetAmmo(int nCurrAmmo, int nTotalAmmo)
     {
         currBarrelAmmo = nCurrAmmo;
@@ -54,5 +63,14 @@ public class Weapon
     public void DepleteAmmo(int nAmmo)
     {
         currBarrelAmmo -= nAmmo;
+    }
+
+    public Vector3 GetSpreadDirection(Vector3 forward)
+    {
+        if (spreadAngle <= 0f) return forward;
+
+        Vector2 offset = Random.insideUnitCircle * spreadAngle;
+        Quaternion rot = Quaternion.LookRotation(forward);
+        return rot * Quaternion.Euler(offset.y, offset.x, 0f) * Vector3.forward;
     }
 }

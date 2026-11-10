@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerWeapon : MonoBehaviour
@@ -71,6 +72,7 @@ public class PlayerWeapon : MonoBehaviour
             weapon.SetShootDelay(weapon.Base.ShootDelay);
             weapon.SetDamage(weapon.Base.Damage);
             weapon.SetAmmo(weapon.Base.MaxBarrelAmmo, weapon.Base.MaxTotalAmmo);
+            weapon.SetSpread(weapon.Base.PelletsPerShot, weapon.Base.SpreadAngle);
         }
     }
 
@@ -148,43 +150,60 @@ public class PlayerWeapon : MonoBehaviour
         {
             shooting = true;
 
-            //raycast logic here
             Vector3 origin = transform.position;
-            Vector3 direction = camera.transform.forward;
+            Vector3 forward = camera.transform.forward;
 
-            Debug.DrawRay(origin, direction * 50f, Color.red, 1f);
             animator.SetTrigger("Fire");
             audioSource.Play();
 
-            if (Physics.Raycast(origin, direction, out RaycastHit hit, 50f, shootRaycastMask))
-            {
-                Debug.Log(hit.collider.name);
-                if (hit.collider.CompareTag("Enemy"))
-                {
-                    EnemyBehavior enemyBehavior = hit.collider.GetComponent<EnemyBehavior>();
+            // Collect hits first so one shot = one damage application per enemy,
+            // and each explosive only blows up once.
+            var enemyDamage = new Dictionary<EnemyBehavior, int>();
+            var explosives = new HashSet<CarryableBehavior>();
 
-                    if (enemyBehavior != null)
-                    {
-                        enemyBehavior.TakeDamage(CurrWeapon.Damage, gameObject);
-                        enemyBehavior.Engage(player.transform, true);
-                    }
-                } 
-                else if (hit.collider.TryGetComponent(out CarryableBehavior explosive) && explosive.IsExplodable)
+            for (int i = 0; i < CurrWeapon.PelletsPerShot; i++)
+            {
+                Vector3 direction = CurrWeapon.GetSpreadDirection(forward);
+                Debug.DrawRay(origin, direction * 50f, Color.red, 1f);
+
+                if (Physics.Raycast(origin, direction, out RaycastHit hit, 50f, shootRaycastMask))
                 {
-                    explosive.Explode();
-                    Debug.Log("Explode!");
+                    if (hit.collider.CompareTag("Enemy"))
+                    {
+                        EnemyBehavior enemy = hit.collider.GetComponent<EnemyBehavior>();
+                        if (enemy != null)
+                        {
+                            enemyDamage.TryGetValue(enemy, out int total);
+                            enemyDamage[enemy] = total + CurrWeapon.Damage;
+                        }
+                    }
+                    else if (hit.collider.TryGetComponent(out CarryableBehavior explosive) && explosive.IsExplodable)
+                    {
+                        explosives.Add(explosive);
+                    }
                 }
-                
             }
+
+            foreach (var kvp in enemyDamage)
+            {
+                kvp.Key.TakeDamage(kvp.Value, gameObject);
+                kvp.Key.Engage(player.transform, true);
+            }
+
+            foreach (var explosive in explosives)
+            {
+                explosive.Explode();
+            }
+
             CurrWeapon.DepleteAmmo(1);
-            playerController.UpdateAmmoText(CurrWeapon); 
+            playerController.UpdateAmmoText(CurrWeapon);
             yield return new WaitForSeconds(CurrWeapon.ShootDelay);
             shooting = false;
         }
         else
         {
             Debug.Log("Out of ammo");
-        }   
+        } 
     }
 
     IEnumerator ReloadRoutine()

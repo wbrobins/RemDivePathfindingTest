@@ -11,6 +11,10 @@ public class WeaponBase : ScriptableObject
     [SerializeField] GameObject basePrefab;
     [SerializeField] AudioClip fireSound;
 
+    [Header("Spread")]
+    [SerializeField, Min(1)] int pelletsPerShot = 1;
+    [SerializeField, Range(0f, 45f)] float spreadAngle = 0f;
+
 
     public string Name => weaponName;
     public float ShootDelay => shootDelay;
@@ -19,4 +23,6 @@ public class WeaponBase : ScriptableObject
     public int MaxTotalAmmo => maxTotalAmmo;
     public GameObject BasePrefab => basePrefab;
     public AudioClip FireSound => fireSound;
+    public int PelletsPerShot => pelletsPerShot;
+    public float SpreadAngle => spreadAngle;
 }
