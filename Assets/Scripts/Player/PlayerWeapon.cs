@@ -203,12 +203,14 @@ public class PlayerWeapon : MonoBehaviour
         else
         {
             Debug.Log("Out of ammo");
+            playerController.UpdateMiddleAlertText("Out of ammo. Press R to reload.");
         } 
     }
 
     IEnumerator ReloadRoutine()
     {
         shooting = true;
+        playerController.UpdateMiddleAlertText("");
         animator.SetTrigger("Reload");
         playerController.UpdateAmmoText("Reloading...");  
         yield return new WaitForSeconds(1);

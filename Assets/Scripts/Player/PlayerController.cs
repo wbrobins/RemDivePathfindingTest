@@ -116,6 +116,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private TextMeshProUGUI ammoText;
     [SerializeField] private TextMeshProUGUI healthText;
     [SerializeField] private TextMeshProUGUI alertText;
+    [SerializeField] private TextMeshProUGUI midAlertText;
     [SerializeField] private PlayerDamageFlash damageFlash;
 
     private const string GrappleTag = "Grapple";
@@ -257,6 +258,11 @@ public class PlayerController : MonoBehaviour
     public void UpdateAlertText(string pText)
     {
         alertText.text = pText;
+    }
+
+    public void UpdateMiddleAlertText(string pText)
+    {
+        midAlertText.text = pText;
     }
 
     bool CanStandUp()
