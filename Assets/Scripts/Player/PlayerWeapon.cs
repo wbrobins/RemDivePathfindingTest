@@ -13,6 +13,7 @@ public class PlayerWeapon : MonoBehaviour
     [SerializeField] private GameObject player;
     [SerializeField] private int currWeaponSlot = 0;
     [SerializeField] private LayerMask shootRaycastMask = ~0;
+    [SerializeField] private BulletHoleSpawner bulletHoleSpawner;
 
     public bool Shooting => shooting;
     public Weapon[] weapons;
@@ -150,7 +151,7 @@ public class PlayerWeapon : MonoBehaviour
         {
             shooting = true;
 
-            Vector3 origin = transform.position;
+            Vector3 origin = camera.transform.position;
             Vector3 forward = camera.transform.forward;
 
             animator.SetTrigger("Fire");
@@ -177,9 +178,16 @@ public class PlayerWeapon : MonoBehaviour
                             enemyDamage[enemy] = total + CurrWeapon.Damage;
                         }
                     }
-                    else if (hit.collider.TryGetComponent(out CarryableBehavior explosive) && explosive.IsExplodable)
+                    else
                     {
-                        explosives.Add(explosive);
+                        if (hit.collider.TryGetComponent(out CarryableBehavior explosive) && explosive.IsExplodable)
+                        {
+                            explosives.Add(explosive);
+                        }
+                        else
+                        {
+                            bulletHoleSpawner.Spawn(CurrWeapon.Base.BulletHolePrefab, hit);
+                        }
                     }
                 }
             }

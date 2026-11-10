@@ -21,3 +21,4 @@ MonoBehaviour:
   fireSound: {fileID: 8300000, guid: 494085569d9b8fa4e8e168f5eb1ff800, type: 3}
   pelletsPerShot: 6
   spreadAngle: 15
+  bulletHolePrefab: {fileID: 5417100742186292608, guid: f16d9b5ab15f05c488c850be4b7a83ed, type: 3}
