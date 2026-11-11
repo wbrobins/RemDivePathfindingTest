@@ -51,6 +51,18 @@ public class PlayerWeapon : MonoBehaviour
     private GameObject currWeaponPrefab;
     private PlayerController playerController;
 
+    [Header("Footsteps")]
+    [Tooltip("Separate from the weapon's AudioSource, since that one is used for the fire sound")]
+    [SerializeField] private AudioSource footstepSource;
+    [SerializeField] private AudioClip[] footstepClips;
+    [SerializeField] private float footstepVolume = 0.6f;
+    [SerializeField] private float crouchVolumeMultiplier = 0.4f;
+    [SerializeField] private Vector2 footstepPitchRange = new Vector2(0.92f, 1.08f);
+
+    private int lastStepIndex = -1;
+    private int lastClipIndex = -1;
+    private bool wasMoving;
+
     void Awake()
     {
         playerHand = playerHandObj.GetComponent<PlayerHand>();
@@ -109,21 +121,35 @@ public class PlayerWeapon : MonoBehaviour
         bool groundMoving = playerController.Grounded && (state == MovementState.Walking || state == MovementState.Sprinting || state == MovementState.Crouching);
 
         float speed = playerController.HorizontalSpeed;
-        bool canBob = groundMoving && speed > 0.5f && !shooting;
+        bool moving = groundMoving && speed > 0.5f;
+        bool canBob = moving && !shooting; //shooting covers fire + reload
+
+        //restart the cycle when you start moving, so the first step isn't delayed
+        if (moving && !wasMoving)
+        {
+            bobPhase = 0f;
+            lastStepIndex = -1;
+        }
+        wasMoving = moving;
+
+        //phase advances whenever you're moving, so footsteps keep going while firing/reloading
+        if (moving)
+        {
+            float cycleSpeed = Mathf.Lerp(speed, bobFullSpeed, 0.5f);
+            bobPhase += cycleSpeed * bobFrequency * Time.deltaTime * Mathf.PI * 2f;
+            CheckFootstep(state);
+        }
 
         Vector3 targetPos = Vector3.zero;
         Vector3 targetRot = Vector3.zero;
 
         if (canBob)
         {
-            float cycleSpeed = Mathf.Lerp(speed, bobFullSpeed, 0.5f);
-            bobPhase += cycleSpeed * bobFrequency * Time.deltaTime * Mathf.PI * 2f;
-
             float amp = Mathf.Clamp01(speed / bobFullSpeed);
             float s = Mathf.Sin(bobPhase);
-            float lag = Mathf.Sin(bobPhase - 0.6f);
+            float lag = Mathf.Sin(bobPhase - 0.6f); //rotation trails position for the pendulum feel
 
-            targetPos = new Vector3(s * bobAmount, Mathf.Cos(bobPhase * 2f) * bobAmount * swayDip, 0f) * amp; //dips at the ends of the swing, rises in the middle
+            targetPos = new Vector3(s * bobAmount, Mathf.Cos(bobPhase * 2f) * bobAmount * swayDip, 0f) * amp;
 
             targetRot = new Vector3(0f, lag * swayYaw, -lag * swayRoll) * amp;
         }
@@ -132,6 +158,7 @@ public class PlayerWeapon : MonoBehaviour
         bobPosOffset = Vector3.Lerp(bobPosOffset, targetPos, t);
         bobRotOffset = Vector3.Lerp(bobRotOffset, targetRot, t);
 
+        //rising pushes the weapon down, falling lifts it up
         float targetDrift = 0f;
         if (!playerController.Grounded)
         {
@@ -140,13 +167,12 @@ public class PlayerWeapon : MonoBehaviour
         }
         airDriftOffset = Mathf.Lerp(airDriftOffset, targetDrift, Time.deltaTime * airDriftSmoothing);
 
+        bool sliding = state == MovementState.Sliding;
+        float targetPitch = sliding ? -slidePitch : 0f; //negative X pitches up
+        float tiltRate = sliding ? slideTiltSmoothing : slideTiltSmoothing * 1.5f;
+        slidePitchOffset = Mathf.Lerp(slidePitchOffset, targetPitch, Time.deltaTime * tiltRate);
+
         bobTarget.localPosition = bobBasePos + bobPosOffset + Vector3.up * airDriftOffset;
-
-
-        bool sliding = playerController.CurrState == MovementState.Sliding;
-
-        float targetPitch = sliding ? -slidePitch : 0f; //negative X pitches up in Unity
-        slidePitchOffset = Mathf.Lerp(slidePitchOffset, targetPitch, Time.deltaTime * slideTiltSmoothing);
         bobTarget.localRotation = bobBaseRot * Quaternion.Euler(bobRotOffset + new Vector3(slidePitchOffset, 0f, 0f));
     }
 
@@ -226,6 +252,33 @@ public class PlayerWeapon : MonoBehaviour
         obj.layer = layer;
         foreach (Transform child in obj.transform)
             SetLayerRecursive(child.gameObject, layer);
+    }
+    
+    void CheckFootstep(MovementState state)
+    {
+        //one step each time the phase passes the far left/right of the swing
+        int stepIndex = Mathf.FloorToInt((bobPhase - Mathf.PI * 0.5f) / Mathf.PI);
+        if (stepIndex == lastStepIndex) return;
+        lastStepIndex = stepIndex;
+
+        PlayFootstep(state);
+    }
+
+    void PlayFootstep(MovementState state)
+    {
+        if (footstepSource == null || footstepClips == null || footstepClips.Length == 0) return;
+
+        //random clip, never the same one twice in a row
+        int index = Random.Range(0, footstepClips.Length);
+        if (footstepClips.Length > 1 && index == lastClipIndex)
+        {
+            index = (index + 1) % footstepClips.Length;
+        }
+        lastClipIndex = index;
+
+        float volume = footstepVolume * (state == MovementState.Crouching ? crouchVolumeMultiplier : 1f);
+        footstepSource.pitch = Random.Range(footstepPitchRange.x, footstepPitchRange.y);
+        footstepSource.PlayOneShot(footstepClips[index], volume);
     }
 
     IEnumerator ShootRoutine()

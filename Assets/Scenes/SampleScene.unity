@@ -2145,9 +2145,13 @@ PrefabInstance:
       value: Player
       objectReference: {fileID: 0}
     - target: {fileID: 2963501712387504835, guid: 694f68422eab9024d865882ad80064cd, type: 3}
-      propertyPath: slidePitch
-      value: 12
+      propertyPath: footstepClips.Array.size
+      value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 2963501712387504835, guid: 694f68422eab9024d865882ad80064cd, type: 3}
+      propertyPath: 'footstepClips.Array.data[0]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 9dda1c1b818ef434da1265aada466ea1, type: 3}
     - target: {fileID: 4791245135656045557, guid: 694f68422eab9024d865882ad80064cd, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.27
