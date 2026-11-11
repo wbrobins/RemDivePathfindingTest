@@ -105,6 +105,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float maxGrappleExitSpeed = 20f;
     [Tooltip("Distance traveled from the grapple start at which exit momentum reaches its max")]
     [SerializeField] private float grappleExitMaxDistance = 25f;
+    [SerializeField] private GrappleVisual grappleVisual;
     private Vector3 grappleStartPosition;
     [SerializeField] private LayerMask grappleLookMask = ~0;
 
@@ -597,6 +598,7 @@ public class PlayerController : MonoBehaviour
     {
         grappleTarget = target;
         grappleStartPosition = transform.position;
+        grappleVisual.ConnectTo(target);
 
         targetCameraHeight = standingHeight;
         rb.useGravity = false;
@@ -646,6 +648,7 @@ public class PlayerController : MonoBehaviour
 
         grappleTarget = null;
 
+        grappleVisual.Disconnect();
         currState = MovementState.Jumping;
     }
 
