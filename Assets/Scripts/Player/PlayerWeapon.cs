@@ -95,11 +95,11 @@ public class PlayerWeapon : MonoBehaviour
             StartCoroutine(ShootRoutine());
         }
 
-        if (Input.GetKeyDown(KeyCode.Alpha1))
+        if (Input.GetKeyDown(KeyCode.Alpha1) && !shooting)
         {
             SetWeapon(0);
         } 
-        else if (Input.GetKeyDown(KeyCode.Alpha2))
+        else if (Input.GetKeyDown(KeyCode.Alpha2) && !shooting)
         {
             SetWeapon(1);
         } 
@@ -253,7 +253,7 @@ public class PlayerWeapon : MonoBehaviour
         foreach (Transform child in obj.transform)
             SetLayerRecursive(child.gameObject, layer);
     }
-    
+
     void CheckFootstep(MovementState state)
     {
         //one step each time the phase passes the far left/right of the swing
