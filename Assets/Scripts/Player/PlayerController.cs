@@ -41,10 +41,6 @@ public class PlayerController : MonoBehaviour
 
     [SerializeField] private Vector3 lastCheckpointPos;
 
-    [Header("Air Control")]
-    [Tooltip("Higher = more responsive air steering, lower = more momentum preserved")]
-    [SerializeField] private float airControlStrength = 2f;
-
     [Header("Ground Acceleration")]
     [Tooltip("Seconds to go from standstill to full speed of the current state")]
     [SerializeField] private float rampUpTime = 0.2f;
@@ -129,8 +125,19 @@ public class PlayerController : MonoBehaviour
     private bool lookingAtGrapplePoint;
     private Transform lookedAtGrapplePoint;
     private Transform grappleTarget;
-
     private MovementState currState = MovementState.Walking;
+
+    public MovementState CurrState => currState;
+    public bool Grounded => grounded;
+    public float HorizontalSpeed
+    {
+        get
+        {
+            Vector3 v = rb.linearVelocity;
+            return new Vector2(v.x, v.z).magnitude;
+        }
+    }
+    public float VerticalSpeed => rb.linearVelocity.y;
 
     void Start()
     {

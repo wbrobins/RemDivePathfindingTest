@@ -15,6 +15,36 @@ public class PlayerWeapon : MonoBehaviour
     [SerializeField] private LayerMask shootRaycastMask = ~0;
     [SerializeField] private BulletHoleSpawner bulletHoleSpawner;
 
+    [Header("Weapon Bob")]
+    [Tooltip("Transform to sway. Should NOT be driven by the Animator (see note below)")]
+    [SerializeField] private Transform bobTarget;
+    [SerializeField] private float bobAmount = 0.03f;
+    [Tooltip("Bob cycles per meter traveled, so faster movement = faster bob")]
+    [SerializeField] private float bobFrequency = 1.2f;
+    [SerializeField] private float bobSmoothing = 12f;
+    [Tooltip("Speed at which bob reaches full amplitude")]
+    [SerializeField] private float bobFullSpeed = 10f;
+    [SerializeField] private float swayRoll = 2f;  
+    [SerializeField] private float swayYaw = 1f;      
+    [SerializeField] private float swayDip = 0.4f;
+
+    [Header("Air Drift")]
+    [SerializeField] private float airDriftAmount = 0.04f;    //max vertical offset in meters
+    [SerializeField] private float airDriftMaxSpeed = 10f;    //vertical speed at which drift maxes out
+    [SerializeField] private float airDriftSmoothing = 8f;
+    private float airDriftOffset;
+
+    [Header("Slide Tilt")]
+    [SerializeField] private float slidePitch = 25f;         //degrees the weapon tips upward
+    [SerializeField] private float slideTiltSmoothing = 10f;
+    private float slidePitchOffset;
+
+    private float bobPhase;
+    private Vector3 bobBasePos;
+    private Quaternion bobBaseRot;
+    private Vector3 bobPosOffset;
+    private Vector3 bobRotOffset;
+
     public bool Shooting => shooting;
     public Weapon[] weapons;
     public Weapon CurrWeapon {get; private set;}
@@ -39,6 +69,11 @@ public class PlayerWeapon : MonoBehaviour
     {
         playerController = player.GetComponent<PlayerController>();
         playerController.UpdateAmmoText(CurrWeapon);   
+        if (bobTarget != null)
+        {
+            bobBasePos = bobTarget.localPosition;
+            bobBaseRot = bobTarget.localRotation;
+        }
     }
 
     void Update()
@@ -64,6 +99,55 @@ public class PlayerWeapon : MonoBehaviour
         {
             StartCoroutine(ReloadRoutine());
         }
+    }
+
+    void LateUpdate()
+    {
+        if (bobTarget == null || playerController == null) return;
+
+        MovementState state = playerController.CurrState;
+        bool groundMoving = playerController.Grounded && (state == MovementState.Walking || state == MovementState.Sprinting || state == MovementState.Crouching);
+
+        float speed = playerController.HorizontalSpeed;
+        bool canBob = groundMoving && speed > 0.5f && !shooting;
+
+        Vector3 targetPos = Vector3.zero;
+        Vector3 targetRot = Vector3.zero;
+
+        if (canBob)
+        {
+            float cycleSpeed = Mathf.Lerp(speed, bobFullSpeed, 0.5f);
+            bobPhase += cycleSpeed * bobFrequency * Time.deltaTime * Mathf.PI * 2f;
+
+            float amp = Mathf.Clamp01(speed / bobFullSpeed);
+            float s = Mathf.Sin(bobPhase);
+            float lag = Mathf.Sin(bobPhase - 0.6f);
+
+            targetPos = new Vector3(s * bobAmount, Mathf.Cos(bobPhase * 2f) * bobAmount * swayDip, 0f) * amp; //dips at the ends of the swing, rises in the middle
+
+            targetRot = new Vector3(0f, lag * swayYaw, -lag * swayRoll) * amp;
+        }
+
+        float t = Time.deltaTime * bobSmoothing;
+        bobPosOffset = Vector3.Lerp(bobPosOffset, targetPos, t);
+        bobRotOffset = Vector3.Lerp(bobRotOffset, targetRot, t);
+
+        float targetDrift = 0f;
+        if (!playerController.Grounded)
+        {
+            float vy = Mathf.Clamp(playerController.VerticalSpeed / airDriftMaxSpeed, -1f, 1f);
+            targetDrift = -vy * airDriftAmount;
+        }
+        airDriftOffset = Mathf.Lerp(airDriftOffset, targetDrift, Time.deltaTime * airDriftSmoothing);
+
+        bobTarget.localPosition = bobBasePos + bobPosOffset + Vector3.up * airDriftOffset;
+
+
+        bool sliding = playerController.CurrState == MovementState.Sliding;
+
+        float targetPitch = sliding ? -slidePitch : 0f; //negative X pitches up in Unity
+        slidePitchOffset = Mathf.Lerp(slidePitchOffset, targetPitch, Time.deltaTime * slideTiltSmoothing);
+        bobTarget.localRotation = bobBaseRot * Quaternion.Euler(bobRotOffset + new Vector3(slidePitchOffset, 0f, 0f));
     }
 
     void SetUp()
@@ -157,8 +241,7 @@ public class PlayerWeapon : MonoBehaviour
             animator.SetTrigger("Fire");
             audioSource.Play();
 
-            // Collect hits first so one shot = one damage application per enemy,
-            // and each explosive only blows up once.
+            //collect hits first so one shot = one damage application per enemy, and each explosive only blows up once.
             var enemyDamage = new Dictionary<EnemyBehavior, int>();
             var explosives = new HashSet<CarryableBehavior>();
 
