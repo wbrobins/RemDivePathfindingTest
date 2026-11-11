@@ -114,6 +114,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private TextMeshProUGUI alertText;
     [SerializeField] private TextMeshProUGUI midAlertText;
     [SerializeField] private PlayerDamageFlash damageFlash;
+    [SerializeField] private HealthBar healthBar;
+    [SerializeField] private HealthBar healthBar2;
 
     private const string GrappleTag = "Grapple";
 
@@ -652,6 +654,8 @@ public class PlayerController : MonoBehaviour
         hp -= damage;
         damageFlash.Flash((float)damage/maximumHp * 2f);
         healthText.text = "Health: " + hp.ToString();
+        healthBar.SetHealth(hp, 10);
+        healthBar2.SetHealth(hp, 10);
         if(hp <= 0)
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);

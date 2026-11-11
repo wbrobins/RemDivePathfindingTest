@@ -5,6 +5,7 @@ public class CarryableBehavior : MonoBehaviour
 {
     [SerializeField] private CarryableBase carryableBase;
     [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip[] audioClips;
     [SerializeField] private float dropOffset = 1.5f;
     [SerializeField] private ParticleSystem particles;
 
@@ -59,6 +60,7 @@ public class CarryableBehavior : MonoBehaviour
     public void Throw(Vector3 direction, float throwForce)
     {
         thrown = true;
+        if(audioClips.Length >= 2) audioSource.PlayOneShot(audioClips[1]);
 
         transform.SetParent(null);
         transform.localScale = Vector3.one;
@@ -125,6 +127,7 @@ public class CarryableBehavior : MonoBehaviour
 
                 if (enemy != null)
                 {
+                    if(!carryableBase.Explodable && audioSource != null) audioSource.PlayOneShot(audioClips[0]);
                     enemy.TakeDamage(Carryable.ThrowDamage, gameObject);
                 }  
 
