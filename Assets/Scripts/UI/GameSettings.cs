@@ -5,6 +5,7 @@ public static class GameSettings
 {
     private const string ToggleSprintKey = "ToggleSprint";
     private const string FovKey = "Fov";
+    private const string VolumeKey = "MasterVolume";
 
     public const float MinFov = 50f;
     public const float MaxFov = 90f;
@@ -32,5 +33,23 @@ public static class GameSettings
             PlayerPrefs.Save();
             OnFovChanged?.Invoke(value);
         }
+    }
+
+    public static float MasterVolume
+    {
+        get => Mathf.Clamp01(PlayerPrefs.GetFloat(VolumeKey, 1f));
+        set
+        {
+            value = Mathf.Clamp01(value);
+            PlayerPrefs.SetFloat(VolumeKey, value);
+            PlayerPrefs.Save();
+            AudioListener.volume = value;
+        }
+    }
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    private static void ApplySavedAudio()
+    {
+        AudioListener.volume = MasterVolume;
     }
 }
