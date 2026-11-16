@@ -8,10 +8,27 @@ public class PlayerCamera : MonoBehaviour
     const string xAxis = "Mouse X";
     const string yAxis = "Mouse Y";
 
+    Camera cam;
+
+    void Awake()
+    {
+        cam = GetComponent<Camera>();
+    }
+
+    void OnEnable()
+    {
+        GameSettings.OnFovChanged += ApplyFov;
+        ApplyFov(GameSettings.Fov);
+    }
+
+    void OnDisable()
+    {
+        GameSettings.OnFovChanged -= ApplyFov;
+    }
+
     void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
-        player = GameObject.Find("Player");
     }
 
     void Update()
@@ -26,7 +43,10 @@ public class PlayerCamera : MonoBehaviour
 
             transform.localRotation = xQuat * yQuat;  
         }
-        
-        //player.transform.localRotation = xQuat;
+    }
+
+    void ApplyFov(float fov)
+    {
+        cam.fieldOfView = fov;
     }
 }
