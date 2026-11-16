@@ -37,6 +37,11 @@ public class EnemyBehavior : MonoBehaviour
     [Header("Combat Type")]
     [SerializeField] private CombatType combatType = CombatType.Ranged;
 
+    [Header("Ranged Attack Visuals")]
+    [SerializeField] private Transform chargeOrb;
+    [SerializeField] private float windupTime = 3f;
+    [SerializeField] private float orbMaxScale = 0.4f;
+
  
     [Header("Melee Attack")]
     [SerializeField] private float meleeRange;
@@ -109,6 +114,9 @@ public class EnemyBehavior : MonoBehaviour
         }
 
         hpBar.SetHealth(Enemy.HP, Enemy.MaxHP);
+
+        //PH
+        HideCharge();
     }
 
     void Update()
@@ -238,6 +246,7 @@ public class EnemyBehavior : MonoBehaviour
             StopCoroutine(shootRoutine);
             shootRoutine = null;
         }
+        HideCharge();
     }
 
     public Vector3 GetStartPoint()
@@ -264,21 +273,36 @@ public class EnemyBehavior : MonoBehaviour
 
     public IEnumerator ShootTarget()
     {
-        while (following && currentTarget != null)
+       while (following && currentTarget != null)
         {
-            yield return new WaitForSeconds(Enemy.ShootDelay);
+            //subtract the windup so total time between shots still equals ShootDelay
+            yield return new WaitForSeconds(Mathf.Max(0f, Enemy.ShootDelay - windupTime));
+
+            for (float t = 0f; t < windupTime; t += Time.deltaTime)
+            {
+                if (!following || currentTarget == null)
+                {
+                    HideCharge();
+                    shootRoutine = null;
+                    yield break;
+                }
+                SetCharge(t / windupTime);
+                yield return null;
+            }
+            HideCharge();
 
             if (!following || currentTarget == null)
             {
+                shootRoutine = null;
                 yield break;
             }
 
-            GameObject projectileInstance = Instantiate(projectilePrefab, firePoint.position, Quaternion.identity);
-            Projectile projectile = projectileInstance.GetComponent<Projectile>();
-            projectile.SetDamage(Enemy.RangedDamage);
-
             Vector3 aimPoint = currentTarget.position + Vector3.up * 1.0f;
             Vector3 direction = (aimPoint - firePoint.position).normalized;
+
+            GameObject projectileInstance = Instantiate(projectilePrefab, firePoint.position, Quaternion.LookRotation(direction));
+            Projectile projectile = projectileInstance.GetComponent<Projectile>();
+            projectile.SetDamage(Enemy.RangedDamage);
 
             Rigidbody projectileRb = projectileInstance.GetComponent<Rigidbody>();
             projectileRb.linearVelocity = direction * Enemy.ProjectileSpeed;
@@ -361,5 +385,18 @@ public class EnemyBehavior : MonoBehaviour
     {
         Active.Remove(this);
         OnEnemyRemoved?.Invoke(this);
+    }
+
+    //PLACEHOLDER ANIM FUNCTIONS
+    void SetCharge(float k)
+    {
+        if (chargeOrb == null) return;
+        chargeOrb.gameObject.SetActive(k > 0f);
+        chargeOrb.localScale = Vector3.one * orbMaxScale * Mathf.Clamp01(k);
+    }
+
+    void HideCharge()
+    {
+        if (chargeOrb != null) chargeOrb.gameObject.SetActive(false);
     }
 }
