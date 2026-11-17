@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2503070433388952073}
   - component: {fileID: 2356976618763804822}
   - component: {fileID: 9088404927531746270}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -152,7 +152,7 @@ GameObject:
   - component: {fileID: 289351104641853849}
   - component: {fileID: 9164921715739606328}
   - component: {fileID: 9083380251114362976}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: GrapplePoint
   m_TagString: Grapple
   m_Icon: {fileID: 0}
@@ -315,7 +315,7 @@ GameObject:
   - component: {fileID: 4922201987186334087}
   - component: {fileID: 170970912218921016}
   - component: {fileID: 3759572767708295712}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: UIPrompt
   m_TagString: Untagged
   m_Icon: {fileID: 0}

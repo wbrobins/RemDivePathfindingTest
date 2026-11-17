@@ -312,6 +312,7 @@ public class PlayerWeapon : MonoBehaviour
                         {
                             enemyDamage.TryGetValue(enemy, out int total);
                             enemyDamage[enemy] = total + CurrWeapon.Damage;
+                            Crosshair.Instance.ShowHit();
                         }
                     }
                     else
