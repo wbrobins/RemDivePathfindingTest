@@ -320,6 +320,7 @@ public class PlayerWeapon : MonoBehaviour
                         if (hit.collider.TryGetComponent(out CarryableBehavior explosive) && explosive.IsExplodable)
                         {
                             explosives.Add(explosive);
+                            Crosshair.Instance.ShowHit();
                         }
                         else
                         {

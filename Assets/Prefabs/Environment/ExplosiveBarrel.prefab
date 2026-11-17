@@ -135,6 +135,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   carryableBase: {fileID: 11400000, guid: 083b3f1307108af429e8721213808daf, type: 2}
   audioSource: {fileID: -3609844262471426850}
+  audioClips: []
   dropOffset: 1.5
   particles: {fileID: 6904630625191215727}
 --- !u!136 &1199682494193946750
@@ -217,7 +218,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 0.544
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -272,6 +273,7 @@ MonoBehaviour:
   promptMessage: Press E to interact
   prompt: {fileID: 661353216246332600}
   promptText: {fileID: 7599538821915041644}
+  lookDistance: 10
 --- !u!1 &3128064614322395358
 GameObject:
   m_ObjectHideFlags: 0

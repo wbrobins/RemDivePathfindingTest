@@ -62,6 +62,9 @@ public class EnemyBehavior : MonoBehaviour
 
     [Tooltip("If true, this enemy continuously engages the player regardless of detection range")]
     public bool aggroOnSpawn;
+
+    private bool countedAsCombatant;
+    private bool isDead;
  
     public Enemy Enemy { get; private set; }
 
@@ -82,6 +85,16 @@ public class EnemyBehavior : MonoBehaviour
         knockbackRecoveryDelay = enemy.KnockbackRecoveryDelay;
         speed = enemy.Speed;
         combatType = (CombatType)enemy.ECombatType;
+    }
+
+    void SetCombatant(bool value)
+    {
+        if (countedAsCombatant == value) return;
+        countedAsCombatant = value;
+        Debug.Log($"{name} combatant -> {value} (count will be changing)", this);
+
+        if (value) MusicManager.Instance?.RegisterCombatant();
+        else MusicManager.Instance?.UnregisterCombatant();
     }
 
     void Start()
@@ -146,8 +159,11 @@ public class EnemyBehavior : MonoBehaviour
 
     public void Engage(Transform target, bool canSeeTarget)
     {
+        if (isDead) return;
+
         currentTarget = target;
         following = true;
+        SetCombatant(true);
 
         float distance = Vector3.Distance(transform.position, target.position);
 
@@ -164,6 +180,7 @@ public class EnemyBehavior : MonoBehaviour
     public void Disengage()
     {
         following = false;
+        SetCombatant(false);
         currentTarget = null;
         StopShooting();
         movement.GoToStartPoint();
@@ -313,6 +330,8 @@ public class EnemyBehavior : MonoBehaviour
 
     public void TakeDamage(int damage, GameObject source)
     {
+        if (isDead) return;
+
         Enemy.Hit(damage);
         model.GetComponent<DamageFlash>()?.TriggerFlash();
         hpBar.SetHealth(Enemy.HP, Enemy.MaxHP);
@@ -325,6 +344,8 @@ public class EnemyBehavior : MonoBehaviour
 
         if (Enemy.HP == 0)
         {
+            isDead = true;
+            SetCombatant(false);
             StopShooting();
             Destroy(gameObject);
             //Debug.Log("Enemy killed");
@@ -383,6 +404,7 @@ public class EnemyBehavior : MonoBehaviour
 
     void OnDisable()
     {
+        SetCombatant(false);
         Active.Remove(this);
         OnEnemyRemoved?.Invoke(this);
     }
