@@ -9,6 +9,7 @@ public class Crosshair : MonoBehaviour
     [SerializeField] private Image crosshairImage;
     [SerializeField] private Sprite normalSprite;
     [SerializeField] private Sprite hitSprite;
+    [SerializeField] private AudioSource audioSource;
     [SerializeField] private float hitDuration = 0.1f;
 
     private Coroutine routine;
@@ -29,6 +30,7 @@ public class Crosshair : MonoBehaviour
     IEnumerator HitRoutine()
     {
         crosshairImage.sprite = hitSprite;
+        audioSource.Play();
         yield return new WaitForSeconds(hitDuration);
         crosshairImage.sprite = normalSprite;
         routine = null;
