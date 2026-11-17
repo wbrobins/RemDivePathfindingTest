@@ -239,7 +239,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 5966a5ab44124194c9480a6cf98b0e11, type: 2}
+  - {fileID: -876546973899608171, guid: add290b006f24694185f8baadacf469f, type: 3}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -2334,7 +2334,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 5966a5ab44124194c9480a6cf98b0e11, type: 2}
+  - {fileID: 2100000, guid: 905ecf8789645c842a9f8bb54b7f5c10, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -2550,7 +2550,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 5966a5ab44124194c9480a6cf98b0e11, type: 2}
+  - {fileID: 2100000, guid: 905ecf8789645c842a9f8bb54b7f5c10, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -2937,7 +2937,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 5966a5ab44124194c9480a6cf98b0e11, type: 2}
+  - {fileID: 2100000, guid: 905ecf8789645c842a9f8bb54b7f5c10, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -3045,7 +3045,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 5966a5ab44124194c9480a6cf98b0e11, type: 2}
+  - {fileID: 2100000, guid: 905ecf8789645c842a9f8bb54b7f5c10, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -3725,7 +3725,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 5966a5ab44124194c9480a6cf98b0e11, type: 2}
+  - {fileID: 2100000, guid: 905ecf8789645c842a9f8bb54b7f5c10, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -3974,7 +3974,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 5966a5ab44124194c9480a6cf98b0e11, type: 2}
+  - {fileID: 2100000, guid: 905ecf8789645c842a9f8bb54b7f5c10, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -4203,7 +4203,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 5966a5ab44124194c9480a6cf98b0e11, type: 2}
+  - {fileID: 2100000, guid: 905ecf8789645c842a9f8bb54b7f5c10, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -4326,11 +4326,13 @@ MonoBehaviour:
       position: {x: -7, y: 2, z: 15}
       rotation: {x: 0, y: 1, z: 0, w: -0.00000004371139}
       snapToNavMesh: 0
+      aggroOnSpawn: 1
     - prefab: {fileID: 1633139362837425509, guid: f98e8de300dcd8141a772170027b06b2, type: 3}
       dataOverride: {fileID: 0}
       position: {x: 7, y: 2, z: 15}
       rotation: {x: 0, y: 1, z: 0, w: -0.00000004371139}
       snapToNavMesh: 0
+      aggroOnSpawn: 1
   - name: Wave 2
     waitUntilCleared: 1
     delay: 2
@@ -4340,16 +4342,19 @@ MonoBehaviour:
       position: {x: -7, y: 2, z: 15}
       rotation: {x: 0, y: 1, z: 0, w: -0.00000004371139}
       snapToNavMesh: 0
+      aggroOnSpawn: 1
     - prefab: {fileID: 1633139362837425509, guid: f98e8de300dcd8141a772170027b06b2, type: 3}
       dataOverride: {fileID: 0}
       position: {x: 7, y: 2, z: 15}
       rotation: {x: 0, y: 1, z: 0, w: -0.00000004371139}
       snapToNavMesh: 0
+      aggroOnSpawn: 1
     - prefab: {fileID: 1633139362837425509, guid: f98e8de300dcd8141a772170027b06b2, type: 3}
       dataOverride: {fileID: 0}
       position: {x: 0, y: 2, z: 11}
       rotation: {x: 0, y: 1, z: 0, w: -0.00000004371139}
       snapToNavMesh: 0
+      aggroOnSpawn: 1
   - name: Wave 3
     waitUntilCleared: 1
     delay: 2
@@ -4359,21 +4364,25 @@ MonoBehaviour:
       position: {x: -10, y: 2, z: 0}
       rotation: {x: 0, y: 1, z: 0, w: -0.00000004371139}
       snapToNavMesh: 0
+      aggroOnSpawn: 1
     - prefab: {fileID: 1633139362837425509, guid: f98e8de300dcd8141a772170027b06b2, type: 3}
       dataOverride: {fileID: 0}
       position: {x: 0, y: 2, z: 10}
       rotation: {x: 0, y: 1, z: 0, w: -0.00000004371139}
       snapToNavMesh: 0
+      aggroOnSpawn: 1
     - prefab: {fileID: 1633139362837425509, guid: f98e8de300dcd8141a772170027b06b2, type: 3}
       dataOverride: {fileID: 0}
       position: {x: 10, y: 2, z: 0}
       rotation: {x: 0, y: 1, z: 0, w: -0.00000004371139}
       snapToNavMesh: 0
+      aggroOnSpawn: 1
     - prefab: {fileID: 1633139362837425509, guid: f98e8de300dcd8141a772170027b06b2, type: 3}
       dataOverride: {fileID: 0}
       position: {x: 0, y: 2, z: -10}
       rotation: {x: 0, y: 1, z: 0, w: -0.00000004371139}
       snapToNavMesh: 0
+      aggroOnSpawn: 1
   autoStart: 1
   tText: 'Good job on defeating the enemies!
 
