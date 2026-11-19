@@ -336,6 +336,10 @@ MonoBehaviour:
   enemyBase: {fileID: 11400000, guid: 8f3363a1182258446a84169b652faed9, type: 2}
   hpBar: {fileID: 8140297101972006584}
   speed: 0
+  projectileMask:
+    serializedVersion: 2
+    m_Bits: 521
+  projectileLifetime: 5
   combatType: 0
   chargeOrb: {fileID: 5698308338953527535}
   windupTime: 3

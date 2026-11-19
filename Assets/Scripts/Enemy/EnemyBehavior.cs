@@ -33,6 +33,8 @@ public class EnemyBehavior : MonoBehaviour
     [SerializeField] private EnemyBase enemyBase;
     [SerializeField] private HealthBar hpBar;
     [SerializeField] private float speed;
+    [SerializeField] private LayerMask projectileMask;
+    [SerializeField] private float projectileLifetime = 5f;
  
     [Header("Combat Type")]
     [SerializeField] private CombatType combatType = CombatType.Ranged;
@@ -319,10 +321,8 @@ public class EnemyBehavior : MonoBehaviour
 
             GameObject projectileInstance = Instantiate(projectilePrefab, firePoint.position, Quaternion.LookRotation(direction));
             Projectile projectile = projectileInstance.GetComponent<Projectile>();
-            projectile.SetDamage(Enemy.RangedDamage);
-
-            Rigidbody projectileRb = projectileInstance.GetComponent<Rigidbody>();
-            projectileRb.linearVelocity = direction * Enemy.ProjectileSpeed;
+            projectile.Init(Team.Enemy, gameObject, Enemy.RangedDamage, direction,
+                            Enemy.ProjectileSpeed, 0f, projectileLifetime, projectileMask);
         }
 
         shootRoutine = null;

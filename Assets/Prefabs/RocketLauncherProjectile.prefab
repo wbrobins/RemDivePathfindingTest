@@ -12,13 +12,12 @@ GameObject:
   - component: {fileID: 261879434264695631}
   - component: {fileID: 8722472937192820249}
   - component: {fileID: 2948570432015502038}
-  - component: {fileID: 4754266112581130701}
   - component: {fileID: 1498469088497691049}
   - component: {fileID: 8316954595768097455}
   - component: {fileID: 4532357472390690839}
   - component: {fileID: 3170754983298991039}
   m_Layer: 0
-  m_Name: Projectile
+  m_Name: RocketLauncherProjectile
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -70,7 +69,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a63ac1a534bb081478788d0c38321e37, type: 2}
+  - {fileID: 2100000, guid: faf287227d8913447add46877fe1f6a8, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -113,33 +112,6 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
---- !u!54 &4754266112581130701
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3900131945318901171}
-  serializedVersion: 4
-  m_Mass: 1
-  m_Drag: 0
-  m_AngularDrag: 0.05
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 0
-  m_IsKinematic: 0
-  m_Interpolate: 0
-  m_Constraints: 0
-  m_CollisionDetection: 0
 --- !u!114 &1498469088497691049
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -152,8 +124,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50fe8b3affc51b5448100f3d217bc5c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  despawnDelay: 5
-  damage: 1
+  explodeOnImpact: 1
+  explodeOnTimeout: 1
+  explosionRadius: 4
+  edgeDamageMultiplier: 0.25
+  explosionPrefab: {fileID: 1828176872806910, guid: 5554e6b22898a6b4b8c9ab04da50eef3, type: 3}
+  explosionForce: 6
+  upwardsModifier: 2
 --- !u!96 &8316954595768097455
 TrailRenderer:
   serializedVersion: 3
@@ -178,7 +155,7 @@ TrailRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a63ac1a534bb081478788d0c38321e37, type: 2}
+  - {fileID: 2100000, guid: faf287227d8913447add46877fe1f6a8, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -221,7 +198,7 @@ TrailRenderer:
       m_RotationOrder: 4
     colorGradient:
       serializedVersion: 2
-      key0: {r: 0.7686275, g: 0.18039216, b: 0.19215688, a: 1}
+      key0: {r: 0.10980393, g: 0.8196079, b: 0.4039216, a: 1}
       key1: {r: 1, g: 1, b: 1, a: 1}
       key2: {r: 0, g: 0, b: 0, a: 0}
       key3: {r: 0, g: 0, b: 0, a: 0}
@@ -271,7 +248,7 @@ Light:
   m_Enabled: 1
   serializedVersion: 11
   m_Type: 2
-  m_Color: {r: 1, g: 0, b: 0, a: 1}
+  m_Color: {r: 0.1137255, g: 0.81568635, b: 0.41176474, a: 1}
   m_Intensity: 10
   m_Range: 10
   m_SpotAngle: 30

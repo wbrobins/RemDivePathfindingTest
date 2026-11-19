@@ -95,19 +95,28 @@ public class PlayerWeapon : MonoBehaviour
             StartCoroutine(ShootRoutine());
         }
 
-        if (Input.GetKeyDown(KeyCode.Alpha1) && !shooting)
+        if (shooting) return; // covers fire + reload, same as before
+
+        // number keys: 1..N, N = number of weapon slots
+        for (int i = 0; i < weapons.Length && i < 9; i++)
         {
-            SetWeapon(0);
-        } 
-        else if (Input.GetKeyDown(KeyCode.Alpha2) && !shooting)
+            if (Input.GetKeyDown(KeyCode.Alpha1 + i))
+            {
+                SwitchTo(i);
+                return;
+            }
+        }
+
+        float scroll = Input.mouseScrollDelta.y;
+        if (scroll != 0f && Cursor.lockState == CursorLockMode.Locked)
         {
-            SetWeapon(1);
-        } 
-        else if (Input.GetKeyDown(KeyCode.F) && !shooting)
+            CycleWeapon(scroll > 0f ? -1 : 1);
+        }
+        else if (Input.GetKeyDown(KeyCode.F))
         {
-            CycleWeapon();
-        } 
-        else if (Input.GetKeyDown(KeyCode.R) && !shooting && CurrWeapon.CurrBarrelAmmo != CurrWeapon.Base.MaxBarrelAmmo)
+            CycleWeapon(1);
+        }
+        else if (Input.GetKeyDown(KeyCode.R) && CurrWeapon.CurrBarrelAmmo != CurrWeapon.Base.MaxBarrelAmmo)
         {
             StartCoroutine(ReloadRoutine());
         }
@@ -187,24 +196,16 @@ public class PlayerWeapon : MonoBehaviour
         }
     }
 
-    void CycleWeapon()
+    void SwitchTo(int slot)
     {
-        switch (currWeaponSlot)
-        {
-            case 0:
-                currWeaponPrefab.SetActive(false);
-                SetWeapon(1);
-                break;
-            case 1:
-                currWeaponPrefab.SetActive(false);
-                SetWeapon(0);
-                break;
-            default:
-                Debug.Log("Weapon error: wrong value passed @ PlayerWeapon.cs");
-                return;
-        }
+        if (slot < 0 || slot >= weapons.Length || slot == currWeaponSlot) return;
+        SetWeapon(slot);
+    }
 
-        playerController.UpdateAmmoText(CurrWeapon);   
+    void CycleWeapon(int direction)
+    {
+        int next = (currWeaponSlot + direction + weapons.Length) % weapons.Length;
+        SwitchTo(next);
     }
 
     void SetWeapon(int slot)
@@ -216,7 +217,9 @@ public class PlayerWeapon : MonoBehaviour
         CurrWeapon = weapons[slot];
         currWeaponSlot = slot;
         Debug.Log("Current Weapon: " + CurrWeapon.Base.Name);
-        currWeaponPrefab = Instantiate(CurrWeapon.Base.BasePrefab, transform.position, camera.transform.rotation, transform);
+        currWeaponPrefab = Instantiate(CurrWeapon.Base.BasePrefab, transform);
+        currWeaponPrefab.transform.localPosition = CurrWeapon.Base.HeldPosition;
+        currWeaponPrefab.transform.localRotation = Quaternion.Euler(CurrWeapon.Base.HeldEulerRotation);
         currWeaponPrefab.SetActive(false);
         SetLayerRecursive(currWeaponPrefab, LayerMask.NameToLayer("Weapon"));
         if(playerController != null) 
@@ -294,53 +297,15 @@ public class PlayerWeapon : MonoBehaviour
             animator.SetTrigger("Fire");
             audioSource.Play();
 
-            //collect hits first so one shot = one damage application per enemy, and each explosive only blows up once.
-            var enemyDamage = new Dictionary<EnemyBehavior, int>();
-            var explosives = new HashSet<CarryableBehavior>();
-
-            for (int i = 0; i < CurrWeapon.PelletsPerShot; i++)
+            if (CurrWeapon.Base.Mode == FireMode.Hitscan)
             {
-                Vector3 direction = CurrWeapon.GetSpreadDirection(forward);
-                Debug.DrawRay(origin, direction * 50f, Color.red, 1f);
-
-                if (Physics.Raycast(origin, direction, out RaycastHit hit, 50f, shootRaycastMask))
-                {
-                    if (hit.collider.CompareTag("Enemy"))
-                    {
-                        EnemyBehavior enemy = hit.collider.GetComponent<EnemyBehavior>();
-                        if (enemy != null)
-                        {
-                            enemyDamage.TryGetValue(enemy, out int total);
-                            enemyDamage[enemy] = total + CurrWeapon.Damage;
-                            Crosshair.Instance.ShowHit();
-                        }
-                    }
-                    else
-                    {
-                        if (hit.collider.TryGetComponent(out CarryableBehavior explosive) && explosive.IsExplodable)
-                        {
-                            explosives.Add(explosive);
-                            Crosshair.Instance.ShowHit();
-                        }
-                        else
-                        {
-                            bulletHoleSpawner.Spawn(CurrWeapon.Base.BulletHolePrefab, hit);
-                        }
-                    }
-                }
+                FireHitscan(origin, forward);
             }
-
-            foreach (var kvp in enemyDamage)
+            else
             {
-                kvp.Key.TakeDamage(kvp.Value, gameObject);
-                kvp.Key.Engage(player.transform, true);
+                origin = transform.position;
+                FireProjectile(origin, forward); 
             }
-
-            foreach (var explosive in explosives)
-            {
-                explosive.Explode();
-            }
-
             CurrWeapon.DepleteAmmo(1);
             playerController.UpdateAmmoText(CurrWeapon);
             yield return new WaitForSeconds(CurrWeapon.ShootDelay);
@@ -351,6 +316,66 @@ public class PlayerWeapon : MonoBehaviour
             Debug.Log("Out of ammo");
             playerController.UpdateMiddleAlertText("Out of ammo. Press R to reload.");
         } 
+    }
+
+    void FireHitscan(Vector3 origin, Vector3 forward)
+    {
+        var enemyDamage = new Dictionary<EnemyBehavior, int>();
+        var explosives = new HashSet<CarryableBehavior>();
+
+        for (int i = 0; i < CurrWeapon.PelletsPerShot; i++)
+        {
+            Vector3 direction = CurrWeapon.GetSpreadDirection(forward);
+            Debug.DrawRay(origin, direction * 50f, Color.red, 1f);
+
+            if (Physics.Raycast(origin, direction, out RaycastHit hit, 50f, shootRaycastMask))
+            {
+                if (hit.collider.CompareTag("Enemy"))
+                {
+                    EnemyBehavior enemy = hit.collider.GetComponent<EnemyBehavior>();
+                    if (enemy != null)
+                    {
+                        enemyDamage.TryGetValue(enemy, out int total);
+                        enemyDamage[enemy] = total + CurrWeapon.Damage;
+                        Crosshair.Instance.ShowHit();
+                    }
+                }
+                else if (hit.collider.TryGetComponent(out CarryableBehavior explosive) && explosive.IsExplodable)
+                {
+                    explosives.Add(explosive);
+                    Crosshair.Instance.ShowHit();
+                }
+                else
+                {
+                    bulletHoleSpawner.Spawn(CurrWeapon.Base.BulletHolePrefab, hit);
+                }
+            }
+        }
+
+        foreach (var kvp in enemyDamage)
+        {
+            kvp.Key.TakeDamage(kvp.Value, gameObject);
+            kvp.Key.Engage(player.transform, true);
+        }
+        foreach (var explosive in explosives) explosive.Explode();
+    }
+
+    void FireProjectile(Vector3 origin, Vector3 forward)
+    {
+        WeaponBase b = CurrWeapon.Base;
+        if (b.ProjectilePrefab == null) { Debug.LogError($"{b.Name}: no projectile prefab.", this); return; }
+
+        int damage = CurrWeapon.Damage;
+        GameObject holePrefab = b.BulletHolePrefab;
+
+        for (int i = 0; i < CurrWeapon.PelletsPerShot; i++)
+        {
+            Vector3 dir = CurrWeapon.GetSpreadDirection(forward);
+            Projectile p = Instantiate(b.ProjectilePrefab, origin + dir * 0.5f, Quaternion.LookRotation(dir));
+            p.Init(Team.Player, player, damage, dir, b.ProjectileSpeed, b.ProjectileGravityScale,
+                b.ProjectileLifetime, shootRaycastMask,
+                hit => bulletHoleSpawner.Spawn(holePrefab, hit));
+        }
     }
 
     IEnumerator ReloadRoutine()
