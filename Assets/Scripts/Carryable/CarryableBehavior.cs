@@ -7,11 +7,14 @@ public class CarryableBehavior : MonoBehaviour
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip[] audioClips;
     [SerializeField] private float dropOffset = 1.5f;
+    [SerializeField] private float chainDelay = 0.1f; 
     [SerializeField] private ParticleSystem particles;
 
     private Rigidbody rb;
     private Collider carryableCollider;
     private bool thrown = false;
+    private bool exploded = false;
+
 
     public bool IsExplodable => Carryable.Base.Explodable;
     
@@ -81,19 +84,33 @@ public class CarryableBehavior : MonoBehaviour
 
     public void Explode()
     {
-        Collider[] enemies = Physics.OverlapSphere(transform.position, Carryable.ExplodeRange);
+        if (exploded) return;   //stops infinite loops
+        exploded = true;
 
-        foreach (Collider enemy in enemies)
+        Collider[] hits = Physics.OverlapSphere(transform.position, Carryable.ExplodeRange);
+
+        foreach (Collider hit in hits)
         {
-            if (enemy.CompareTag("Enemy"))
+            if (hit.CompareTag("Enemy"))
             {
                 Debug.Log("enemy found");
-                EnemyBehavior enemyBehavior = enemy.GetComponent<EnemyBehavior>();
+                EnemyBehavior enemyBehavior = hit.GetComponent<EnemyBehavior>();
 
                 if (enemyBehavior != null)
                 {
                     enemyBehavior.ApplyKnockback(transform.position, Carryable.ExplosionForce, Carryable.ExplodeRange,Carryable.ExplosionUpwardsModifier);
                     enemyBehavior.TakeDamage(Carryable.ExplodeDamage, gameObject);
+                }
+            }
+            else if(hit.CompareTag("Explodable"))
+            {
+                CarryableBehavior other = hit.GetComponentInParent<CarryableBehavior>();
+
+                if (other != null && other != this && other.IsExplodable)
+                {
+                    float dist = Vector3.Distance(transform.position, other.transform.position);
+                    float delay = chainDelay + (dist / Carryable.ExplodeRange) * chainDelay;
+                    other.TriggerChain(delay);
                 }
             }
         }
@@ -109,6 +126,18 @@ public class CarryableBehavior : MonoBehaviour
         foreach (Collider c in GetComponentsInChildren<Collider>()) c.enabled = false;
 
         Destroy(gameObject, audioSource.clip.length);
+    }
+
+
+    public void TriggerChain(float delay)
+    {
+        if (!exploded) StartCoroutine(ChainRoutine(delay));
+    }
+
+    private IEnumerator ChainRoutine(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        Explode();
     }
 
     IEnumerator ThrowRoutine()

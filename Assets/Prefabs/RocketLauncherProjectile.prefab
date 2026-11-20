@@ -131,6 +131,8 @@ MonoBehaviour:
   explosionPrefab: {fileID: 1828176872806910, guid: 5554e6b22898a6b4b8c9ab04da50eef3, type: 3}
   explosionForce: 6
   upwardsModifier: 2
+  explodeClip: {fileID: 8300000, guid: 9d8c3de73be5f7e4faca3fce6dcae630, type: 3}
+  explodeVolume: 1
 --- !u!96 &8316954595768097455
 TrailRenderer:
   serializedVersion: 3

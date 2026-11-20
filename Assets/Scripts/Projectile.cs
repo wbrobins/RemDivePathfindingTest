@@ -17,7 +17,8 @@ public class Projectile : MonoBehaviour
     [SerializeField] private GameObject explosionPrefab;
     [SerializeField] private float explosionForce = 15f;
     [SerializeField] private float upwardsModifier = 1f;
-
+    [SerializeField] private AudioClip explodeClip;
+    [SerializeField, Range(0f, 1f)] private float explodeVolume = 1f;
     private Team team;
     private GameObject owner;
     private int damage;
@@ -113,6 +114,9 @@ public class Projectile : MonoBehaviour
 
     void Explode(Vector3 center)
     {
+        if (explodeClip != null)
+        AudioSource.PlayClipAtPoint(explodeClip, center, explodeVolume);
+        
         if (explosionPrefab != null)
             Instantiate(explosionPrefab, center, Quaternion.identity);
 
